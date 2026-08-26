@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ProfileCategory {
+  Photographie
+  Videographie
+  Contenu_Mode  @map("Contenu Mode")
+  Beaute        @map("Beauté")
+  Lifestyle
+  Gaming
+
+  @@map("profile_category")
+}
+
+model Profile {
+  id                    String           @id @default(uuid()) @db.Uuid
+  user_id               String?          @unique @db.Uuid
+  name                  String
+  category              ProfileCategory
+  bio                   String?
+  avatar_url            String?
+  base_rate             Decimal?         @db.Decimal(10, 2)
+  currency              String           @default("EUR")
+  instagram_url         String?
+  tiktok_url            String?
+  twitter_url           String?
+  website_url           String?
+  is_public             Boolean          @default(true)
+  is_available          Boolean          @default(true)
+  availability_calendar Json?
+  created_at            DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
+  synced_at             DateTime?        @db.Timestamptz(6)
+  storage_folder_id     String?          @unique
+  base44_user_id        String?          @unique
+
+  performance_stats     PerformanceStats?
+  media_assets          MediaAsset[]
+  reviews               Review[]
+  bookings              Booking[]
+  sync_logs             SyncLog[]
+
+  @@index([category], map: "idx_profiles_category")
+  @@index([is_public], map: "idx_profiles_is_public")
+  @@index([is_available], map: "idx_profiles_is_available")
+  @@index([created_at(sort: Desc)], map: "idx_profiles_created_at")
+  @@index([user_id], map: "idx_profiles_user_id")
+  @@index([storage_folder_id], map: "idx_profiles_storage_folder_id")
+  @@index([base44_user_id], map: "idx_profiles_base44_user_id")
+  @@map("profiles")
+}
+
+model PerformanceStats {
+  id                  String    @id @default(uuid()) @db.Uuid
+  profile_id          String    @unique @db.Uuid
+  total_projects      Int       @default(0)
+  total_reviews       Int       @default(0)
+  avg_rating          Decimal?  @default(5.0) @db.Decimal(3, 2)
+  response_time_hours Int?      @default(4)
+  completion_rate     Decimal?  @default(100.0) @db.Decimal(5, 2)
+  repeat_client_rate  Decimal?  @default(0.0) @db.Decimal(5, 2)
+  last_project_date   DateTime? @db.Timestamptz(6)
+  updated_at          DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+
+  profile             Profile   @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id], map: "idx_performance_stats_profile_id")
+  @@map("performance_stats")
+}
+
+model MediaAsset {
+  id              String   @id @default(uuid()) @db.Uuid
+  profile_id      String   @db.Uuid
+  file_url        String
+  file_type       String?  // "image", "video", "document"
+  file_size_bytes Int?
+  uploaded_by     String?  @db.Uuid
+  created_at      DateTime @default(now()) @db.Timestamptz(6)
+
+  profile         Profile  @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id], map: "idx_media_assets_profile_id")
+  @@map("media_assets")
+}
+
+model Review {
+  id          String   @id @default(uuid()) @db.Uuid
+  profile_id  String   @db.Uuid
+  client_id   String?  @db.Uuid
+  client_name String?
+  rating      Int
+  comment     String?
+  is_verified Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+
+  profile     Profile  @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id], map: "idx_reviews_profile_id")
+  @@map("reviews")
+}
+
+model Booking {
+  id                  String    @id @default(uuid()) @db.Uuid
+  profile_id          String    @db.Uuid
+  client_id           String?   @db.Uuid
+  client_name         String?
+  client_email        String?
+  project_title       String
+  project_description String?
+  status              String    @default("pending")
+  start_date          DateTime? @db.Date
+  end_date            DateTime? @db.Date
+  budget              Decimal?  @db.Decimal(10, 2)
+  currency            String    @default("EUR")
+  deliverables        Json?
+  notes               String?
+  created_at          DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  completed_at        DateTime? @db.Timestamptz(6)
+
+  profile             Profile   @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([profile_id], map: "idx_bookings_profile_id")
+  @@index([client_id], map: "idx_bookings_client_id")
+  @@index([status], map: "idx_bookings_status")
+  @@map("bookings")
+}
+
+model UserRole {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @unique @db.Uuid
+  role       String   // "client", "creator", "admin"
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([user_id], map: "idx_user_roles_user_id")
+  @@index([role], map: "idx_user_roles_role")
+  @@map("user_roles")
+}
+
+model FailedSync {
+  id                String    @id @default(uuid()) @db.Uuid
+  event_type        String    // "storage_to_db", "db_to_storage", "webhook_error"
+  source_data       Json
+  error_message     String?
+  error_stack       String?
+  retry_count       Int       @default(0)
+  max_retries       Int       @default(3)
+  last_attempted_at DateTime  @default(now()) @db.Timestamptz(6)
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  status            String    @default("pending") // "pending", "retrying", "failed", "resolved"
+  resolved_at       DateTime? @db.Timestamptz(6)
+
+  @@index([status], map: "idx_failed_syncs_status")
+  @@index([created_at], map: "idx_failed_syncs_created_at")
+  @@map("failed_syncs")
+}
+
+model SyncLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  profile_id    String?  @db.Uuid
+  sync_type     String   // "storage_to_db", "db_to_storage", "base44_user_created"
+  source_data   Json?
+  result_data   Json?
+  status        String   @default("success") // "success", "error", "partial"
+  error_message String?
+  duration_ms   Int?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+
+  profile       Profile? @relation(fields: [profile_id], references: [id], onDelete: SetNull)
+
+  @@index([profile_id], map: "idx_sync_logs_profile_id")
+  @@index([created_at], map: "idx_sync_logs_created_at")
+  @@map("sync_logs")
+}
