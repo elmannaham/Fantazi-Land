@@ -97,3 +97,39 @@ export interface ProfileWithStats extends Profile {
   reviews?: Review[];
   media_assets?: MediaAsset[];
 }
+
+// ── Base44 External API Types ────────────────────────────────────
+
+export interface Base44User {
+  id: string;
+  email: string;
+  full_name: string;
+  role: "admin" | "user";
+  created_date?: string;
+  updated_date?: string;
+  created_by_id?: string;
+  is_verified?: boolean;
+  disabled?: boolean | null;
+  [key: string]: any;
+}
+
+export interface CreateBase44UserDto {
+  email: string;
+  full_name: string;
+  role: "admin" | "user";
+}
+
+export interface UpdateBase44UserDto {
+  email?: string;
+  full_name?: string;
+  role?: "admin" | "user";
+  [key: string]: any;
+}
+
+export interface Base44QueryParams {
+  q?: Record<string, any>;
+  limit?: number;
+  skip?: number;
+  sort_by?: string;
+}
+

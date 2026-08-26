@@ -626,3 +626,118 @@ curl https://fantazi-land.vercel.app/api/profiles?category=Photographie
 
 **Last Updated:** 2026-08-26  
 **Version:** 1.0
+
+## POST /api/profiles — Create Profile + Base44 User (Atomic)
+
+**Authenticated**: Yes (required)  
+**Role**: creator, admin  
+**Returns**: Profile object + base44_user_id link
+
+### Request
+
+```bash
+curl -X POST http://localhost:3000/api/profiles \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nom": "Alice Photography",
+    "categorie": "Photographie",
+    "bio": "Professional portrait & wedding photography",
+    "avatar_url": "https://storage.example.com/avatar.jpg",
+    "base_rate": 2500,
+    "currency": "EUR",
+    "instagram": "https://instagram.com/alice_photo",
+    "tiktok": "https://tiktok.com/@alice_photo",
+    "twitter": "https://twitter.com/alice_photo",
+    "website": "https://alicephoto.com"
+  }'
+```
+
+### Response (201 Created)
+
+```json
+{
+  "success": true,
+  "profile": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "user_id": "user-uuid-123",
+    "name": "Alice Photography",
+    "category": "Photographie",
+    "bio": "Professional portrait & wedding photography",
+    "avatar_url": "https://storage.example.com/avatar.jpg",
+    "base_rate": "2500.00",
+    "currency": "EUR",
+    "instagram_url": "https://instagram.com/alice_photo",
+    "base44_user_id": "base44-user-abc123",
+    "is_public": true,
+    "is_available": true,
+    "created_at": "2026-08-26T10:30:00Z",
+    "updated_at": "2026-08-26T10:30:00Z",
+    "performance_stats": {
+      "total_projects": 0,
+      "total_reviews": 0,
+      "avg_rating": 5.0,
+      "response_time_hours": 4,
+      "completion_rate": 100.0
+    }
+  },
+  "base44_user_id": "base44-user-abc123",
+  "sync_log_id": "sync-log-uuid-123"
+}
+```
+
+### Error Responses
+
+**400 Bad Request** — Validation failed
+```json
+{
+  "success": false,
+  "error": "Validation error: nom is required"
+}
+```
+
+**500 Server Error** — Base44 creation failed, rolled back
+```json
+{
+  "success": false,
+  "error": "Erreur création profil + Base44: Base44 API error: Invalid email",
+  "code": "PROFILE_CREATION_ERROR"
+}
+```
+⚠️ Check `/admin/failed-syncs` dashboard for retry options.
+
+---
+
+## GET /api/failed-syncs?status=pending — Admin DLQ Dashboard
+
+**Authenticated**: Yes (admin only)  
+**Returns**: Array of failed sync entries
+
+### Response
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "dlq-entry-123",
+      "event_type": "profile_creation_error",
+      "error_message": "Base44 API error: Invalid email",
+      "retry_count": 0,
+      "max_retries": 3,
+      "status": "pending",
+      "last_attempted_at": "2026-08-26T10:30:00Z",
+      "created_at": "2026-08-26T10:29:00Z",
+      "source_data": {
+        "user_id": "user-uuid",
+        "user_email": "creator@example.com",
+        "profile_data": { "nom": "...", "categorie": "..." }
+      }
+    }
+  ]
+}
+```
+
+---
+
+**Last Updated**: 2026-08-26

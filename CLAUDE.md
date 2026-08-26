@@ -8,9 +8,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Description :** Application web full-stack pour une agence de créatrices de contenu permettant de lister, filtrer, créer et synchroniser les profils des créatrices à travers trois canaux d'intégration (Web Form, CSV Import, Storage Webhooks).
 
-**Statut :** Architecture en cours de conception  
+**Statut :** Architecture complète, implémentation avancée  
 **Responsable :** Architecte Full-Stack & Lead Developer  
-**Date de création :** 2026-08-26
+**Date de création :** 2026-08-26  
+**Dernière mise à jour :** 2026-08-26
+
+---
+
+## 🚦 Statut d'Implémentation Actuel
+
+| Composant | Status | Notes |
+|-----------|--------|-------|
+| Architecture & Design | ✅ Complète | Design validé, diagrammes actualisés |
+| Schéma BD (Prisma + SQL) | ✅ Complète | 8 migrations SQL, Prisma schema finalisé avec indices |
+| API Routes (CRUD) | ✅ Complète | Tous les endpoints implémentés avec validation Zod |
+| Services & Repositories | ✅ Complète | Pattern couche métier établi (profiles, bookings, reviews, sync, base44-user) |
+| Authentification & RBAC | ✅ Complète | Module `lib/auth.ts` complet : JWT, extraction token, vérification rôles |
+| Edge Functions | ✅ Complète | 3 fonctions actives : sync-storage-to-db-v2, sync-db-to-storage, retry-failed-syncs |
+| Base44 Integration | ✅ Complète | Atomic creation, error handling, DLQ retry system |
+| Tests (Unit & Integration) | ✅ Complète | Phase 3: error handling, rollback, retry tests |
+| Admin Dashboard (DLQ) | ✅ Complète | `/admin/failed-syncs` with manual retry/delete |
+| Composants UI & Pages | 🟡 En cours | Atoms/Molecules OK, organisms + pages en développement |
+| Déploiement Vercel | 🟡 À faire | Techniquement prêt, config prod à valider |
 
 ---
 
@@ -23,16 +42,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | **Front-end** | Next.js 14+ (App Router) | SSR pour marketing, CSR pour app interactive |
 | **Styling** | Tailwind CSS v3+ | Responsive design mobile-first, atomic design |
 | **Animations** | Framer Motion | Interactions fluides, micro-animations |
-| **Back-end** | Supabase Edge Functions | Serverless, native PostgreSQL, webhooks |
-| **Base de Données** | PostgreSQL (Supabase) | Relationnelle, RLS, transactions ACID |
-| **Authentification** | Supabase Auth | OAuth intégré, JWT, session management |
-| **Stockage** | Supabase Storage | Bucket-based, webhooks, permissions granulaires |
-| **Langage** | TypeScript | Type-safety, DX amélioré |
-| **Validation** | Zod / Yup | Runtime validation, schémas strictes |
-| **HTTP Client** | @supabase/supabase-js | Client officiel, subscriptions real-time |
+| **ORM** | Prisma | Type-safe ORM avec auto-completion + migrations |
+| **Back-end** | Next.js API Routes + Edge Functions | Serverless, native PostgreSQL, webhooks |
+| **Base de Données** | PostgreSQL (Supabase) | Relationnelle, RLS, transactions ACID, Row-level security |
+| **Authentification** | Supabase Auth + Custom RBAC | OAuth intégré, JWT, session management, rôles en DB |
+| **Stockage** | Supabase Storage | Bucket-based, webhooks, permissions granulaires, RLS policies |
+| **Langage** | TypeScript | Type-safety, DX amélioré, strict mode |
+| **Validation** | Zod | Runtime validation, schémas strictes, type inference |
+| **HTTP Client** | @supabase/supabase-js | Client officiel Supabase, subscriptions real-time |
 | **État** | Zustand / React Context | Lightweight, no boilerplate |
 | **Testing** | Vitest + Playwright | Unit/Integration/E2E coverage |
-| **Déploiement** | Vercel + Supabase | Edge functions, auto-scaling, CDN global |
+| **Déploiement** | Vercel + Supabase | Edge Network, auto-scaling, région Paris (cdg1) |
+
+### Architecture & Data Layers
+
+- **Presentation** (Next.js App Router): `app/` directory avec SSR marketing pages + CSR dashboard
+- **API & Business Logic** (Next.js API Routes + Services): `lib/services/` + `lib/repositories/` pattern
+- **ORM & Migrations** (Prisma): `prisma/schema.prisma` pour schema-first development + `supabase/migrations/` pour SQL avancé
+- **Authentication** (Supabase Auth + Custom RBAC): JWT tokens via `lib/auth.ts`, rôles stockés dans `user_roles` table
+- **Real-Time & Storage** (Supabase): Webhooks déclenchent Edge Functions pour sync cross-system
+- **Edge Functions** (Deno TypeScript): Serverless compute pour orchestration sync (`sync-storage-to-db-v2`, `sync-db-to-storage`, `retry-failed-syncs`)
 
 ---
 
@@ -40,6 +69,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```
 fantazi-land/
+├── .agents/                        # Configuration agents Claude Code (subagents.yaml)
 ├── .claude/
 │   ├── settings.json              # Configuration Claude Code
 │   └── rules/                      # Rules personnalisées si besoin
@@ -48,380 +78,136 @@ fantazi-land/
 │   ├── (public)/                   # Layout public (Marketing)
 │   │   ├── layout.tsx
 │   │   ├── page.tsx                # Home - Listing profiles (SSR)
-│   │   ├── profiles/
-│   │   │   └── [id]/
-│   │   │       └── page.tsx        # Profile detail view
-│   │   └── about/
-│   │       └── page.tsx            # À propos / Marketing
+│   │   ├── profiles/[id]/page.tsx  # Profile detail view
+│   │   └── about/page.tsx          # À propos / Marketing
 │   │
 │   ├── (dashboard)/                # Layout protégé (App)
 │   │   ├── layout.tsx              # Navbar, sidebar, auth check
-│   │   ├── dashboard/
-│   │   │   └── page.tsx            # Dashboard créatrice
-│   │   ├── profile/
-│   │   │   └── [id]/
-│   │   │       ├── page.tsx        # View profil
-│   │   │       └── edit/
-│   │   │           └── page.tsx    # Edit profil
-│   │   ├── gallery/
-│   │   │   ├── page.tsx            # Galerie médias
-│   │   │   └── [id]/page.tsx
-│   │   ├── bookings/
-│   │   │   └── page.tsx            # Historique projets
-│   │   ├── reviews/
-│   │   │   └── page.tsx            # Avis clients
-│   │   └── settings/
-│   │       └── page.tsx            # Paramètres compte
+│   │   ├── dashboard/page.tsx      # Dashboard créatrice
+│   │   ├── profile/[id]/page.tsx   # View profil
+│   │   ├── profile/[id]/edit/page.tsx # Edit profil
+│   │   ├── bookings/page.tsx       # Gestion réservations
+│   │   ├── reviews/page.tsx        # Avis reçus
+│   │   └── settings/page.tsx       # Paramètres compte
 │   │
 │   ├── admin/                      # Routes admin protégées
-│   │   ├── layout.tsx
 │   │   ├── page.tsx                # Dashboard admin
-│   │   ├── profiles/
-│   │   │   ├── page.tsx            # Gestion tous les profils
-│   │   │   ├── create/page.tsx     # Création manuelle
-│   │   │   └── import-csv/page.tsx # Import CSV batch
-│   │   ├── failed-syncs/
-│   │   │   └── page.tsx            # Dead Letter Queue dashboard
-│   │   └── logs/
-│   │       └── page.tsx            # Sync logs & monitoring
+│   │   ├── profiles/page.tsx       # Gestion tous les profils
+│   │   ├── profiles/create/page.tsx # Création manuelle
+│   │   ├── profiles/import-csv/page.tsx # Import CSV batch
+│   │   ├── failed-syncs/page.tsx   # Dead Letter Queue dashboard
+│   │   └── logs/page.tsx           # Sync logs & monitoring
 │   │
 │   ├── api/                        # API Routes (serverless)
-│   │   ├── profiles/
-│   │   │   ├── create/route.ts     # POST /api/profiles/create
-│   │   │   ├── update/route.ts     # PUT /api/profiles/[id]
-│   │   │   ├── import-csv/route.ts # POST /api/profiles/import-csv
-│   │   │   ├── [id]/route.ts       # GET /api/profiles/[id]
-│   │   │   └── [id]/delete/route.ts# DELETE /api/profiles/[id]
-│   │   ├── upload/
-│   │   │   └── route.ts            # POST /api/upload (images)
-│   │   ├── auth/
-│   │   │   ├── callback/route.ts   # OAuth callback
-│   │   │   └── logout/route.ts     # Logout
-│   │   └── webhooks/
-│   │       └── storage-sync/route.ts# Webhook handler Storage
+│   │   ├── profiles/route.ts       # GET list, POST create
+│   │   ├── profiles/[id]/route.ts  # GET, PUT, DELETE
+│   │   ├── profiles/import-csv/route.ts # POST batch import
+│   │   ├── bookings/route.ts       # Booking endpoints
+│   │   ├── bookings/[id]/route.ts
+│   │   ├── reviews/route.ts        # Review endpoints
+│   │   ├── upload/route.ts         # File upload
+│   │   ├── auth/me/route.ts        # Get current user
+│   │   ├── base44/users/route.ts   # Proxy Base44 API
+│   │   ├── base44/users/[id]/route.ts
+│   │   ├── webhooks/storage-sync/route.ts # Webhook Storage
+│   │   └── failed-syncs/route.ts   # DLQ monitoring & retries
 │   │
 │   ├── layout.tsx                  # Root layout global
 │   └── globals.css                 # Tailwind + custom styles
 │
-├── components/
+├── components/                     # Composants UI (Atomic Design)
 │   ├── atoms/                      # Composants atomiques
-│   │   ├── Button.tsx
-│   │   ├── Badge.tsx
-│   │   ├── StarRating.tsx
-│   │   ├── Avatar.tsx
-│   │   └── Icon.tsx
-│   │
-│   ├── molecules/                  # Composants composés (2-3 atoms)
-│   │   ├── ProfileCard.tsx         # Carte profile (list view)
-│   │   ├── SocialLinks.tsx         # Liens réseaux sociaux
-│   │   ├── StatsCard.tsx           # Cartes stats
-│   │   ├── FilterChip.tsx          # Chips filtrables
-│   │   └── SearchBar.tsx
-│   │
+│   ├── molecules/                  # Composants composés
 │   ├── organisms/                  # Composants complexes
-│   │   ├── ProfileHero.tsx         # Hero section detail page
-│   │   ├── MediaGallery.tsx        # Galerie dynamique
-│   │   ├── ReviewSection.tsx       # Section avis + form
-│   │   ├── BookingHistory.tsx      # Historique projets
-│   │   ├── ProfileFilters.tsx      # Filtres + recherche
-│   │   ├── ProfileGrid.tsx         # Grid animée
-│   │   ├── ProfileForm.tsx         # Form création/édition
-│   │   ├── CSVImporter.tsx         # Import CSV drag-drop
-│   │   └── FailedSyncsTable.tsx    # DLQ table
-│   │
 │   ├── sections/                   # Sections de page
-│   │   ├── HeroSection.tsx         # Hero marketing
-│   │   ├── FeaturesSection.tsx
-│   │   ├── TestimonialsSection.tsx
-│   │   └── CTASection.tsx
-│   │
-│   ├── navigation/
-│   │   ├── Navbar.tsx              # Header public
-│   │   ├── Sidebar.tsx             # Sidebar app
-│   │   └── Footer.tsx
-│   │
-│   └── layout/
-│       ├── PublicLayout.tsx        # Wrapper layout public
-│       └── DashboardLayout.tsx     # Wrapper layout app
+│   ├── navigation/                 # Navbar, Sidebar, Footer
+│   └── layout/                     # Wrappers de layout
 │
 ├── lib/
-│   ├── supabase.ts                 # Supabase client config
+│   ├── supabase.ts                 # Client Supabase (public + service role)
+│   ├── prisma.ts                   # Prisma client instance
+│   ├── auth.ts                     # Module auth complet : JWT, roles, permissions
 │   ├── types.ts                    # Types TypeScript centralisés
-│   ├── constants.ts                # Constantes (CATEGORIES, etc)
-│   ├── schemas.ts                  # Zod/Yup validation schemas
+│   ├── constants.ts                # Constantes globales
+│   ├── schemas.ts                  # Zod validation schemas
+│   ├── errors.ts                   # Gestion centralisée des erreurs ApiError
 │   │
 │   ├── hooks/                      # Custom React hooks
-│   │   ├── useProfiles.ts          # Hook fetch profiles
-│   │   ├── useProfile.ts           # Hook single profile
-│   │   ├── useAuth.ts              # Hook authentification
-│   │   ├── useRealtime.ts          # Hook Supabase realtime
-│   │   └── usePagination.ts        # Hook pagination
+│   │   ├── useProfiles.ts
+│   │   ├── useAuth.ts
+│   │   └── ...
 │   │
-│   ├── utils/
-│   │   ├── formatters.ts           # Format dates, prix, etc
-│   │   ├── validators.ts           # Validation formulaires
-│   │   ├── helpers.ts              # Fonctions utilitaires
-│   │   └── api-client.ts           # Client API wrapper
+│   ├── utils/                      # Utilitaires
+│   │   ├── formatters.ts
+│   │   ├── validators.ts
+│   │   └── ...
+│   │
+│   ├── repositories/               # Couche d'accès données (anti N+1)
+│   │   ├── profiles.repository.ts
+│   │   ├── bookings.repository.ts
+│   │   ├── reviews.repository.ts
+│   │   └── dlq.repository.ts
+│   │
+│   ├── services/                   # Couche logique métier
+│   │   ├── profiles.service.ts
+│   │   ├── bookings.service.ts
+│   │   ├── reviews.service.ts
+│   │   ├── sync.service.ts
+│   │   └── base44-user.service.ts
+│   │
+│   ├── clients/                    # Clients SDK externes
+│   │   └── base44.client.ts        # Client typé pour l'API Base44
 │   │
 │   └── store/                      # État global (Zustand)
-│       └── appStore.ts             # Store principal
+│       └── appStore.ts
+│
+├── prisma/
+│   ├── schema.prisma               # Schéma Prisma (source de vérité ORM)
+│   └── seed.ts                     # Seeding data
 │
 ├── supabase/
 │   ├── migrations/                 # SQL migrations (versionnées)
 │   │   ├── 001_init_profiles.sql
 │   │   ├── 002_add_media_assets.sql
-│   │   ├── 003_add_reviews.sql
-│   │   ├── 004_add_bookings.sql
-│   │   ├── 005_add_performance_stats.sql
-│   │   ├── 006_add_rls_policies.sql
-│   │   └── 007_add_failed_syncs.sql
+│   │   ├── ... (8 migrations)
+│   │   └── 008_add_storage_security_policies.sql
 │   │
 │   ├── functions/                  # Edge Functions (Deno/TypeScript)
-│   │   ├── sync-storage-to-db-v2/
-│   │   │   └── index.ts            # Storage → DB avec retry
-│   │   ├── sync-db-to-storage/
-│   │   │   └── index.ts            # DB → Storage
-│   │   ├── retry-failed-syncs/
-│   │   │   └── index.ts            # CRON retry handler
-│   │   └── README.md               # Deploy instructions
+│   │   ├── sync-storage-to-db-v2/index.ts   # Storage → DB avec retry
+│   │   ├── sync-db-to-storage/index.ts      # DB → Storage
+│   │   └── retry-failed-syncs/index.ts      # CRON retry handler
 │   │
-│   ├── seed.sql                    # Data de test/démo
 │   └── config.toml                 # Supabase CLI config
 │
-├── public/
-│   ├── images/
-│   │   ├── logo.svg
-│   │   ├── hero.jpg
-│   │   └── placeholder.svg
-│   └── fonts/
-│       └── custom.woff2
-│
-├── styles/
-│   ├── globals.css                 # Tailwind + custom CSS
-│   └── animations.css              # Animations réutilisables
-│
 ├── tests/
-│   ├── unit/
-│   │   ├── utils.test.ts
-│   │   └── validators.test.ts
-│   ├── integration/
-│   │   └── profiles.api.test.ts
-│   └── e2e/
-│       ├── home-page.spec.ts
-│       ├── profile-creation.spec.ts
-│       └── csv-import.spec.ts
-│
-├── scripts/
-│   ├── deploy.sh                   # Script déploiement
-│   ├── migrate.sh                  # Script migrations
-│   └── seed.sh                     # Script seeding data
+│   ├── unit/                       # Tests unitaires
+│   │   ├── base44.client.test.ts
+│   │   └── ...
+│   ├── integration/                # Tests d'intégration API
+│   │   └── ...
+│   └── e2e/                        # Tests End-to-End (Playwright)
+│       └── ...
 │
 ├── docs/
 │   ├── ARCHITECTURE.md             # Documentation architecture
-│   ├── API.md                      # API documentation
-│   ├── DATABASE.md                 # Schema & RLS policies
-│   ├── DEPLOYMENT.md               # Guide déploiement
+│   ├── API.md                      # Spécification API REST
+│   ├── DATABASE.md                 # Schéma & RLS policies
+│   ├── SECURITY_RLS.md             # Guide complet RLS & Storage policies
+│   ├── DEPLOYMENT.md               # Guide déploiement Vercel
 │   └── TROUBLESHOOTING.md          # Debugging guide
 │
-├── .env.example                    # Exemple variables d'env
+├── .env.example                    # Template variables d'env
 ├── .env.local                      # ⚠️ LOCAL ONLY (gitignored)
 ├── .gitignore
-├── package.json
+├── package.json                    # 30+ npm scripts
 ├── tsconfig.json
 ├── tailwind.config.ts
 ├── next.config.js
-├── vercel.json
+├── vercel.json                     # Config Vercel (région Paris, timeouts)
+├── prisma/schema.prisma
 ├── supabase.json
-└── README.md
-```
-
----
-
-## 🗄️ Schéma de Base de Données (Clés)
-
-### Tables Principales
-
-```sql
--- 1. Profils (créatrices)
-CREATE TABLE profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID UNIQUE REFERENCES auth.users(id),
-  name TEXT NOT NULL,
-  category TEXT NOT NULL,
-  bio TEXT,
-  avatar_url TEXT,
-  base_rate DECIMAL(10,2),
-  currency TEXT DEFAULT 'EUR',
-  instagram_url TEXT,
-  tiktok_url TEXT,
-  twitter_url TEXT,
-  website_url TEXT,
-  is_public BOOLEAN DEFAULT true,
-  is_available BOOLEAN DEFAULT true,
-  availability_calendar JSONB, -- { "2024-09": 5, "2024-10": 8 }
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now(),
-  synced_at TIMESTAMP,
-  storage_folder_id TEXT UNIQUE
-);
-
--- 2. Médias
-CREATE TABLE media_assets (
-  id UUID PRIMARY KEY,
-  profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  file_url TEXT NOT NULL,
-  file_type TEXT, -- "image", "video", "document"
-  uploaded_by UUID REFERENCES auth.users(id),
-  created_at TIMESTAMP DEFAULT now()
-);
-
--- 3. Avis
-CREATE TABLE reviews (
-  id UUID PRIMARY KEY,
-  profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  client_id UUID REFERENCES auth.users(id),
-  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-  comment TEXT,
-  created_at TIMESTAMP DEFAULT now()
-);
-
--- 4. Projets/Bookings
-CREATE TABLE bookings (
-  id UUID PRIMARY KEY,
-  profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  client_id UUID REFERENCES auth.users(id),
-  project_title TEXT NOT NULL,
-  status TEXT DEFAULT 'pending', -- pending, in_progress, completed, cancelled
-  start_date DATE,
-  end_date DATE,
-  budget DECIMAL(10,2),
-  created_at TIMESTAMP DEFAULT now(),
-  updated_at TIMESTAMP DEFAULT now()
-);
-
--- 5. Statistiques de performance
-CREATE TABLE performance_stats (
-  id UUID PRIMARY KEY,
-  profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  total_projects INTEGER DEFAULT 0,
-  total_reviews INTEGER DEFAULT 0,
-  avg_rating DECIMAL(3,2),
-  response_time_hours INTEGER,
-  completion_rate DECIMAL(5,2), -- 0-100
-  updated_at TIMESTAMP DEFAULT now()
-);
-
--- 6. Dead Letter Queue (erreurs)
-CREATE TABLE failed_syncs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  event_type TEXT NOT NULL, -- "storage_to_db", "db_to_storage", "webhook_error"
-  source_data JSONB NOT NULL,
-  error_message TEXT,
-  error_stack TEXT,
-  retry_count INTEGER DEFAULT 0,
-  max_retries INTEGER DEFAULT 3,
-  last_attempted_at TIMESTAMP DEFAULT now(),
-  created_at TIMESTAMP DEFAULT now(),
-  status TEXT DEFAULT 'pending', -- pending, retrying, failed, resolved
-  resolved_at TIMESTAMP
-);
-
--- 7. Sync logs (audit trail)
-CREATE TABLE sync_logs (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  profile_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
-  sync_type TEXT NOT NULL, -- "storage_to_db", "db_to_storage"
-  source_data JSONB,
-  result_data JSONB,
-  status TEXT DEFAULT 'success', -- success, error, partial
-  error_message TEXT,
-  duration_ms INTEGER,
-  created_at TIMESTAMP DEFAULT now()
-);
-
--- 8. User Roles (permissions)
-CREATE TABLE user_roles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  role TEXT NOT NULL, -- "client", "creator", "admin"
-  created_at TIMESTAMP DEFAULT now()
-);
-```
-
-**RLS Policies :**
-- Clients voient tous les profils publics
-- Créatrices voient/éditent leur propre profil
-- Admins ont accès complet
-- Voir `supabase/migrations/006_add_rls_policies.sql`
-
----
-
-## 🔄 Flux de Synchronisation (3 Canaux)
-
-### Canal 1 : Web Form (Principal)
-
-```
-Admin/Créatrice → ProfileForm → POST /api/profiles/create
-  ↓
-  Valider + Upload avatar
-  ↓
-  INSERT profiles (DB)
-  ↓
-  Trigger: update_profiles_updated_at
-  ↓
-  Edge Function: sync-db-to-storage
-  ↓
-  CREATE /profiles/NAME_CATEGORY_BASE64JSON/ (Storage)
-  ↓
-  ✅ Visible sur homepage
-```
-
-### Canal 2 : CSV Import (Batch)
-
-```
-Admin → CSVImporter → POST /api/profiles/import-csv
-  ↓
-  Parse + Validate
-  ↓
-  Batch INSERT (transaction)
-  ↓
-  Edge Functions: sync-db-to-storage (x N parallel)
-  ↓
-  CREATE folders (Storage)
-  ↓
-  ✅ N profils visibles sur homepage
-```
-
-### Canal 3 : Storage Webhook (Backup/Sync)
-
-```
-Admin crée dossier → Webhook Storage
-  ↓
-  POST sync-storage-to-db-v2
-  ↓
-  Parse JSON du nom du dossier
-  ↓
-  INSERT ou UPDATE profiles (DB)
-  ↓
-  ✅ Profil synchronisé
-```
-
-### Gestion des Erreurs & Résilience
-
-```
-Erreur lors de sync
-  ↓
-  INSERT failed_syncs (DLQ)
-  ↓
-  Log dans sync_logs
-  ↓
-  Admin dashboard : voir l'erreur
-  ↓
-  Cron: retry-failed-syncs (exponential backoff)
-  ↓
-  Max 3 tentatives → si toujours fail, marquer "failed"
-  ↓
-  Admin peut corriger et re-soumettre
+├── README.md                       # Overview du projet
+└── skills-lock.json               # Lock file pour dependencies
 ```
 
 ---
@@ -431,285 +217,476 @@ Erreur lors de sync
 ### Installation & Setup
 
 ```bash
-# Clone du repo
-git clone <repo-url> fantazi-land
-cd fantazi-land
-
-# Install dépendances
+# 1. Clone et installation
+git clone <repo-url> agence-de-booking
+cd agence-de-booking
 npm install
 
-# Setup env vars
+# 2. Configurer l'environnement
 cp .env.example .env.local
-# Remplir NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, etc
+# Remplir: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, BASE44_API_URL, BASE44_API_KEY
 
-# Init Supabase (si local)
-npx supabase init
-npx supabase start
+# 3. Démarrer Supabase localement
+npm run db:start
 
-# Run migrations
-npx supabase migration up
+# 4. Appliquer migrations
+npm run db:migrate
 
-# Seed data
+# 5. Seeder data de test
 npm run db:seed
+
+# 6. Générer types Prisma
+npx prisma generate
+
+# 7. Lancer dev server
+npm run dev
+# Accès: http://localhost:3000
 ```
 
-### Développement
+### Développement - Commandes Complètes
 
 ```bash
-# Dev server Next.js (port 3000)
+# Dev server Next.js (hot reload)
 npm run dev
 
-# Dev server Supabase local
-npx supabase start
-
-# Type checking
+# Type checking (strict TypeScript)
 npm run type-check
 
-# Linting
+# Linting avec ESLint
 npm run lint
 npm run lint:fix
 
-# Format code
+# Format code avec Prettier
 npm run format
+npm run format:check
+
+# Inspecteur base de données (Prisma Studio)
+npx prisma studio
+
+# Logs Supabase local (Edge Functions)
+npx supabase logs --local
+```
+
+### Prisma Workflow
+
+```bash
+# Générer Prisma client après schéma change
+npx prisma generate
+
+# Créer une migration depuis schéma local
+npx prisma migrate dev --name <migration_name>
+# Ex: npx prisma migrate dev --name add_profile_category
+
+# Appliquer migrations (dev local)
+npx prisma migrate dev
+
+# Vérifier status migrations
+npx prisma migrate status
+
+# Rollback dernière migration (dev only)
+npx prisma migrate resolve --rolled-back <migration_name>
+
+# Générer types TypeScript depuis prisma schema
+npx prisma generate
+
+# Seed database avec données de test
+npx prisma db seed
+```
+
+### Database Management
+
+```bash
+# Démarrer Supabase localement
+npm run db:start
+
+# Arrêter Supabase
+npm run db:stop
+
+# Reset complètement BD (⚠️ destructive, local only)
+npm run db:reset
+
+# Appliquer migrations manuellement
+npm run db:migrate
+
+# Seeder avec données test uniquement
+npm run db:seed
+
+# Ouvrir Supabase Studio (UI DB)
+npm run db:studio
+
+# Générer types TypeScript depuis Supabase schema
+npm run db:types
 ```
 
 ### Testing
 
 ```bash
-# Unit + Integration tests
+# Lancer tous les tests (unit + integration)
 npm run test
 
-# Watch mode
+# Mode watch (re-run on file change)
 npm run test:watch
 
-# Coverage
+# Coverage report
 npm run test:coverage
 
-# E2E tests
-npm run test:e2e
-npm run test:e2e:ui  # Playwright UI
+# Exécuter un fichier de test spécifique
+npx vitest tests/unit/base44.client.test.ts
 
-# Single E2E file
+# E2E tests (Playwright)
+npm run test:e2e
+
+# E2E with UI (visual mode)
+npm run test:e2e:ui
+
+# E2E headless (voir navigateur)
+npm run test:e2e:headed
+
+# Exécuter un test E2E spécifique
 npx playwright test tests/e2e/home-page.spec.ts
 ```
 
 ### Build & Déploiement
 
 ```bash
-# Build optimisé
+# Build optimisé (production)
 npm run build
 
-# Preview build localement
+# Preview du build localement (avant deployment)
 npm run preview
 
 # Deploy Edge Functions
+npm run deploy:functions
+# Ou individuellement:
 npx supabase functions deploy sync-storage-to-db-v2
 npx supabase functions deploy sync-db-to-storage
 npx supabase functions deploy retry-failed-syncs
 
-# Deploy sur Vercel
-vercel deploy --prod
+# Deploy sur Vercel (production)
+npm run deploy:vercel
 
-# Migrations en prod
-npx supabase migrations up --linked
+# Ou avec CLI Vercel directement
+vercel deploy --prod
 ```
 
-### Database & Migrations
+---
+
+## 🔄 Flux de Synchronisation & Architecture
+
+### 3 Canaux d'Entrée
+
+**Canal 1 : Web Form (Principal)**
+```
+Admin/Créatrice → ProfileForm → POST /api/profiles
+  ↓ Valider + Upload avatar via Supabase Storage
+  ↓ INSERT profiles (Prisma + Supabase)
+  ↓ Trigger DB: update_profiles_updated_at
+  ↓ Edge Function: sync-db-to-storage (décodé depuis payload)
+  ↓ CREATE /profiles/ENCODED_NAME_CATEGORY_JSON/ (Storage)
+  ✅ Visible sur homepage
+```
+
+**Canal 2 : CSV Import (Batch)**
+```
+Admin → CSVImporter → POST /api/profiles/import-csv
+  ↓ PapaParse + Validate chaque ligne avec Zod
+  ↓ Batch INSERT transaction (Prisma)
+  ↓ N × Edge Functions: sync-db-to-storage (parallel)
+  ✅ N profils visibles instantanément
+```
+
+**Canal 3 : Storage Webhook (Reverse Sync)**
+```
+Admin crée dossier → Webhook Storage
+  ↓ POST /api/webhooks/storage-sync
+  ↓ Edge Function: sync-storage-to-db-v2
+  ↓ Parse JSON encodé depuis nom du dossier
+  ↓ INSERT ou UPDATE profiles (Prisma upsert)
+  ✅ Profil synchronisé
+```
+
+### Résilience & Dead Letter Queue
+
+```
+Erreur lors de sync
+  ↓ INSERT failed_syncs table avec payload complet
+  ↓ Log dans sync_logs avec error_message et duration_ms
+  ↓ Admin peut voir erreur dans dashboard /admin/failed-syncs
+  ↓ Edge Function CRON: retry-failed-syncs (backoff exponentiel)
+  ↓ Max 3 tentatives avant marquer "failed"
+  ↓ Admin peut corriger source et re-soumettre
+```
+
+### Base44 CRM — Intégration Atomique
+
+**Flux :** Création profil + Base44 User simultanée ou rollback complet
+
+```
+Admin/Créatrice → POST /api/profiles
+  ↓ Valider données avec Zod
+  ↓ Authentifier utilisateur (JWT)
+  ↓ Créer Profile (Prisma transaction)
+  ↓ Créer Base44 User (SDK client)
+  ↓ Lier base44_user_id au Profile
+  ↓ Log succès dans sync_logs
+  ✅ Retourner { profile, base44_user_id, sync_log_id }
+
+ERROR HANDLING:
+  ✗ Base44 échoue → DELETE Base44 User
+  ✗ Prisma rollback automatique (transaction)
+  ✗ INSERT failed_syncs avec source_data
+  ✗ Admin peut retry via dashboard
+  ✗ Exponential backoff: 1min → 5min → 30min
+```
+
+**Mappage des champs** (voir `lib/services/base44-user.service.ts`):
+- `name` → `full_name`
+- `bio` → `description`
+- `category` → `category` (custom field)
+- `avatar_url` → `avatar_url`
+- `base_rate` → `base_rate` (custom field)
+- `instagram/tiktok/twitter` → social links (custom fields)
+
+---
+
+## 💡 Development Tips & Debugging
+
+### Common Workflows
+
+**Ajouter un nouveau champ Profile :**
+```bash
+# 1. Éditer prisma/schema.prisma (ajouter champ Profile model)
+# 2. Créer migration
+npx prisma migrate dev --name add_profile_<field_name>
+# 3. Prisma client auto-généré, types mis à jour
+# 4. Éditer lib/schemas.ts pour ajouter validation Zod
+# 5. Éditer services/profiles.service.ts si logique métier change
+# 6. Tester avec npm run test
+```
+
+**Debugging Sync Issues :**
+```bash
+# 1. Vérifier logs Supabase local
+npm run db:studio  # Inspecter tables: failed_syncs, sync_logs, profiles
+
+# 2. Vérifier Edge Function logs
+npx supabase functions logs sync-storage-to-db-v2 --local
+
+# 3. Tester Edge Function manuellement
+curl -i http://localhost:54321/functions/v1/sync-storage-to-db-v2 \
+  -H "Authorization: Bearer eyJ..." \
+  -H "Content-Type: application/json" \
+  -d '{"folder_name": "test_encoding"}'
+
+# 4. Inspecter failed_syncs table
+# Aller sur Supabase Studio → failed_syncs → voir dernier enregistrement
+```
+
+**Testing API Changes :**
+```bash
+# 1. Modifier API route ou service
+# 2. Run tests du service modifié
+npx vitest tests/unit/profiles.service.test.ts --watch
+
+# 3. Test l'endpoint directement
+curl http://localhost:3000/api/profiles \
+  -H "Authorization: Bearer TOKEN" \
+  -H "Content-Type: application/json"
+
+# 4. Valider avec npm test complet
+npm run test
+```
+
+### Debugging Database
 
 ```bash
-# Créer une nouvelle migration
-npx supabase migration new <name>
+# Ouvrir Prisma Studio (UI interactive)
+npx prisma studio
+# Voir/éditer données en temps réel
 
-# Voir status des migrations
-npx supabase migration list
+# Vérifier migrations appliquées
+npx prisma migrate status
 
-# Rollback dernière migration
-npx supabase migration down
+# Voir détails dernière erreur migration
+npx supabase migration list --linked  # Pour prod
+npx supabase migration list --local   # Pour local
 
-# Générer types TypeScript depuis schema
-npx supabase gen types typescript --local > lib/database.types.ts
+# Query directement en SQL
+npx supabase db pull  # Générer SQL du schéma courant
 ```
 
----
+### Common Issues
 
-## 📊 Cas d'Usage Concret
-
-**Scénario complet :** Marina Dupont crée son profil via formulaire web, l'admin importe 5 créatrices via CSV, un client visite la homepage et filtre par catégorie.
-
-**Voir détails complets dans :** `SECTION 7` du brainstorming (cas d'usage détaillé avec timeline, métadonnées, et flux technique).
-
-**Étapes clés :**
-1. Création Marina → Web Form → INSERT DB → CREATE Storage folder
-2. Import CSV (5 créatrices) → Batch INSERT → Parallel syncs
-3. Homepage SSR fetch profiles + Client-side filters
-4. Erreurs enregistrées dans DLQ et visibles en admin dashboard
-
----
-
-## 🔐 Authentification & Permissions
-
-### Flow OAuth (Supabase Auth)
-
-```
-Client → /auth/login → Supabase OAuth
-  ↓
-  Callback → /api/auth/callback
-  ↓
-  Create session + JWT token
-  ↓
-  Redirect /dashboard
-  ↓
-  ✅ Authentifié
+**"Prisma client not found"**
+```bash
+# Solution
+npx prisma generate
+npm install
 ```
 
-### Roles & RLS
+**"Migration conflict"**
+```bash
+# Ne jamais rebaser migrations après push
+# À la place:
+npx prisma migrate resolve --rolled-back <migration_name>
+npx prisma migrate dev --name fix_conflict
+```
 
-- **Client** : Voit profils publics uniquement
-- **Creator** : Voit/édite son profil + galerie + bookings
-- **Admin** : Accès complet (gestion tous profils, logs, DLQ)
-
-Voir `supabase/migrations/006_add_rls_policies.sql` pour implémentation RLS complète.
-
----
-
-## 📈 Performance & Optimisations
-
-### Front-end
-
-- **SSR/SSG** : Home page générée statiquement (ISR)
-- **Image optimization** : Next.js Image component avec lazy loading
-- **Code splitting** : Dynamic imports pour composants lourds
-- **Caching** : SWR + Supabase subscriptions pour data real-time
-- **Bundle size** : Tree-shaking, minification Tailwind
-
-### Back-end
-
-- **Database indexing** : Index sur `profile_id`, `created_at`, `category`
-- **Query optimization** : Avoid N+1 via `.select()` joins
-- **Edge Functions** : Deno runtime, colocation data
-- **Rate limiting** : Middleware sur API routes sensibles
-
-### Storage
-
-- **CDN global** : Vercel Edge Network
-- **Image compression** : Redimensionner côté serveur
-- **Webhooks async** : Non-blocking pour sync
+**"Edge Function timeout"**
+- Check function logs: `npx supabase functions logs sync-storage-to-db-v2 --local`
+- Augmenter timeout dans vercel.json si nécessaire
+- Vérifier failed_syncs pour détails erreur
 
 ---
 
-## 🧪 Testing Strategy
+## 🧪 Testing Strategy Détaillée
 
 ### Unit Tests
-- Formatters, validators, helpers
-- Hooks (useProfiles, useAuth)
-- Zod schemas
+- Services & repositories (logique métier isolée)
+- Validators Zod (schémas validation)
+- Utils & formatters (logique pure)
+- Hooks personnalisés
 
 ### Integration Tests
-- API routes (create, update, import-csv)
-- Supabase client interactions
-- Edge Functions avec mock requests
+- API routes complètes (requête HTTP → réponse)
+- Supabase client interactions (read/write DB)
+- Services calling repositories
+- Prisma operations
 
-### E2E Tests
-- Home page : chargement, filtres, recherche
-- Profile creation : form validation, upload, sync
-- CSV import : parse, validation, batch insert
-- Admin dashboard : DLQ management
+### E2E Tests (Playwright)
+- Page publique: chargement, filtres, recherche
+- Création profil: form validation, upload, sync
+- Import CSV: parse, batch insert, erreurs
+- Dashboard admin: DLQ management, retries
 
-**Voir :** `tests/` directory structure
+**Exécuter tests spécifiques :**
+```bash
+# Un fichier entier
+npx vitest tests/unit/base44.client.test.ts
+
+# Tous les tests contenant "profile"
+npx vitest --grep="profile"
+
+# Avec couverture
+npx vitest run --coverage
+
+# E2E spécifique
+npx playwright test tests/e2e/home-page.spec.ts --headed
+```
 
 ---
 
 ## 📝 Important Notes
 
-### ⚠️ Secrets & Environment Variables
+### Secrets & Environment Variables
 
 **JAMAIS commiter :**
-- `.env.local` (tokens Supabase, clés API)
-- `SUPABASE_SERVICE_ROLE_KEY` (read/write admin)
-- Credentials AWS, Stripe, etc.
-
-**À mettre dans Vercel Secrets :**
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `.env.local` (tous tokens)
 - `SUPABASE_SERVICE_ROLE_KEY`
-- Autres tokens API
+- `BASE44_API_KEY`
+- Credentials AWS/Stripe/etc
 
-### 📦 Dependencies à Connaître
+**À mettre dans Vercel (Settings → Environment Variables) :**
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=... (server-only)
+BASE44_API_URL=...
+BASE44_API_KEY=... (server-only)
+NODE_ENV=production
+```
 
-| Package | Raison |
-|---------|--------|
-| `@supabase/supabase-js` | Client officiel Supabase |
-| `@supabase/auth-helpers-nextjs` | Auth middleware Next.js |
-| `zod` | Schema validation runtime |
-| `framer-motion` | Animations React |
-| `zustand` | État global léger |
-| `papaparse` | Parse CSV |
-| `date-fns` | Manipulation dates |
-| `lucide-react` | Icons SVG |
+### About `.agents/` Folder
 
-### 🔍 Debugging Tips
+Le dossier `.agents/` contient la configuration pour les sous-agents Claude Code :
+- `subagents.yaml` : définit les agents disponibles
+- Permet de dispatcher travail complexe à agents spécialisés
+- Utilisé par `/code-review`, `/plan`, etc.
 
-1. **Supabase Logs** : Dashboard → Logs (Edge Functions errors)
-2. **Network Tab** : DevTools → voir requests/responses
-3. **Supabase Studio** : Inspect DB directly (tables, RLS, data)
-4. **Vercel Logs** : Dashboard → Deployments → Logs
-5. **Local dev** : `npx supabase logs` pour Edge Functions
+### Key Dependencies
+
+| Package | Raison | Docs |
+|---------|--------|------|
+| `@supabase/supabase-js` | Client officiel Supabase | https://supabase.com/docs/reference/javascript |
+| `@prisma/client` | ORM type-safe | https://www.prisma.io/docs/orm/reference/prisma-client-reference |
+| `zod` | Runtime validation | https://zod.dev |
+| `framer-motion` | Animations React | https://www.framer.com/motion/ |
+| `zustand` | State management | https://github.com/pmndrs/zustand |
+| `papaparse` | CSV parser | https://www.papaparse.com/ |
+| `date-fns` | Date utils | https://date-fns.org/ |
+| `lucide-react` | Icon library | https://lucide.dev/ |
+
+---
+
+## 🔐 Authentification & Security
+
+### Auth Flow
+
+1. User clique "Login" → redirection OAuth Supabase
+2. Supabase retourne JWT token + user info
+3. Token stocké en secure cookie (httpOnly)
+4. `lib/auth.ts` vérifie token + récupère rôle utilisateur depuis `user_roles` table
+5. API routes utilisent `authenticateRequest()` pour vérifier accès
+6. RLS policies sur DB et Storage enforcer permissions
+
+### Roles & Permissions
+
+- **client** : Voit uniquement profils publics
+- **creator** : Gère son profil + galerie + bookings
+- **admin** : Accès complet (CRUD tous profils + DLQ + logs)
+
+Voir `docs/SECURITY_RLS.md` pour détails complets des politiques RLS.
+
+---
+
+## 📊 Performance & Optimization
+
+### Frontend Optimizations
+- **SSR/ISR** : Home page static generation
+- **Next.js Image** : Lazy loading + optimization
+- **Code splitting** : Dynamic imports pour composants lourds
+- **Caching** : SWR hooks + Supabase subscriptions real-time
+
+### Backend Optimization
+- **Database indices** : Sur `profile_id`, `category`, `created_at`, `is_public`
+- **Query optimization** : Prisma `.include()` / `.select()` pour éviter N+1
+- **Edge Functions** : Deno runtime + colocation proche des données
+- **Rate limiting** : Middleware sur endpoints sensibles
+
+### Monitoring
+- Dead Letter Queue : Dashboard `/admin/failed-syncs`
+- Sync logs : Dashboard `/admin/logs`
+- Edge Function logs : `npx supabase logs --local`
 
 ---
 
 ## 📚 Documentation Complète
 
-- **`docs/ARCHITECTURE.md`** : Diagrammes & design decisions
-- **`docs/API.md`** : Endpoints API avec examples
-- **`docs/DATABASE.md`** : Schema complet + RLS policies
-- **`docs/DEPLOYMENT.md`** : Checklist déploiement prod
+- **`docs/ARCHITECTURE.md`** : Diagrammes, design decisions, data flow
+- **`docs/API.md`** : Endpoints REST avec exemples curl
+- **`docs/DATABASE.md`** : Schéma complet, indices, relations
+- **`docs/SECURITY_RLS.md`** : Politiques RLS détaillées + Storage policies
+- **`docs/DEPLOYMENT.md`** : Checklist prod Vercel + Supabase
 - **`docs/TROUBLESHOOTING.md`** : Solutions erreurs communes
+- **`README.md`** : Overview projet, quick start
 
 ---
 
-## 🛠️ Maintenance & Monitoring
+## 🛠️ Maintenance Checklist
 
-### Checklist Régulière
+Avant chaque deployment en production :
 
-- [ ] Vérifier DLQ dashboard (failed syncs)
-- [ ] Monitorer Edge Functions logs
-- [ ] Vérifier storage usage (Supabase)
-- [ ] Tester RLS policies (sécurité)
-- [ ] Review sync_logs (performances)
-
-### Alerting
-
-- Dead Letter Queue : Si > 10 failed syncs non-résolus
-- API latency : Si > 500ms moyenne
-- Storage quota : Si > 80% utilisé
-- Database connections : Si > 90% utilisées
-
----
-
-## 🚦 Status du Projet
-
-| Composant | Status | Notes |
-|-----------|--------|-------|
-| Architecture | ✅ Complète | Design validé |
-| DB Schema | ✅ Finalisé | Migrations versionnées |
-| API Routes | 🟡 En cours | CRUD profiles OK, auth à finir |
-| Edge Functions | 🟡 En cours | sync-storage-to-db v2 OK, retry handler en dev |
-| Front-end Components | 🟡 En cours | Atoms/Molecules OK, organisms en dev |
-| Authentification | 🟡 En cours | Setup Supabase Auth |
-| Testing | ❌ À faire | Setup Vitest + Playwright |
-| Déploiement | ❌ À faire | Setup Vercel + Supabase prod |
-
----
-
-## 👥 Contact & Support
-
-**Architecte Principal :** Claude Code  
-**Stack :** Next.js 14, Supabase, Tailwind CSS, TypeScript  
-**Mode de collaboration :** Brainstorming → Design → Implementation → Testing → Deployment
-
-Pour questions architecturales ou modifications : cf. `docs/ARCHITECTURE.md`
+- [ ] `npm run type-check` → No errors
+- [ ] `npm run lint` → No errors
+- [ ] `npm run test` → All tests green
+- [ ] `npm run test:coverage` → Coverage >= 80%
+- [ ] Vérifier secrets dans Vercel ✅
+- [ ] Migrations sont à jour (Prisma + SQL)
+- [ ] Edge Functions déployées et testées
+- [ ] Database backups configurés
 
 ---
 
 **Last Updated :** 2026-08-26  
-**Version :** 1.0-design (architecture finalisée, implémentation en cours)
+**Version :** 1.1 (implémentation avancée, statut actualisé)  
+**Maintainers :** Di Vibez Developer, Claude Code

@@ -20,17 +20,34 @@ serve(async (req) => {
       });
     }
 
-    const parts = folderName.split("_");
-    if (parts.length < 3) {
+    let base64 = "";
+    let category = "";
+    let name = "";
+
+    if (folderName.includes("__")) {
+      const parts = folderName.split("__");
+      if (parts.length >= 3) {
+        base64 = parts[parts.length - 1];
+        category = parts[parts.length - 2].replace(/_/g, " ");
+        name = parts.slice(0, parts.length - 2).join(" ").replace(/_/g, " ");
+      }
+    } else {
+      const parts = folderName.split("_");
+      if (parts.length >= 3) {
+        base64 = parts[parts.length - 1];
+        category = parts[parts.length - 2];
+        name = parts.slice(0, parts.length - 2).join(" ");
+      }
+    }
+
+    if (!base64) {
       throw new Error(`Format de dossier invalide: ${folderName}`);
     }
 
-    const base64 = parts[parts.length - 1];
-    const category = parts[parts.length - 2];
-    const name = parts.slice(0, parts.length - 2).join(" ");
-
     const decodedJson = atob(base64);
     const metadata = JSON.parse(decodedJson);
+    if (metadata.name) name = metadata.name;
+    if (metadata.category) category = metadata.category;
 
     // Upsert profil
     const { data: existing } = await supabase

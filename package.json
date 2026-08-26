@@ -29,9 +29,13 @@
     "db:studio": "npx supabase studio",
     "deploy:functions": "npx supabase functions deploy sync-storage-to-db-v2 && npx supabase functions deploy sync-db-to-storage && npx supabase functions deploy retry-failed-syncs",
     "deploy:vercel": "vercel deploy --prod",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "prisma:pull": "prisma db pull",
     "setup": "node scripts/setup.js"
   },
   "dependencies": {
+    "@prisma/client": "^5.18.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.45.0",
     "date-fns": "^3.6.0",
@@ -60,6 +64,7 @@
     "postcss": "^8.4.40",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.5",
+    "prisma": "^5.18.0",
     "supabase": "^1.187.0",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.5.4",

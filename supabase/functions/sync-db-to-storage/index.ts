@@ -20,10 +20,12 @@ serve(async (req) => {
       });
     }
 
-    const cleanName = (profile.name || "Unknown").replace(/[^a-zA-Z0-9_-]/g, "_");
-    const category = (profile.category || "Lifestyle").replace(/[^a-zA-Z0-9_-]/g, "_");
+    const cleanName = (profile.name || "Unknown").trim();
+    const category = (profile.category || "Lifestyle").trim();
 
     const metadata = {
+      name: cleanName,
+      category,
       bio: profile.bio || "",
       baseRate: profile.base_rate,
       currency: profile.currency || "EUR",
@@ -35,7 +37,9 @@ serve(async (req) => {
     };
 
     const base64 = btoa(JSON.stringify(metadata));
-    const folderName = `${cleanName}_${category}_${base64}`;
+    const slugName = cleanName.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const slugCategory = category.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const folderName = `${slugName}__${slugCategory}__${base64}`;
 
     // Upload d'un fichier sentinelle .keep pour créer le dossier
     const { error: storageError } = await supabase.storage

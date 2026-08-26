@@ -15,13 +15,15 @@ export class SyncService {
 
   /**
    * Encode un nom de dossier pour le bucket Storage :
-   * Format : "{Sanitized_Name}_{Category}_{Base64_JSON}"
+   * Format : "{Sanitized_Name}__{Sanitized_Category}__{Base64_JSON}"
    */
   encodeFolderName(profile: Partial<Profile>): string {
-    const cleanName = (profile.name || "Unknown").replace(/[^a-zA-Z0-9_-]/g, "_");
-    const category = (profile.category || "Lifestyle").replace(/[^a-zA-Z0-9_-]/g, "_");
+    const cleanName = (profile.name || "Unknown").trim();
+    const category = (profile.category || "Lifestyle").trim();
 
     const metadata = {
+      name: cleanName,
+      category,
       bio: profile.bio || "",
       baseRate: profile.base_rate,
       currency: profile.currency || "EUR",
@@ -33,26 +35,46 @@ export class SyncService {
     };
 
     const base64 = Buffer.from(JSON.stringify(metadata)).toString("base64");
-    return `${cleanName}_${category}_${base64}`;
+    const slugName = cleanName.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const slugCategory = category.replace(/[^a-zA-Z0-9_-]/g, "_");
+
+    return `${slugName}__${slugCategory}__${base64}`;
   }
 
   /**
    * Décode un nom de dossier Storage
    */
   decodeFolderName(folderName: string): DecodedStorageFolder {
-    const parts = folderName.split("_");
-    if (parts.length < 3) {
-      throw new Error(`Format de dossier invalide: attendu 'Nom_Categorie_Base64', reçu '${folderName}'`);
+    let base64 = "";
+    let category = "";
+    let name = "";
+
+    if (folderName.includes("__")) {
+      const parts = folderName.split("__");
+      if (parts.length >= 3) {
+        base64 = parts[parts.length - 1];
+        category = parts[parts.length - 2].replace(/_/g, " ");
+        name = parts.slice(0, parts.length - 2).join(" ").replace(/_/g, " ");
+      }
+    } else {
+      const parts = folderName.split("_");
+      if (parts.length >= 3) {
+        base64 = parts[parts.length - 1];
+        category = parts[parts.length - 2];
+        name = parts.slice(0, parts.length - 2).join(" ");
+      }
     }
 
-    const base64 = parts[parts.length - 1];
-    const category = parts[parts.length - 2];
-    const name = parts.slice(0, parts.length - 2).join(" ");
+    if (!base64) {
+      throw new Error(`Format de dossier invalide: attendu 'Nom__Categorie__Base64', reçu '${folderName}'`);
+    }
 
     let metadata: Record<string, any> = {};
     try {
       const jsonStr = Buffer.from(base64, "base64").toString("utf-8");
       metadata = JSON.parse(jsonStr);
+      if (metadata.name) name = metadata.name;
+      if (metadata.category) category = metadata.category;
     } catch (e) {
       throw new Error(`Impossible de décoder les métadonnées JSON base64: ${(e as Error).message}`);
     }
