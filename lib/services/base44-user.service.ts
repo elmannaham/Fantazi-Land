@@ -1,7 +1,53 @@
 import type { Profile } from "@prisma/client";
-import type { CreateBase44UserDto, UpdateBase44UserDto } from "@/lib/types";
+import { base44Client } from "@/lib/clients/base44.client";
+import type {
+  Base44QueryParams,
+  Base44User,
+  CreateBase44UserDto,
+  UpdateBase44UserDto,
+} from "@/lib/types";
 
 export class Base44UserService {
+  static async listUsers(params: Base44QueryParams = {}): Promise<Base44User[]> {
+    return base44Client.getUsers(params);
+  }
+
+  async listUsers(params: Base44QueryParams = {}): Promise<Base44User[]> {
+    return Base44UserService.listUsers(params);
+  }
+
+  static async createUser(data: CreateBase44UserDto): Promise<Base44User> {
+    return base44Client.createUser(data);
+  }
+
+  async createUser(data: CreateBase44UserDto): Promise<Base44User> {
+    return Base44UserService.createUser(data);
+  }
+
+  static async getUser(userId: string): Promise<Base44User> {
+    return base44Client.getUserById(userId);
+  }
+
+  async getUser(userId: string): Promise<Base44User> {
+    return Base44UserService.getUser(userId);
+  }
+
+  static async updateUser(userId: string, data: UpdateBase44UserDto): Promise<Base44User> {
+    return base44Client.updateUser(userId, data);
+  }
+
+  async updateUser(userId: string, data: UpdateBase44UserDto): Promise<Base44User> {
+    return Base44UserService.updateUser(userId, data);
+  }
+
+  static async deleteUser(userId: string): Promise<{ success: boolean; id: string }> {
+    return base44Client.deleteUser(userId);
+  }
+
+  async deleteUser(userId: string): Promise<{ success: boolean; id: string }> {
+    return Base44UserService.deleteUser(userId);
+  }
+
   /**
    * Convertir Profile Fantazi-Land → Base44 User (création)
    */
@@ -63,3 +109,5 @@ export class Base44UserService {
     };
   }
 }
+
+export const base44UserService = new Base44UserService();
