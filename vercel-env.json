@@ -1,0 +1,7 @@
+{
+  "NEXT_PUBLIC_SUPABASE_URL": "https://your-project.supabase.co",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY": "your-anon-key-here",
+  "SUPABASE_SERVICE_ROLE_KEY": "your-service-role-key-here",
+  "BASE44_API_URL": "https://agence-de-booking-crud-ec63fc9d.base44.app/api",
+  "BASE44_API_KEY": "5f77c7690c884054ba1d3f2c75961284"
+}

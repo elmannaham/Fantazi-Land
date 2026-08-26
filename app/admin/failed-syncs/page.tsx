@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 
@@ -80,8 +80,21 @@ export default function FailedSyncsPage() {
     failed: items.filter((i) => i.status === "failed").length,
   };
 
+  const memoizedFetchFailedSyncs = useCallback(fetchFailedSyncs, [filter]);
+
   return (
-    <div className="p-8">
+    <div className="p-8" style={{ animation: "fadeIn 0.6s ease-out" }}>
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .stat { animation: slideUp 0.6s ease-out; }
+        .stat-value { font-variant-numeric: tabular-nums; }
+        button { transition: all 150ms ease-out; }
+        button:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        button:active { transform: scale(0.98); }
+        .dlq-table tr { transition: background-color 150ms ease-out; }
+        .dlq-table tr:hover { background-color: #f9fafb; }
+      `}</style>
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-2">Dead Letter Queue</h1>
         <p className="text-gray-600 mb-8">Monitor and manage failed sync operations</p>
