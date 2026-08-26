@@ -67,6 +67,74 @@ export const createProfileSchema = z.object({
 
 export const updateProfileSchema = createProfileSchema.partial();
 
+const legacyProfileDescriptionSchema = z.object({
+  nom: z.string().min(2, "Le nom doit comporter au moins 2 caractères").max(100, "Le nom ne peut excéder 100 caractères"),
+  categorie: ProfileCategoryEnum,
+  bio: z.string().max(2000, "La bio ne peut excéder 2000 caractères").optional().nullable(),
+  avatar_url: z.string().url("URL d'avatar invalide").optional().nullable(),
+  base_rate: z.coerce.number().positive("Le tarif de base doit être supérieur à 0").optional().nullable(),
+  currency: CurrencyEnum.default("EUR"),
+  instagram: z.string().url("Lien Instagram invalide").optional().nullable().or(z.literal("")),
+  tiktok: z.string().url("Lien TikTok invalide").optional().nullable().or(z.literal("")),
+  twitter: z.string().url("Lien Twitter/X invalide").optional().nullable().or(z.literal("")),
+  website: z.string().url("Lien de site web invalide").optional().nullable().or(z.literal("")),
+  is_public: z.boolean().default(true),
+  is_available: z.boolean().default(true),
+});
+
+const modernProfileDescriptionSchema = z.object({
+  name: z.string().min(2, "Le nom doit comporter au moins 2 caractères").max(100, "Le nom ne peut excéder 100 caractères"),
+  category: ProfileCategoryEnum,
+  bio: z.string().max(2000, "La bio ne peut excéder 2000 caractères").optional().nullable(),
+  avatarUrl: z.string().url("URL d'avatar invalide").optional().nullable(),
+  baseRate: z.coerce.number().positive("Le tarif de base doit être supérieur à 0").optional().nullable(),
+  currency: CurrencyEnum.default("EUR"),
+  instagram: z.string().url("Lien Instagram invalide").optional().nullable().or(z.literal("")),
+  tiktok: z.string().url("Lien TikTok invalide").optional().nullable().or(z.literal("")),
+  twitter: z.string().url("Lien Twitter/X invalide").optional().nullable().or(z.literal("")),
+  website: z.string().url("Lien de site web invalide").optional().nullable().or(z.literal("")),
+  isPublic: z.boolean().default(true),
+  isAvailable: z.boolean().default(true),
+});
+
+export const ProfileDescripSchema = z
+  .union([legacyProfileDescriptionSchema, modernProfileDescriptionSchema])
+  .transform((data) => {
+    if ("nom" in data) {
+      return {
+        nom: data.nom,
+        categorie: data.categorie,
+        bio: data.bio ?? "",
+        avatar_url: data.avatar_url ?? undefined,
+        base_rate: data.base_rate ?? undefined,
+        currency: data.currency ?? "EUR",
+        instagram: data.instagram ?? undefined,
+        tiktok: data.tiktok ?? undefined,
+        twitter: data.twitter ?? undefined,
+        website: data.website ?? undefined,
+        is_public: data.is_public ?? true,
+        is_available: data.is_available ?? true,
+      };
+    }
+
+    return {
+      nom: data.name,
+      categorie: data.category,
+      bio: data.bio ?? "",
+      avatar_url: data.avatarUrl ?? undefined,
+      base_rate: data.baseRate ?? undefined,
+      currency: data.currency ?? "EUR",
+      instagram: data.instagram ?? undefined,
+      tiktok: data.tiktok ?? undefined,
+      twitter: data.twitter ?? undefined,
+      website: data.website ?? undefined,
+      is_public: data.isPublic ?? true,
+      is_available: data.isAvailable ?? true,
+    };
+  });
+
+export type ProfileDescrip = z.infer<typeof ProfileDescripSchema>;
+
 export const profileQuerySchema = z.object({
   category: ProfileCategoryEnum.optional(),
   search: z.string().optional(),
