@@ -5,16 +5,20 @@ import { ApiError } from "@/lib/errors";
 import type { Profile } from "@prisma/client";
 
 export interface CreateProfileInput {
-  nom: string;
-  categorie: string;
-  bio: string;
-  avatar_url?: string;
-  base_rate?: number;
-  currency?: string;
-  instagram?: string;
-  tiktok?: string;
-  twitter?: string;
-  website?: string;
+  nom?: string | null;
+  categorie?: string | null;
+  name?: string | null;
+  category?: string | null;
+  bio?: string | null;
+  avatar_url?: string | null;
+  base_rate?: number | null;
+  currency?: string | null;
+  instagram?: string | null;
+  tiktok?: string | null;
+  twitter?: string | null;
+  website?: string | null;
+  is_public?: boolean | null;
+  is_available?: boolean | null;
 }
 
 export class ProfileCreationService {
@@ -35,23 +39,40 @@ export class ProfileCreationService {
     let createdProfile: Profile | null = null;
     let base44UserId: string | null = null;
 
+    const normalizedName = data.name ?? data.nom;
+    const normalizedCategory = data.category ?? data.categorie;
+    const normalizedBio = data.bio ?? "";
+    const normalizedAvatarUrl = data.avatar_url ?? null;
+    const normalizedBaseRate = data.base_rate ?? null;
+    const normalizedCurrency = data.currency ?? "EUR";
+    const normalizedInstagram = data.instagram ?? null;
+    const normalizedTiktok = data.tiktok ?? null;
+    const normalizedTwitter = data.twitter ?? null;
+    const normalizedWebsite = data.website ?? null;
+    const isPublic = data.is_public ?? true;
+    const isAvailable = data.is_available ?? true;
+
+    if (!normalizedName || !normalizedCategory) {
+      throw new ApiError(400, "Nom et catégorie du profil requis", "VALIDATION_ERROR");
+    }
+
     try {
       // ── STEP 1: Créer profil Fantazi-Land dans transaction ──
       createdProfile = await prisma.profile.create({
         data: {
           user_id: userId,
-          name: data.nom,
-          category: data.categorie as any,
-          bio: data.bio,
-          avatar_url: data.avatar_url || null,
-          base_rate: data.base_rate || null,
-          currency: data.currency || "EUR",
-          instagram_url: data.instagram || null,
-          tiktok_url: data.tiktok || null,
-          twitter_url: data.twitter || null,
-          website_url: data.website || null,
-          is_public: true,
-          is_available: true,
+          name: normalizedName,
+          category: normalizedCategory as any,
+          bio: normalizedBio,
+          avatar_url: normalizedAvatarUrl,
+          base_rate: normalizedBaseRate,
+          currency: normalizedCurrency,
+          instagram_url: normalizedInstagram,
+          tiktok_url: normalizedTiktok,
+          twitter_url: normalizedTwitter,
+          website_url: normalizedWebsite,
+          is_public: isPublic,
+          is_available: isAvailable,
           performance_stats: {
             create: {
               avg_rating: 5.0,
