@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { profilesService } from "@/lib/services/profiles.service";
 import { profileCreationService } from "@/lib/services/profile-creation.service";
-import { profileQuerySchema, ProfileDescripSchema } from "@/lib/schemas";
+import { profileQuerySchema, createProfileSchema } from "@/lib/schemas";
 import { errorHandler } from "@/lib/errors";
 import { authenticateRequest } from "@/lib/auth";
 
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     // Validate request body
     const body = await request.json();
-    const validated = ProfileDescripSchema.parse(body);
+    const validated = createProfileSchema.parse(body);
 
     // Create profile + Base44 User atomically
     const result = await profileCreationService.createProfile(
