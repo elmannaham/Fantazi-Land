@@ -13,7 +13,7 @@ export default function AboutPage() {
             À propos de Fantazi-Land
           </h1>
           <p className="mx-auto max-w-2xl text-lg opacity-90 sm:text-xl">
-            Révolutionner la mise en relation entre créateurs et clients
+            Révolutionner la mise en relation entre hôtesses et clients
           </p>
         </div>
       </section>
@@ -24,10 +24,10 @@ export default function AboutPage() {
           <div>
             <h2 className="text-3xl font-bold text-slate-900 mb-6">Notre Mission</h2>
             <p className="text-slate-600 mb-4 leading-relaxed">
-              Fantazi-Land est une plateforme innovante dédiée à la mise en relation entre clients et créateurs de contenu. Nous croyons que chaque créateur mérite une plateforme sécurisée, transparente et facile à utiliser pour gérer ses collaborations.
+              Fantazi-Land est une plateforme innovante dédiée à la mise en relation entre clients et hôtesses professionnelles. Nous croyons que chaque hôtesse mérite une plateforme sécurisée, transparente et facile à utiliser pour gérer ses collaborations.
             </p>
             <p className="text-slate-600 leading-relaxed">
-              Notre objectif est de simplifier le processus de réservation et de collaboration en offrant des outils puissants pour les créateurs et une expérience seamless pour les clients.
+              Notre objectif est de simplifier le processus de réservation et de collaboration en offrant des outils puissants pour les hôtesses et une expérience seamless pour les clients.
             </p>
           </div>
           <div className="bg-white rounded-lg p-8 shadow-sm border border-slate-200">
@@ -42,7 +42,7 @@ export default function AboutPage() {
               <li className="flex gap-3">
                 <span className="text-purple-600 font-bold text-xl">✓</span>
                 <span className="text-slate-700">
-                  <strong>Qualité</strong> - Standards élevés pour nos créateurs et services
+                  <strong>Qualité</strong> - Standards élevés pour nos hôtesses et services
                 </span>
               </li>
               <li className="flex gap-3">
@@ -140,7 +140,7 @@ export default function AboutPage() {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="text-center">
             <div className="text-4xl font-bold text-purple-600 mb-2">500+</div>
-            <p className="text-slate-600">Créateurs actifs</p>
+            <p className="text-slate-600">Hôtesses actives</p>
           </div>
           <div className="text-center">
             <div className="text-4xl font-bold text-purple-600 mb-2">5K+</div>
@@ -162,17 +162,17 @@ export default function AboutPage() {
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold mb-6">Rejoignez Notre Communauté</h2>
           <p className="text-lg opacity-90 mb-8">
-            Que vous soyez créateur ou client, Fantazi-Land est l'endroit idéal pour développer vos collaborations.
+            Que vous soyez hôtesse ou client, Fantazi-Land est l'endroit idéal pour développer vos collaborations.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/profiles/create">
               <Button className="w-full sm:w-auto">
-                Devenir Créateur
+                Devenir Hôtesse
               </Button>
             </Link>
             <Link href="/">
               <Button variant="secondary" className="w-full sm:w-auto">
-                Découvrir nos Créateurs
+                Découvrir nos Hôtesses
               </Button>
             </Link>
           </div>

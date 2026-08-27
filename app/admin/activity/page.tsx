@@ -134,7 +134,7 @@ const mockActivityEvents = [
     id: "7",
     type: "user_created" as const,
     title: "Nouvel Utilisateur Inscrit",
-    description: "Thomas Blanc s'est inscrit en tant que créateur de contenu",
+    description: "Thomas Blanc s'est inscrit en tant qu'hôte",
     actor: { name: "Thomas Blanc", role: "user" as const },
     severity: "low" as const,
     timestamp: "Il y a 12 h",

@@ -45,7 +45,7 @@ export default function Navbar() {
             href="/dashboard"
             className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-all hover:bg-purple-700"
           >
-            Espace Créatrice
+            Espace Hôtesse
           </Link>
         </div>
       </div>

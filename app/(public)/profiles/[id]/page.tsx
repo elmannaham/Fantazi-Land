@@ -158,7 +158,7 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
               <div className="p-6 text-center bg-emerald-50 text-emerald-800 rounded-xl">
                 <div className="text-3xl mb-2">🎉</div>
                 <h3 className="font-bold text-lg mb-1">Demande envoyée !</h3>
-                <p className="text-sm">Votre réservation a bien été transmise à la créatrice.</p>
+                <p className="text-sm">Votre réservation a bien été transmise à l'hôtesse.</p>
               </div>
             ) : (
               <form onSubmit={handleBookingSubmit} className="space-y-4">
@@ -257,7 +257,7 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
       <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-pink-600 px-4 py-16 text-white shadow-lg">
         <div className="mx-auto max-w-4xl">
           <Link href="/" className="inline-flex items-center text-xs font-semibold text-white/80 hover:text-white mb-6 transition">
-            ← Retour aux créatrices
+            ← Retour aux hôtesses
           </Link>
           <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
             <Avatar
@@ -302,9 +302,9 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
       <div className="mx-auto max-w-4xl px-4 py-10 space-y-10">
         {/* Bio */}
         <section className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">À propos de la créatrice</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-4">À propos de l'hôtesse</h2>
           <p className="text-slate-700 leading-relaxed whitespace-pre-line">
-            {profile.bio || "Cette créatrice n'a pas encore ajouté de biographie détaillée."}
+            {profile.bio || "Cette hôtesse n'a pas encore ajouté de biographie détaillée."}
           </p>
         </section>
 

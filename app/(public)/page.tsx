@@ -1,146 +1,158 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
-import { ProfileGrid } from "@/components/organisms/ProfileGrid";
+import { Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import { useProfiles } from "@/lib/hooks/useProfiles";
+import { ProfileGrid } from "@/components/organisms/ProfileGrid";
+import { BentoCreatorGrid } from "@/components/organisms/BentoCreatorGrid";
+import { BookingModal } from "@/components/organisms/BookingModal";
+import { CategoryFilterBar } from "@/components/molecules/CategoryFilterBar";
+import { HeroSection } from "@/components/sections/HeroSection";
+import { StatsSection } from "@/components/sections/StatsSection";
+import { PortfolioTeaserSection } from "@/components/sections/PortfolioTeaserSection";
+import type { ProfileWithStats } from "@/lib/types";
+
+const CATEGORIES = [
+  "Tous",
+  "Photographie",
+  "Vidéographie",
+  "Contenu Mode",
+  "Beauté",
+  "Lifestyle",
+  "Gaming",
+];
 
 export default function HomePage() {
   const { profiles, isLoading, error } = useProfiles();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState("Tous");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedBookingCreator, setSelectedBookingCreator] = useState<ProfileWithStats | null>(null);
+
+  // Calcul dynamique des compteurs par catégorie
+  const countMap = useMemo(() => {
+    const map: Record<string, number> = { Tous: profiles.length };
+    profiles.forEach((p) => {
+      if (p.category) {
+        map[p.category] = (map[p.category] || 0) + 1;
+      }
+    });
+    return map;
+  }, [profiles]);
+
+  // Filtrage combiné (Catégorie + Recherche textuelle)
+  const filteredProfiles = useMemo(() => {
+    return profiles.filter((p) => {
+      const matchCategory =
+        selectedCategory === "Tous" ||
+        p.category?.toLowerCase() === selectedCategory.toLowerCase();
+      
+      const matchSearch =
+        !searchQuery.trim() ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.bio && p.bio.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      return matchCategory && matchSearch;
+    });
+  }, [profiles, selectedCategory, searchQuery]);
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      {/* Lightbox Modal */}
-      {selectedImage && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md transition-opacity"
-          onClick={() => setSelectedImage(null)}
-        >
-          <button
-            onClick={() => setSelectedImage(null)}
-            className="absolute top-6 right-6 rounded-full bg-white/20 p-2.5 text-white backdrop-blur-md transition-all hover:bg-white/40 active:scale-95"
-            aria-label="Fermer"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-          <div
-            className="relative max-h-[90vh] max-w-4xl overflow-hidden rounded-2xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img
-              src={selectedImage}
-              alt="Vue agrandie"
-              className="max-h-[85vh] w-auto rounded-2xl object-contain shadow-2xl"
-            />
-          </div>
-        </div>
-      )}
+    <main className="min-h-screen bg-slate-50 selection:bg-purple-500 selection:text-white">
+      {/* 1. Hero Section 21st.dev Style */}
+      <HeroSection
+        totalProfilesCount={profiles.length}
+        onExploreClick={() => {
+          const el = document.getElementById("catalogue");
+          el?.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-purple-700 via-purple-600 to-pink-600 py-20 px-4 text-white shadow-md">
-        <div className="relative mx-auto max-w-5xl text-center">
-          <span className="mb-3 inline-block rounded-full bg-white/20 px-4 py-1 text-xs font-semibold uppercase tracking-wider backdrop-blur-md">
-            Plateforme Exclusive de Réservation
-          </span>
-          <h1 className="mb-4 text-4xl font-extrabold tracking-tight sm:text-6xl">
-            Fantazi-Land
-          </h1>
-          <p className="mx-auto mb-8 max-w-2xl text-lg opacity-90 sm:text-xl">
-            Découvrez nos créatrices d'exception, explorez leurs portfolios exclusifs et réservez vos collaborations en toute sécurité.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/profiles/create"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-base font-semibold text-purple-700 shadow-lg transition-all hover:bg-slate-50 hover:shadow-xl active:scale-95"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              Créer un profil
-            </Link>
-            <a
-              href="#catalogue"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/40 bg-white/10 px-6 py-3.5 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 active:scale-95"
-            >
-              Explorer les créatrices ({profiles.length})
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Catalogue Section */}
-      <section id="catalogue" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
-              Nos Créatrices Officielles
-            </h2>
-            <p className="mt-2 text-slate-600">
-              Découvrez nos créatrices d'exception et réservez vos collaborations
-            </p>
-          </div>
-          <span className="rounded-full bg-purple-100 px-3.5 py-1 text-sm font-semibold text-purple-800">
-            {profiles.length} profils disponibles
-          </span>
-        </div>
-
-        {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
-            <p className="text-red-700">Erreur: {error}</p>
-          </div>
-        )}
-
-        {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-80 bg-slate-200 rounded-lg animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <ProfileGrid
-            profiles={profiles.map((p) => ({
-              id: p.id,
-              name: p.name,
-              category: p.category,
-              avatar: p.avatar_url || undefined,
-              bio: p.bio || "",
-              rating: p.performance_stats?.avg_rating ? Number(p.performance_stats.avg_rating) : 5,
-              reviewCount: 0,
-              baseRate: Number(p.base_rate) || 100,
-              location: undefined,
-              isVerified: false,
-            }))}
-            onSelect={(id) => {
-              console.log("Booking profile:", id);
-            }}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* 2. Bento Grid : Hôtesses Vedettes */}
+        {!isLoading && profiles.length > 0 && (
+          <BentoCreatorGrid
+            creators={profiles}
+            onBookCreator={(creator) => setSelectedBookingCreator(creator)}
           />
         )}
-      </section>
+
+        {/* 3. Section Catalogue & Filtres */}
+        <section id="catalogue" className="py-12 scroll-mt-20">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-100 px-3 py-0.5 text-xs font-bold text-purple-800 mb-2">
+                <Sparkles className="h-3 w-3" />
+                Catalogue Officiel
+              </div>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+                Nos Hôtesses d'Exception
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Explorez les profils vérifiés, consultez les tarifs et réservez en direct.
+              </p>
+            </div>
+
+            {/* Barre de Recherche */}
+            <div className="relative w-full md:w-72">
+              <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Rechercher par nom, style..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-2xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm focus:border-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-600/20 transition"
+              />
+            </div>
+          </div>
+
+          {/* Barre de filtres par catégorie */}
+          <div className="mb-8">
+            <CategoryFilterBar
+              categories={CATEGORIES}
+              selectedCategory={selectedCategory}
+              onSelect={setSelectedCategory}
+              countMap={countMap}
+            />
+          </div>
+
+          {/* Message d'erreur éventuel */}
+          {error && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center mb-8">
+              <p className="text-sm font-semibold text-red-700">Erreur : {error}</p>
+            </div>
+          )}
+
+          {/* Grille des profils */}
+          <ProfileGrid
+            profiles={filteredProfiles}
+            isLoading={isLoading}
+            onBookCreator={(creator) => setSelectedBookingCreator(creator)}
+          />
+        </section>
+      </div>
+
+      {/* 4. Portfolio 3D Teaser Section */}
+      <PortfolioTeaserSection />
+
+      {/* 5. Section Métriques & Réassurance */}
+      <StatsSection />
+
+      {/* Modal de Réservation Interactive */}
+      {selectedBookingCreator && (
+        <BookingModal
+          isOpen={Boolean(selectedBookingCreator)}
+          onClose={() => setSelectedBookingCreator(null)}
+          creator={{
+            id: selectedBookingCreator.id,
+            name: selectedBookingCreator.name,
+            baseRate: selectedBookingCreator.base_rate,
+            currency: selectedBookingCreator.currency,
+            category: selectedBookingCreator.category,
+            avatarUrl: selectedBookingCreator.avatar_url,
+          }}
+        />
+      )}
     </main>
   );
 }

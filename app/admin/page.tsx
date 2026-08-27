@@ -86,7 +86,7 @@ export default function AdminDashboardPage() {
       type: "SYNC",
     },
     {
-      title: "Fiches créatrices connectées en temps réel",
+      title: "Fiches hôtesses connectées en temps réel",
       user: "Système",
       time: "Aujourd'hui",
       type: "LIVE",

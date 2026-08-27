@@ -1,8 +1,8 @@
 {
   "name": "fantazi-land",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "private": true,
-  "description": "Plateforme de booking pour agence de créatrices de contenu",
+  "description": "Plateforme de booking pour agence d'hôtesses",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -110,7 +110,7 @@ export default function PortfolioPage() {
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl sm:text-5xl font-bold mb-4">Portfolio 3D</h1>
           <p className="text-lg opacity-90">
-            Découvrez les œuvres de nos créateurs en 3D interactif
+            Découvrez les books et profils de nos hôtesses en 3D interactif
           </p>
         </div>
       </section>
@@ -122,7 +122,7 @@ export default function PortfolioPage() {
           <div className="lg:col-span-1">
             <div className="sticky top-20">
               <h2 className="text-xl font-bold text-slate-900 mb-4">
-                Créateurs
+                Hôtesses
               </h2>
               <div className="space-y-2 bg-white rounded-lg p-4 shadow-sm border border-slate-200">
                 {profilesWithMedia.length > 0 ? (
@@ -141,7 +141,7 @@ export default function PortfolioPage() {
                     </button>
                   ))
                 ) : (
-                  <p className="text-slate-500 text-sm">Chargement des créateurs...</p>
+                  <p className="text-slate-500 text-sm">Chargement des hôtesses...</p>
                 )}
               </div>
             </div>

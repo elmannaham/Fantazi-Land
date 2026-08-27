@@ -97,7 +97,7 @@ export default function AdminProfilesPage() {
                 <label className="block text-xs font-semibold text-slate-600 mb-1">Recherche par nom</label>
                 <input
                   type="text"
-                  placeholder="Rechercher une créatrice..."
+                  placeholder="Rechercher une hôtesse..."
                   value={filters.search}
                   onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
@@ -137,7 +137,7 @@ export default function AdminProfilesPage() {
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50/80">
                   <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    Créatrice
+                    Hôtesse
                   </th>
                   <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Catégorie

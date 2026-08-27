@@ -38,6 +38,8 @@ supabase/.branches/
 # Misc
 *.log
 npm-debug.log*
+*.tsbuildinfo
+.playwright-mcp/
 
 # My-app (experimental)
 my-app/

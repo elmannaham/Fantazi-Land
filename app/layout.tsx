@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fantazi-Land | Agence de Créatrices de Contenu",
+  title: "Fantazi-Land | Agence d'Hôtesses",
   description:
-    "Découvrez et réservez les meilleures créatrices de contenu pour vos projets.",
+    "Découvrez et réservez les meilleures hôtesses pour vos événements et projets.",
 };
 
 export default function RootLayout({
