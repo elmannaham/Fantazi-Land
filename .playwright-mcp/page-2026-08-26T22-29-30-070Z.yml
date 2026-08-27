@@ -1,0 +1,121 @@
+- generic [active] [ref=f4e1]:
+  - navigation [ref=f4e2]:
+    - generic [ref=f4e3]:
+      - link "Fantazi-Land" [ref=f4e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f4e5]:
+        - link "À propos" [ref=f4e6] [cursor=pointer]:
+          - /url: /about
+        - link "Créer un profil" [ref=f4e7] [cursor=pointer]:
+          - /url: /profiles/create
+        - link "Espace Créatrice" [ref=f4e10] [cursor=pointer]:
+          - /url: /dashboard
+  - main [ref=f4e11]:
+    - generic [ref=f4e13]:
+      - generic [ref=f4e14]: Plateforme Exclusive de Réservation
+      - heading "Fantazi-Land" [level=1] [ref=f4e15]
+      - paragraph [ref=f4e16]: Découvrez nos créatrices d'exception, explorez leurs portfolios exclusifs et réservez vos collaborations en toute sécurité.
+      - generic [ref=f4e17]:
+        - link "Créer un profil" [ref=f4e18] [cursor=pointer]:
+          - /url: /profiles/create
+        - link "Explorer les créatrices (4)" [ref=f4e21] [cursor=pointer]:
+          - /url: "#catalogue"
+    - generic [ref=f4e22]:
+      - generic [ref=f4e23]:
+        - generic [ref=f4e24]:
+          - heading "Nos Créatrices Officielles" [level=2] [ref=f4e25]
+          - paragraph [ref=f4e26]: Découvrez nos créatrices d'exception et réservez vos collaborations
+        - generic [ref=f4e27]: 4 profils disponibles
+      - generic [ref=f4e28]:
+        - generic [ref=f4e29]:
+          - generic [ref=f4e31]:
+            - img "ALISHA" [ref=f4e33] [cursor=pointer]
+            - generic [ref=f4e34]:
+              - generic [ref=f4e35]:
+                - heading "ALISHA" [level=3] [ref=f4e36]
+                - generic [ref=f4e37]: intime rencontre
+              - paragraph [ref=f4e38]: "Tarif indicatif : 500 CAD"
+              - paragraph [ref=f4e39]: Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.
+          - generic [ref=f4e40]:
+            - paragraph [ref=f4e41]: Portfolio (3 photos HD) • Cliquez pour agrandir
+            - generic [ref=f4e42]:
+              - button [ref=f4e43] [cursor=pointer]:
+                - img "ALISHA photo 1" [ref=f4e44]
+              - button [ref=f4e45] [cursor=pointer]:
+                - img "ALISHA photo 2" [ref=f4e46]
+              - button [ref=f4e47] [cursor=pointer]:
+                - img "ALISHA photo 3" [ref=f4e48]
+          - generic [ref=f4e49]:
+            - generic [ref=f4e50]: Disponible
+            - link "Réserver" [ref=f4e52] [cursor=pointer]:
+              - /url: mailto:alisha@fantazi-land.com?subject=Réservation Fantazi-Land - ALISHA
+        - generic [ref=f4e53]:
+          - generic [ref=f4e55]:
+            - img "SHANEL" [ref=f4e57] [cursor=pointer]
+            - generic [ref=f4e58]:
+              - generic [ref=f4e59]:
+                - heading "SHANEL" [level=3] [ref=f4e60]
+                - generic [ref=f4e61]: intime rencontre
+              - paragraph [ref=f4e62]: "Tarif indicatif : 500 CAD"
+              - paragraph [ref=f4e63]: Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.
+          - generic [ref=f4e64]:
+            - paragraph [ref=f4e65]: Portfolio (5 photos HD) • Cliquez pour agrandir
+            - generic [ref=f4e66]:
+              - button [ref=f4e67] [cursor=pointer]:
+                - img "SHANEL photo 1" [ref=f4e68]
+              - button [ref=f4e69] [cursor=pointer]:
+                - img "SHANEL photo 2" [ref=f4e70]
+              - button [ref=f4e71] [cursor=pointer]:
+                - img "SHANEL photo 3" [ref=f4e72]
+              - button [ref=f4e73] [cursor=pointer]:
+                - img "SHANEL photo 4" [ref=f4e74]
+              - button [ref=f4e75] [cursor=pointer]:
+                - img "SHANEL photo 5" [ref=f4e76]
+          - generic [ref=f4e77]:
+            - generic [ref=f4e78]: Disponible
+            - link "Réserver" [ref=f4e80] [cursor=pointer]:
+              - /url: mailto:shanel@fantazi-land.com?subject=Réservation Fantazi-Land - SHANEL
+        - generic [ref=f4e81]:
+          - generic [ref=f4e83]:
+            - img "Sunday" [ref=f4e85] [cursor=pointer]
+            - generic [ref=f4e86]:
+              - generic [ref=f4e87]:
+                - heading "Sunday" [level=3] [ref=f4e88]
+                - generic [ref=f4e89]: intime rencontre
+              - paragraph [ref=f4e90]: "Tarif indicatif : 500 CAD"
+              - paragraph [ref=f4e91]: Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.
+          - generic [ref=f4e92]:
+            - paragraph [ref=f4e93]: Portfolio (3 photos HD) • Cliquez pour agrandir
+            - generic [ref=f4e94]:
+              - button [ref=f4e95] [cursor=pointer]:
+                - img "Sunday photo 1" [ref=f4e96]
+              - button [ref=f4e97] [cursor=pointer]:
+                - img "Sunday photo 2" [ref=f4e98]
+              - button [ref=f4e99] [cursor=pointer]:
+                - img "Sunday photo 3" [ref=f4e100]
+          - generic [ref=f4e101]:
+            - generic [ref=f4e102]: Disponible
+            - link "Réserver" [ref=f4e104] [cursor=pointer]:
+              - /url: mailto:sunday@fantazi-land.com?subject=Réservation Fantazi-Land - Sunday
+        - generic [ref=f4e105]:
+          - generic [ref=f4e107]:
+            - img "Sushi" [ref=f4e109] [cursor=pointer]
+            - generic [ref=f4e110]:
+              - generic [ref=f4e111]:
+                - heading "Sushi" [level=3] [ref=f4e112]
+                - generic [ref=f4e113]: intime rencontre
+              - paragraph [ref=f4e114]: "Tarif indicatif : 500 CAD"
+              - paragraph [ref=f4e115]: Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.
+          - generic [ref=f4e116]:
+            - paragraph [ref=f4e117]: Portfolio (3 photos HD) • Cliquez pour agrandir
+            - generic [ref=f4e118]:
+              - button [ref=f4e119] [cursor=pointer]:
+                - img "Sushi photo 1" [ref=f4e120]
+              - button [ref=f4e121] [cursor=pointer]:
+                - img "Sushi photo 2" [ref=f4e122]
+              - button [ref=f4e123] [cursor=pointer]:
+                - img "Sushi photo 3" [ref=f4e124]
+          - generic [ref=f4e125]:
+            - generic [ref=f4e126]: Disponible
+            - link "Réserver" [ref=f4e128] [cursor=pointer]:
+              - /url: mailto:sushi@fantazi-land.com?subject=Réservation Fantazi-Land - Sushi

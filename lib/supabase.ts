@@ -7,6 +7,10 @@ const supabaseAnonKey =
 
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey);
 
+export const supabaseS3Endpoint =
+  process.env.NEXT_PUBLIC_SUPABASE_S3_ENDPOINT ||
+  "https://uytihmscyjpwpdhqvnbw.storage.supabase.co/storage/v1/s3";
+
 export function createServiceClient(): SupabaseClient {
   const serviceKey =
     process.env.SUPABASE_SERVICE_ROLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_service_key";

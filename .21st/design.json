@@ -1,0 +1,38 @@
+{
+  "projectName": "Fantazi-Land - Content Creator Booking Platform",
+  "designSystem": {
+    "brand": {
+      "primary": "#a855f7",
+      "primaryDark": "#7e22ce",
+      "neutral": {
+        "50": "#f8fafc",
+        "100": "#f1f5f9",
+        "200": "#e2e8f0",
+        "300": "#cbd5e1",
+        "500": "#64748b",
+        "600": "#475569",
+        "900": "#0f172a"
+      }
+    },
+    "typography": {
+      "fontFamily": "Inter, system-ui, sans-serif",
+      "weights": [400, 500, 600, 700]
+    },
+    "spacing": "4px base (Tailwind default scale)",
+    "radius": "rounded-lg (8px default)",
+    "animations": ["fade-in (0.3s)", "slide-up (0.4s)"]
+  },
+  "components": {
+    "atoms": ["Button", "Card", "Badge", "Rating", "Avatar"],
+    "molecules": ["KPICard"],
+    "organisms": ["ProfileForm", "BookingsList", "ReviewsList", "ProfileGrid", "SyncHealthMonitor"]
+  },
+  "decisions": {
+    "layout": "Next.js 14 App Router with layout groups ((public), (dashboard), admin)",
+    "stateManagement": "React hooks + Context (Zustand optional for complex state)",
+    "forms": "React with Zod validation",
+    "brandPalette": "Purple-focused (a855f7) for CTAs, action-focused UI",
+    "density": "Compact-to-comfortable (16px padding default, 12px on mobile)",
+    "animation": "Subtle fade + slide-up on page transitions, micro-interactions on hover"
+  }
+}

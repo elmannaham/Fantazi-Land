@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { profileCreationService } from "@/lib/services/profile-creation.service";
 import { base44Client } from "@/lib/clients/base44.client";

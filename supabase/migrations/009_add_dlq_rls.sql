@@ -11,6 +11,7 @@ ALTER TABLE sync_logs ENABLE ROW LEVEL SECURITY;
 -- ============================================================================
 
 -- 1. Admins can view all failed syncs
+DROP POLICY IF EXISTS "Admins view failed syncs" ON failed_syncs;
 CREATE POLICY "Admins view failed syncs"
   ON failed_syncs FOR SELECT
   USING (
@@ -21,6 +22,7 @@ CREATE POLICY "Admins view failed syncs"
   );
 
 -- 2. Admins can update failed syncs (to retry or resolve)
+DROP POLICY IF EXISTS "Admins update failed syncs" ON failed_syncs;
 CREATE POLICY "Admins update failed syncs"
   ON failed_syncs FOR UPDATE
   USING (
@@ -31,6 +33,7 @@ CREATE POLICY "Admins update failed syncs"
   );
 
 -- 3. Admins can delete failed syncs (cleanup)
+DROP POLICY IF EXISTS "Admins delete failed syncs" ON failed_syncs;
 CREATE POLICY "Admins delete failed syncs"
   ON failed_syncs FOR DELETE
   USING (
@@ -47,6 +50,7 @@ CREATE POLICY "Admins delete failed syncs"
 -- ============================================================================
 
 -- 1. Admins can view all sync logs
+DROP POLICY IF EXISTS "Admins view sync logs" ON sync_logs;
 CREATE POLICY "Admins view sync logs"
   ON sync_logs FOR SELECT
   USING (
@@ -57,6 +61,7 @@ CREATE POLICY "Admins view sync logs"
   );
 
 -- 2. Creators can view sync logs for their own profile
+DROP POLICY IF EXISTS "Creators view own sync logs" ON sync_logs;
 CREATE POLICY "Creators view own sync logs"
   ON sync_logs FOR SELECT
   USING (
@@ -69,6 +74,7 @@ CREATE POLICY "Creators view own sync logs"
   );
 
 -- 3. Anonymous logs visible only to admins
+DROP POLICY IF EXISTS "Admins view anonymous sync logs" ON sync_logs;
 CREATE POLICY "Admins view anonymous sync logs"
   ON sync_logs FOR SELECT
   USING (

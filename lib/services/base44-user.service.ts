@@ -1,4 +1,5 @@
 import type { Profile } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 import { base44Client } from "@/lib/clients/base44.client";
 import type {
   Base44QueryParams,
@@ -100,7 +101,7 @@ export class Base44UserService {
       category: base44User.custom?.category as any,
       bio: base44User.custom?.description,
       avatar_url: base44User.custom?.avatar_url,
-      base_rate: base44User.custom?.base_rate ? parseFloat(base44User.custom.base_rate) : null,
+      base_rate: base44User.custom?.base_rate ? new Decimal(String(base44User.custom.base_rate)) : null,
       currency: base44User.custom?.currency || "EUR",
       instagram_url: base44User.custom?.instagram,
       tiktok_url: base44User.custom?.tiktok,

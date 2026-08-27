@@ -143,7 +143,20 @@ export class ProfileCreationService {
         }
       }
 
-      // Profil Prisma est automatiquement rollback en cas d'erreur
+      // ── ROLLBACK: Supprimer profil Prisma si créé ──
+      if (createdProfile?.id) {
+        try {
+          await prisma.profile.delete({
+            where: { id: createdProfile.id },
+          });
+          console.log(`Rolled back Prisma Profile: ${createdProfile.id}`);
+        } catch (deleteProfileError) {
+          console.error(
+            `Failed to rollback Prisma Profile ${createdProfile.id}:`,
+            deleteProfileError
+          );
+        }
+      }
 
       // ── DLQ: Enregistrer l'erreur ──
       await prisma.failedSync.create({

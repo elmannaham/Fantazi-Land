@@ -20,16 +20,8 @@ export default function FailedSyncsPage() {
   const [items, setItems] = useState<FailedSync[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("pending");
-  const router = useRouter();
 
-  useEffect(() => {
-    fetchFailedSyncs();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchFailedSyncs, 30000);
-    return () => clearInterval(interval);
-  }, [filter]);
-
-  async function fetchFailedSyncs() {
+  const fetchFailedSyncs = useCallback(async () => {
     try {
       const res = await fetch(
         `/api/failed-syncs?status=${filter}`,
@@ -43,7 +35,14 @@ export default function FailedSyncsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [filter]);
+
+  useEffect(() => {
+    fetchFailedSyncs();
+    // Refresh every 30 seconds
+    const interval = setInterval(() => fetchFailedSyncs(), 30000);
+    return () => clearInterval(interval);
+  }, [fetchFailedSyncs]);
 
   async function handleRetry(id: string) {
     try {
@@ -52,7 +51,7 @@ export default function FailedSyncsPage() {
         headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.ok) {
-        fetchFailedSyncs();
+        await fetchFailedSyncs();
       }
     } catch (error) {
       console.error("Error retrying sync:", error);
@@ -67,7 +66,7 @@ export default function FailedSyncsPage() {
         headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.ok) {
-        fetchFailedSyncs();
+        await fetchFailedSyncs();
       }
     } catch (error) {
       console.error("Error deleting sync:", error);
@@ -79,8 +78,6 @@ export default function FailedSyncsPage() {
     retrying: items.filter((i) => i.status === "retrying").length,
     failed: items.filter((i) => i.status === "failed").length,
   };
-
-  const memoizedFetchFailedSyncs = useCallback(fetchFailedSyncs, [filter]);
 
   return (
     <div className="p-8" style={{ animation: "fadeIn 0.6s ease-out" }}>

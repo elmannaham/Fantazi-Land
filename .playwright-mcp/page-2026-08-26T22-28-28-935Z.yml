@@ -1,0 +1,27 @@
+- generic [active] [ref=f3e1]:
+  - navigation [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - link "Fantazi-Land" [ref=f3e4] [cursor=pointer]:
+        - /url: /
+      - generic [ref=f3e5]:
+        - link "À propos" [ref=f3e6] [cursor=pointer]:
+          - /url: /about
+        - link "Créer un profil" [ref=f3e7] [cursor=pointer]:
+          - /url: /profiles/create
+        - link "Espace Créatrice" [ref=f3e10] [cursor=pointer]:
+          - /url: /dashboard
+  - main [ref=f3e11]:
+    - generic [ref=f3e13]:
+      - generic [ref=f3e14]: Plateforme Exclusive de Réservation
+      - heading "Fantazi-Land" [level=1] [ref=f3e15]
+      - paragraph [ref=f3e16]: Découvrez nos créatrices d'exception, explorez leurs portfolios exclusifs et réservez vos collaborations en toute sécurité.
+      - generic [ref=f3e17]:
+        - link "Créer un profil" [ref=f3e18] [cursor=pointer]:
+          - /url: /profiles/create
+        - link "Explorer les créatrices (0)" [ref=f3e21] [cursor=pointer]:
+          - /url: "#catalogue"
+    - generic [ref=f3e23]:
+      - generic [ref=f3e24]:
+        - heading "Nos Créatrices Officielles" [level=2] [ref=f3e25]
+        - paragraph [ref=f3e26]: Découvrez nos créatrices d'exception et réservez vos collaborations
+      - generic [ref=f3e27]: 0 profils disponibles

@@ -1,5 +1,4 @@
-[project]
-id = "fantazi-land"
+project_id = "fantazi-land"
 
 [api]
 enabled = true

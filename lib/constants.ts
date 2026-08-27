@@ -25,3 +25,14 @@ export const BOOKING_STATUS_LABELS: Record<string, string> = {
 };
 
 export const ITEMS_PER_PAGE = 12;
+
+export const SUPABASE_S3_ENDPOINT =
+  process.env.NEXT_PUBLIC_SUPABASE_S3_ENDPOINT ||
+  "https://uytihmscyjpwpdhqvnbw.storage.supabase.co/storage/v1/s3";
+
+export const STORAGE_BUCKETS = {
+  PROFILES: "profiles",
+  AVATARS: "avatars",
+  HOTESS: "HOTESS",
+} as const;
+

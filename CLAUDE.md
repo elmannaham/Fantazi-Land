@@ -20,16 +20,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | Composant | Status | Notes |
 |-----------|--------|-------|
 | Architecture & Design | ✅ Complète | Design validé, diagrammes actualisés |
-| Schéma BD (Prisma + SQL) | ✅ Complète | 8 migrations SQL, Prisma schema finalisé avec indices |
-| API Routes (CRUD) | ✅ Complète | Tous les endpoints implémentés avec validation Zod |
+| Schéma BD (Prisma + SQL) | ✅ Complète | 12 migrations SQL, Prisma schema finalisé avec indices |
+| API Routes (CRUD) | ✅ Complète | Tous les endpoints implémentés avec validation Zod et dynamic mode |
 | Services & Repositories | ✅ Complète | Pattern couche métier établi (profiles, bookings, reviews, sync, base44-user) |
 | Authentification & RBAC | ✅ Complète | Module `lib/auth.ts` complet : JWT, extraction token, vérification rôles |
 | Edge Functions | ✅ Complète | 3 fonctions actives : sync-storage-to-db-v2, sync-db-to-storage, retry-failed-syncs |
-| Base44 Integration | ✅ Complète | Atomic creation, error handling, DLQ retry system |
-| Tests (Unit & Integration) | ✅ Complète | Phase 3: error handling, rollback, retry tests |
-| Admin Dashboard (DLQ) | ✅ Complète | `/admin/failed-syncs` with manual retry/delete |
-| Composants UI & Pages | 🟡 En cours | Atoms/Molecules OK, organisms + pages en développement |
-| Déploiement Vercel | 🟡 À faire | Techniquement prêt, config prod à valider |
+| Base44 Integration | ✅ Complète | Atomic creation, error handling, DLQ retry system & explicit rollback |
+| Tests (Unit & Integration) | ✅ Complète | Tests unitaires SDK & Services validés, build production OK |
+| Admin Dashboard & DLQ | ✅ Complète | `/admin`, `/admin/profiles`, `/admin/failed-syncs` avec métriques live |
+| Composants UI & Pages | ✅ Complète | Atoms, molecules, organisms, dynamic profile detail & interactive booking |
+| Déploiement Vercel | 🟡 Prêt | Build Next.js 14 validé (20 routes compilées avec succès) |
 
 ---
 
@@ -70,144 +70,87 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 fantazi-land/
 ├── .agents/                        # Configuration agents Claude Code (subagents.yaml)
-├── .claude/
-│   ├── settings.json              # Configuration Claude Code
-│   └── rules/                      # Rules personnalisées si besoin
+├── .claude/                        # Configuration et règles locales Claude Code
 │
-├── app/                            # Next.js 14 App Router
-│   ├── (public)/                   # Layout public (Marketing)
-│   │   ├── layout.tsx
-│   │   ├── page.tsx                # Home - Listing profiles (SSR)
-│   │   ├── profiles/[id]/page.tsx  # Profile detail view
-│   │   └── about/page.tsx          # À propos / Marketing
+├── app/                            # Next.js 14 App Router (20 routes compilées)
+│   ├── (public)/                   # Layout & pages publiques
+│   │   ├── layout.tsx              # Navbar publique + footer
+│   │   ├── page.tsx                # Accueil - Listing des profils + Carrousel 3D + Lightbox
+│   │   ├── portfolio/page.tsx      # Portfolio interactif & galerie médias
+│   │   ├── about/page.tsx          # À propos / Présentation agence
+│   │   ├── profiles/[id]/page.tsx  # Fiche détaillée créatrice + Avis + Modal de réservation
+│   │   └── profiles/create/page.tsx# Formulaire public de création de profil
 │   │
-│   ├── (dashboard)/                # Layout protégé (App)
-│   │   ├── layout.tsx              # Navbar, sidebar, auth check
-│   │   ├── dashboard/page.tsx      # Dashboard créatrice
-│   │   ├── profile/[id]/page.tsx   # View profil
-│   │   ├── profile/[id]/edit/page.tsx # Edit profil
-│   │   ├── bookings/page.tsx       # Gestion réservations
-│   │   ├── reviews/page.tsx        # Avis reçus
-│   │   └── settings/page.tsx       # Paramètres compte
+│   ├── (dashboard)/                # Espace privé créatrices
+│   │   ├── layout.tsx              # Wrapper avec navigation dashboard
+│   │   ├── dashboard/page.tsx      # Dashboard créatrice (KPIs, réservations récentes)
+│   │   └── profile/[id]/edit/page.tsx # Éditeur de profil & services
 │   │
-│   ├── admin/                      # Routes admin protégées
-│   │   ├── page.tsx                # Dashboard admin
-│   │   ├── profiles/page.tsx       # Gestion tous les profils
-│   │   ├── profiles/create/page.tsx # Création manuelle
-│   │   ├── profiles/import-csv/page.tsx # Import CSV batch
-│   │   ├── failed-syncs/page.tsx   # Dead Letter Queue dashboard
-│   │   └── logs/page.tsx           # Sync logs & monitoring
+│   ├── admin/                      # Espace administration & monitoring
+│   │   ├── page.tsx                # Dashboard admin (KPIs live, état du système)
+│   │   ├── profiles/page.tsx       # Gestion des profils (Recherche live, filtres, suppression)
+│   │   ├── activity/page.tsx       # Journal d'activité plateforme
+│   │   └── failed-syncs/page.tsx   # Dead Letter Queue (DLQ) & gestion des retries
 │   │
-│   ├── api/                        # API Routes (serverless)
-│   │   ├── profiles/route.ts       # GET list, POST create
-│   │   ├── profiles/[id]/route.ts  # GET, PUT, DELETE
-│   │   ├── profiles/import-csv/route.ts # POST batch import
-│   │   ├── bookings/route.ts       # Booking endpoints
-│   │   ├── bookings/[id]/route.ts
-│   │   ├── reviews/route.ts        # Review endpoints
-│   │   ├── upload/route.ts         # File upload
-│   │   ├── auth/me/route.ts        # Get current user
-│   │   ├── base44/users/route.ts   # Proxy Base44 API
-│   │   ├── base44/users/[id]/route.ts
-│   │   ├── webhooks/storage-sync/route.ts # Webhook Storage
-│   │   └── failed-syncs/route.ts   # DLQ monitoring & retries
+│   ├── api/                        # API Routes REST Next.js (serverless)
+│   │   ├── auth/me/route.ts        # GET profil et rôle utilisateur connecté
+│   │   ├── profiles/route.ts       # GET liste filtrée, POST création atomique
+│   │   ├── profiles/[id]/route.ts  # GET détail, PUT mise à jour, DELETE suppression
+│   │   ├── profiles/import-csv/route.ts # POST import batch CSV
+│   │   ├── bookings/route.ts       # GET réservations par profil, POST nouvelle réservation
+│   │   ├── bookings/[id]/route.ts  # GET, PATCH statut réservation
+│   │   ├── reviews/route.ts        # GET avis par profil, POST création avis vérifié
+│   │   ├── upload/route.ts         # POST upload de médias vers Supabase Storage
+│   │   ├── failed-syncs/route.ts   # GET monitoring DLQ, POST retries
+│   │   ├── failed-syncs/[id]/route.ts # DELETE entrée DLQ résolue
+│   │   └── webhooks/storage-sync/route.ts # Webhook reverse sync Storage
 │   │
 │   ├── layout.tsx                  # Root layout global
-│   └── globals.css                 # Tailwind + custom styles
+│   └── globals.css                 # Styles Tailwind & animations
 │
-├── components/                     # Composants UI (Atomic Design)
-│   ├── atoms/                      # Composants atomiques
-│   ├── molecules/                  # Composants composés
-│   ├── organisms/                  # Composants complexes
-│   ├── sections/                   # Sections de page
-│   ├── navigation/                 # Navbar, Sidebar, Footer
-│   └── layout/                     # Wrappers de layout
+├── components/                     # Architecture Atomic Design
+│   ├── atoms/                      # Avatar (initials/photo), Badge, Button, Card, Rating
+│   ├── molecules/                  # KPICard (métriques & tendances)
+│   ├── organisms/                  # ProfileGrid, ProfileForm, BookingsList, ReviewsList, SyncHealthMonitor
+│   ├── navigation/                 # Navbar principale
+│   └── ui/                         # 3D Carousel & effets visuels interactifs
 │
-├── lib/
-│   ├── supabase.ts                 # Client Supabase (public + service role)
-│   ├── prisma.ts                   # Prisma client instance
-│   ├── auth.ts                     # Module auth complet : JWT, roles, permissions
-│   ├── types.ts                    # Types TypeScript centralisés
-│   ├── constants.ts                # Constantes globales
-│   ├── schemas.ts                  # Zod validation schemas
-│   ├── errors.ts                   # Gestion centralisée des erreurs ApiError
-│   │
-│   ├── hooks/                      # Custom React hooks
-│   │   ├── useProfiles.ts
-│   │   ├── useAuth.ts
-│   │   └── ...
-│   │
-│   ├── utils/                      # Utilitaires
-│   │   ├── formatters.ts
-│   │   ├── validators.ts
-│   │   └── ...
-│   │
-│   ├── repositories/               # Couche d'accès données (anti N+1)
-│   │   ├── profiles.repository.ts
-│   │   ├── bookings.repository.ts
-│   │   ├── reviews.repository.ts
-│   │   └── dlq.repository.ts
-│   │
-│   ├── services/                   # Couche logique métier
-│   │   ├── profiles.service.ts
-│   │   ├── bookings.service.ts
-│   │   ├── reviews.service.ts
-│   │   ├── sync.service.ts
-│   │   └── base44-user.service.ts
-│   │
-│   ├── clients/                    # Clients SDK externes
-│   │   └── base44.client.ts        # Client typé pour l'API Base44
-│   │
-│   └── store/                      # État global (Zustand)
-│       └── appStore.ts
+├── lib/                            # Couche métier et infrastructure
+│   ├── supabase.ts                 # Client Supabase public & createServiceClient (service role)
+│   ├── prisma.ts                   # Instance client Prisma ORM
+│   ├── auth.ts                     # Module auth RBAC (JWT, rôles client/creator/admin)
+│   ├── types.ts                    # Interfaces et types TypeScript stricts
+│   ├── schemas.ts                  # Schémas de validation runtime Zod
+│   ├── errors.ts                   # Gestion centralisée des ApiError & codes HTTP
+│   ├── hooks/                      # Hooks React (useProfiles, useProfile, useSearchProfiles)
+│   ├── clients/                    # base44.client.ts (Client API HTTP typé)
+│   ├── repositories/               # profiles, bookings, reviews, media, dlq repositories
+│   └── services/                   # profiles, profile-creation, bookings, reviews, sync, base44-user
 │
 ├── prisma/
-│   ├── schema.prisma               # Schéma Prisma (source de vérité ORM)
-│   └── seed.ts                     # Seeding data
+│   └── schema.prisma               # Schéma Prisma PostgreSQL avec modèles & indices
 │
 ├── supabase/
-│   ├── migrations/                 # SQL migrations (versionnées)
-│   │   ├── 001_init_profiles.sql
-│   │   ├── 002_add_media_assets.sql
-│   │   ├── ... (8 migrations)
-│   │   └── 008_add_storage_security_policies.sql
-│   │
-│   ├── functions/                  # Edge Functions (Deno/TypeScript)
-│   │   ├── sync-storage-to-db-v2/index.ts   # Storage → DB avec retry
-│   │   ├── sync-db-to-storage/index.ts      # DB → Storage
-│   │   └── retry-failed-syncs/index.ts      # CRON retry handler
-│   │
-│   └── config.toml                 # Supabase CLI config
+│   ├── migrations/                 # 12 migrations SQL versionnées (RLS, indices, buckets)
+│   ├── functions/                  # Edge Functions Deno (sync-storage-to-db-v2, sync-db-to-storage, retry-failed-syncs)
+│   ├── seed.sql                    # Données de test et rôles par défaut
+│   └── config.toml                 # Configuration Supabase CLI
 │
-├── tests/
-│   ├── unit/                       # Tests unitaires
-│   │   ├── base44.client.test.ts
-│   │   └── ...
-│   ├── integration/                # Tests d'intégration API
-│   │   └── ...
-│   └── e2e/                        # Tests End-to-End (Playwright)
-│       └── ...
+├── tests/                          # Tests Vitest
+│   ├── unit/                       # Tests unitaires (base44.client, sync.service)
+│   └── integration/                # Tests d'intégration (backend, profile-creation-errors)
 │
-├── docs/
-│   ├── ARCHITECTURE.md             # Documentation architecture
-│   ├── API.md                      # Spécification API REST
-│   ├── DATABASE.md                 # Schéma & RLS policies
-│   ├── SECURITY_RLS.md             # Guide complet RLS & Storage policies
-│   ├── DEPLOYMENT.md               # Guide déploiement Vercel
-│   └── TROUBLESHOOTING.md          # Debugging guide
+├── docs/                           # Documentation technique
+│   ├── ARCHITECTURE.md             # Diagrammes & flux de synchronisation
+│   ├── API.md                      # Spécification OpenAPI / REST endpoints
+│   ├── DATABASE.md                 # Schéma DB, tables et contraintes
+│   ├── SECURITY_RLS.md             # Politiques de sécurité RLS PostgreSQL & Storage
+│   └── DEPLOYMENT.md               # Guide de déploiement Vercel / Supabase
 │
-├── .env.example                    # Template variables d'env
-├── .env.local                      # ⚠️ LOCAL ONLY (gitignored)
-├── .gitignore
-├── package.json                    # 30+ npm scripts
-├── tsconfig.json
-├── tailwind.config.ts
-├── next.config.js
-├── vercel.json                     # Config Vercel (région Paris, timeouts)
-├── prisma/schema.prisma
-├── supabase.json
-├── README.md                       # Overview du projet
-└── skills-lock.json               # Lock file pour dependencies
+├── package.json                    # Configuration du projet & scripts npm
+├── tsconfig.json                   # Configuration TypeScript (strict: true)
+├── tailwind.config.ts              # Configuration Tailwind CSS
+└── vercel.json                     # Configuration Vercel de production
 ```
 
 ---

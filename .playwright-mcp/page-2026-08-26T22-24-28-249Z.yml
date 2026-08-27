@@ -1,0 +1,20 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - paragraph [ref=e4]: Next.js + Prisma 8
+      - heading "Users from your database, loaded on the server." [level=1] [ref=e5]
+      - paragraph [ref=e6]:
+        - text: This page reads from
+        - code [ref=e7]: src/app/page.tsx
+        - text: using the Prisma 8 helper in
+        - code [ref=e8]: src/prisma/users.ts
+        - text: .
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - heading "Seeded users" [level=2] [ref=e11]
+        - generic [ref=e12]: 0 total
+      - paragraph [ref=e13]:
+        - text: Could not query users yet. Run
+        - code [ref=e14]: contract:emit
+        - text: and apply your schema, then refresh.
+  - button "Open Next.js Dev Tools" [ref=e20] [cursor=pointer]

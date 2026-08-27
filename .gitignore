@@ -38,3 +38,6 @@ supabase/.branches/
 # Misc
 *.log
 npm-debug.log*
+
+# My-app (experimental)
+my-app/

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "07d098b8-2435-4285-ab30-991aac7d6036",
+    "name": "ALISHA",
+    "email": "alisha@fantazi-land.com",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
+    "baseRate": "500 CAD",
+    "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Avatar.JPG",
+    "galleryCount": 3,
+    "gallery": [
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031757_Instagram.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031804_Instagram.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031811_Instagram.jpg"
+    ]
+  },
+  {
+    "id": "5391ed16-9f04-483a-86e3-4e220976fbb8",
+    "name": "SHANEL",
+    "email": "shanel@fantazi-land.com",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
+    "baseRate": "500 CAD",
+    "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/Avatar.jpg",
+    "galleryCount": 5,
+    "gallery": [
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542997999_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998000_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998001_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998002_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998003_121.jpg"
+    ]
+  },
+  {
+    "id": "99f05a9f-973b-4a07-81a0-013e9134c890",
+    "name": "Sunday",
+    "email": "sunday@fantazi-land.com",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
+    "baseRate": "500 CAD",
+    "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/Avatar.jpg",
+    "galleryCount": 3,
+    "gallery": [
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597039_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597040_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597041_121.jpg"
+    ]
+  },
+  {
+    "id": "3a47e7ca-eb6a-47c4-8527-1c695e8f2f20",
+    "name": "Sushi",
+    "email": "sushi@fantazi-land.com",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
+    "baseRate": "500 CAD",
+    "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/Avatar.jpg",
+    "galleryCount": 3,
+    "gallery": [
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765022_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765023_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765024_121.jpg"
+    ]
+  }
+]
