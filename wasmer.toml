@@ -1,0 +1,24 @@
+[package]
+name = "di-vibez/fantazi-land"
+version = "1.0.1"
+description = "Fantazi-Land - Plateforme de booking et galerie pour agence d'hôtesses"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+
+[[command]]
+name = "server"
+module = "wasmer/winterjs:latest"
+runner = "https://webc.org/runner/winterjs"
+
+[command.annotations.wasi]
+env = ["NODE_ENV=production"]
+
+[command.annotations.http]
+port = 3000
+
+[[command]]
+name = "node-runner"
+module = "wasmer/nodejs:20.10.0"
+runner = "wasi"

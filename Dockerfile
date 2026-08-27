@@ -1,57 +1,44 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Multi-stage Dockerfile optimisé pour Next.js (Standalone)
+FROM node:20-alpine AS base
 
+# 1. Dépendances
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
+COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copy source code
+# 2. Construction
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
-RUN npm run prisma:generate
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
 
-# Build Next.js app
+RUN npx prisma generate || true
 RUN npm run build
 
-# Runtime stage
-FROM node:20-alpine
-
+# 3. Exécution en production
+FROM base AS runner
 WORKDIR /app
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Copy package files
-COPY package*.json ./
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Install production dependencies only
-RUN npm ci --omit=dev && npm cache clean --force
-
-# Copy built app from builder
-COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-
-# Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
-
-# Change ownership to non-root user
-RUN chown -R nextjs:nodejs /app
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 USER nextjs
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-ENTRYPOINT ["dumb-init", "--"]
-
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
