@@ -13,7 +13,7 @@ export default function Navbar() {
             href="/portfolio"
             className="hidden text-sm font-medium text-gray-600 transition-colors hover:text-purple-600 sm:inline-block"
           >
-            Portfolio 3D
+            Galerie
           </Link>
           <Link
             href="/about"

@@ -30,33 +30,34 @@ export async function GET(request: NextRequest) {
             where: { profile_id: { in: profileIds } },
           });
 
-          // Grouper par profile_id
-          const assetsByProfile = mediaAssets.reduce(
-            (acc, asset) => {
-              if (!acc[asset.profile_id]) acc[asset.profile_id] = [];
-              acc[asset.profile_id].push({
-                id: asset.id,
-                profile_id: asset.profile_id,
-                file_url: asset.file_url,
-                file_type: (asset.file_type as any) || "image",
-                file_size_bytes: asset.file_size_bytes,
-                uploaded_by: asset.uploaded_by,
-                created_at: asset.created_at.toISOString(),
-              });
-              return acc;
-            },
-            {} as Record<string, any[]>
-          );
+          if (mediaAssets && mediaAssets.length > 0) {
+            const assetsByProfile = mediaAssets.reduce(
+              (acc, asset) => {
+                if (!acc[asset.profile_id]) acc[asset.profile_id] = [];
+                acc[asset.profile_id].push({
+                  id: asset.id,
+                  profile_id: asset.profile_id,
+                  file_url: asset.file_url,
+                  file_type: (asset.file_type as any) || "image",
+                  file_size_bytes: asset.file_size_bytes,
+                  uploaded_by: asset.uploaded_by,
+                  created_at: asset.created_at.toISOString(),
+                });
+                return acc;
+              },
+              {} as Record<string, any[]>
+            );
 
-          // Ajouter les media_assets aux profiles
-          profiles = profiles.map((profile) => ({
-            ...profile,
-            media_assets: assetsByProfile[profile.id] || [],
-          }));
+            profiles = profiles.map((profile) => ({
+              ...profile,
+              media_assets: assetsByProfile[profile.id] && assetsByProfile[profile.id].length > 0
+                ? assetsByProfile[profile.id]
+                : profile.media_assets || [],
+            }));
+          }
         }
       } catch (dbError) {
-        // Si la BD n'est pas accessible, continuer sans media_assets
-        console.error("Erreur chargement media_assets:", dbError);
+        // En cas d'indisponibilité de la base locale, conserver les media_assets du stockage/catalogue
       }
     }
 

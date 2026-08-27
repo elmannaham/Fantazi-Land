@@ -16,13 +16,13 @@ export function PortfolioTeaserSection() {
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3 py-1 text-xs font-semibold text-purple-300 border border-purple-500/30 mb-4">
               <Layers className="h-3.5 w-3.5 text-purple-300" />
-              Expérience Visuelle Unique
+              Galerie Exclusive
             </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Explorez nos Hôtesses en <span className="text-pink-400">3D Interactif</span>
+              Découvrez notre <span className="text-pink-400">Galerie Photos</span>
             </h2>
             <p className="text-slate-300 text-sm sm:text-base mt-4 leading-relaxed max-w-lg">
-              Faites glisser et pivoter nos carrousels photo 3D pour découvrir les profils, shootings et books exclusifs en immersion complète.
+              Explorez l'ensemble des shootings, événements et books haute définition de nos hôtesses avec affichage aléatoire ou vue 3D interactive.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">
@@ -30,7 +30,7 @@ export function PortfolioTeaserSection() {
                 href="/portfolio"
                 className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 text-sm font-bold text-purple-900 shadow-xl transition-all hover:bg-slate-100 hover:scale-105 active:scale-95"
               >
-                Lancer l'Expérience 3D
+                Explorer la Galerie
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>

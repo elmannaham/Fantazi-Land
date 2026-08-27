@@ -122,12 +122,22 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
           >
             ✕
           </button>
-          <img
-            src={selectedImage}
-            alt="Agrandie"
-            className="max-h-[90vh] max-w-4xl object-contain rounded-2xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          />
+          {selectedImage.endsWith(".mp4") ? (
+            <video
+              src={selectedImage}
+              controls
+              autoPlay
+              className="max-h-[85vh] max-w-4xl rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <img
+              src={selectedImage}
+              alt="Agrandie"
+              className="max-h-[90vh] max-w-4xl object-contain rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          )}
         </div>
       )}
 
@@ -313,22 +323,33 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
           <section className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
             <h2 className="text-xl font-bold text-slate-900 mb-6">Portfolio & Galerie</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {profile.media_assets.map((asset) => (
-                <div
-                  key={asset.id}
-                  onClick={() => setSelectedImage(asset.file_url)}
-                  className="relative aspect-square overflow-hidden rounded-xl bg-slate-100 cursor-pointer group shadow-sm hover:shadow-md transition"
-                >
-                  <img
-                    src={asset.file_url}
-                    alt="Portfolio"
-                    className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-medium text-xs">
-                    🔍 Agrandir
+              {profile.media_assets.map((asset) => {
+                const isVideo = asset.file_type === "video" || asset.file_url.endsWith(".mp4");
+                return (
+                  <div
+                    key={asset.id}
+                    onClick={() => setSelectedImage(asset.file_url)}
+                    className="relative aspect-square overflow-hidden rounded-xl bg-slate-900 cursor-pointer group shadow-sm hover:shadow-md transition"
+                  >
+                    {isVideo ? (
+                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-purple-900 to-slate-900">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-500 text-white shadow-lg group-hover:scale-110 transition">
+                          ▶
+                        </div>
+                      </div>
+                    ) : (
+                      <img
+                        src={asset.file_url}
+                        alt="Portfolio"
+                        className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-medium text-xs gap-1">
+                      {isVideo ? "▶ Lire la vidéo" : "🔍 Agrandir"}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}

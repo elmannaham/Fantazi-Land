@@ -1,221 +1,307 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Sparkles,
+  Shuffle,
+  Grid3X3,
+  Layers,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  ExternalLink,
+  Camera,
+  Heart,
+} from "lucide-react";
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
-import { Button } from "@/components/atoms/Button";
-import { useProfiles } from "@/lib/hooks/useProfiles";
+import { BUCKET_IMAGES, shuffleArray, BucketMediaItem } from "@/lib/bucket-media";
 
-// Fallback images si aucun media_asset disponible
-const fallbackImages: Record<string, string[]> = {
-  "marie-dupont": [
-    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1511527260815-7a02b99a3b10?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop",
-  ],
-  "luc-fontaine": [
-    "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1516035069371-29ad0ced3438?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1526680527885-dc3a255edb04?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1498940336284-d7e3e40d5f94?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400&h=400&fit=crop",
-  ],
-  "sophie-laurent": [
-    "https://images.unsplash.com/photo-1469022563149-aa64dbd37dae?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1495887496540-8d3b26eba8f5?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1491622860651-119477b4b6b9?w=400&h=400&fit=crop",
-    "https://images.unsplash.com/photo-1494074871229-ff53de54db16?w=400&h=400&fit=crop",
-  ],
-};
+export default function GaleriePage() {
+  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"grid" | "3d">("grid");
+  const [activeImages, setActiveImages] = useState<BucketMediaItem[]>(BUCKET_IMAGES);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [likes, setLikes] = useState<Record<string, boolean>>({});
 
-export default function PortfolioPage() {
-  const { profiles, isLoading, error } = useProfiles();
-  const [selectedProfile, setSelectedProfile] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [profilesWithMedia, setProfilesWithMedia] = useState<any[]>([]);
+  // Liste des filtres d'hôtesses disponibles
+  const filterOptions = [
+    { key: "all", label: "Toutes les photos", count: BUCKET_IMAGES.length },
+    { key: "alisha", label: "ALISHA", count: BUCKET_IMAGES.filter((i) => i.profileKey === "alisha").length },
+    { key: "shanel", label: "SHANEL", count: BUCKET_IMAGES.filter((i) => i.profileKey === "shanel").length },
+    { key: "sunday", label: "Sunday", count: BUCKET_IMAGES.filter((i) => i.profileKey === "sunday").length },
+    { key: "sushi", label: "Sushi", count: BUCKET_IMAGES.filter((i) => i.profileKey === "sushi").length },
+  ];
 
-  // Charger les images depuis Prisma/Supabase
+  // Filtrer les images
   useEffect(() => {
-    const loadProfilesWithMedia = async () => {
-      try {
-        const response = await fetch("/api/profiles?include=media_assets");
-        const data = await response.json();
-        setProfilesWithMedia(data.profiles || data || []);
-      } catch (err) {
-        console.error("Erreur chargement médias:", err);
-        setProfilesWithMedia(profiles);
-      }
-    };
-
-    if (profiles.length > 0) {
-      loadProfilesWithMedia();
+    if (activeFilter === "all") {
+      setActiveImages(BUCKET_IMAGES);
+    } else {
+      setActiveImages(BUCKET_IMAGES.filter((item) => item.profileKey === activeFilter));
     }
-  }, [profiles]);
+  }, [activeFilter]);
 
-  const activeProfile = selectedProfile
-    ? profilesWithMedia.find((p) => p.id === selectedProfile)
-    : profilesWithMedia[0];
-
-  const getPortfolioImages = (profileId: string): string[] => {
-    const profile = profilesWithMedia.find((p) => p.id === profileId);
-
-    // Récupérer les images réelles depuis media_assets
-    if (profile && profile.media_assets && profile.media_assets.length > 0) {
-      return profile.media_assets.map((asset: any) => asset.file_url);
-    }
-
-    // Fallback aux images mockées
-    const key = profile?.name?.toLowerCase().replace(/\s+/g, "-") || "";
-    return (
-      fallbackImages[key] || [
-        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1495887496540-8d3b26eba8f5?w=400&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1511527260815-7a02b99a3b10?w=400&h=400&fit=crop",
-        "https://images.unsplash.com/photo-1497438262192-87b94efad6e7?w=400&h=400&fit=crop",
-      ]
-    );
+  // Mélanger aléatoirement
+  const handleShuffle = () => {
+    setActiveImages((prev) => shuffleArray(prev));
   };
 
-  if (isLoading) {
-    return (
-      <main className="min-h-screen bg-slate-50 py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center py-20">
-            <p className="text-slate-600">Chargement du portfolio...</p>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const toggleLike = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLikes((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
 
-  if (error) {
-    return (
-      <main className="min-h-screen bg-slate-50 py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center py-20">
-            <p className="text-red-600">Erreur: {error}</p>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  // Gestion de la navigation Lightbox au clavier
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === "Escape") setLightboxIndex(null);
+      if (e.key === "ArrowRight") {
+        setLightboxIndex((prev) => (prev !== null && prev < activeImages.length - 1 ? prev + 1 : 0));
+      }
+      if (e.key === "ArrowLeft") {
+        setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : activeImages.length - 1));
+      }
+    },
+    [lightboxIndex, activeImages.length]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  const currentLightboxImage = lightboxIndex !== null ? activeImages[lightboxIndex] : null;
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <section className="bg-gradient-to-r from-purple-700 via-purple-600 to-pink-600 text-white py-16 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">Portfolio 3D</h1>
-          <p className="text-lg opacity-90">
-            Découvrez les books et profils de nos hôtesses en 3D interactif
-          </p>
-        </div>
-      </section>
+    <main className="min-h-screen bg-slate-950 text-slate-100 pb-24">
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {currentLightboxImage && lightboxIndex !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl"
+            onClick={() => setLightboxIndex(null)}
+          >
+            {/* Top Bar */}
+            <div className="absolute top-6 left-6 right-6 flex items-center justify-between z-20">
+              <div className="flex items-center gap-3">
+                <span className="rounded-full bg-purple-600/80 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider backdrop-blur-md">
+                  {currentLightboxImage.profileKey}
+                </span>
+                <span className="text-xs text-slate-400 font-medium">
+                  Photo {lightboxIndex + 1} sur {activeImages.length}
+                </span>
+              </div>
 
-      {/* Main Content */}
-      <section className="max-w-6xl mx-auto px-4 py-16">
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Sidebar - Profile List */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-20">
-              <h2 className="text-xl font-bold text-slate-900 mb-4">
-                Hôtesses
-              </h2>
-              <div className="space-y-2 bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-                {profilesWithMedia.length > 0 ? (
-                  profilesWithMedia.map((profile) => (
-                    <button
-                      key={profile.id}
-                      onClick={() => setSelectedProfile(profile.id)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                        selectedProfile === profile.id || (!selectedProfile && profilesWithMedia[0]?.id === profile.id)
-                          ? "bg-purple-600 text-white"
-                          : "bg-slate-50 text-slate-900 hover:bg-slate-100"
-                      }`}
-                    >
-                      <div className="font-semibold">{profile.name}</div>
-                      <div className="text-sm opacity-75">{profile.category}</div>
-                    </button>
-                  ))
-                ) : (
-                  <p className="text-slate-500 text-sm">Chargement des hôtesses...</p>
-                )}
+              <button
+                onClick={() => setLightboxIndex(null)}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition active:scale-95"
+                aria-label="Fermer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Navigation Previous */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : activeImages.length - 1));
+              }}
+              className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition active:scale-95"
+              aria-label="Photo précédente"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+
+            {/* Image display */}
+            <motion.div
+              key={currentLightboxImage.id}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="relative max-h-[85vh] max-w-5xl overflow-hidden rounded-2xl shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={currentLightboxImage.url}
+                alt={currentLightboxImage.title || "Photo Galerie"}
+                className="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
+              />
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-center">
+                <p className="text-sm font-semibold text-white">
+                  {currentLightboxImage.title || `Hôtesse ${currentLightboxImage.profileKey?.toUpperCase()}`}
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Navigation Next */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxIndex((prev) => (prev !== null && prev < activeImages.length - 1 ? prev + 1 : 0));
+              }}
+              className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition active:scale-95"
+              aria-label="Photo suivante"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Header */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 pt-16 pb-10 px-4 text-center border-b border-slate-900">
+        <div className="mx-auto max-w-4xl">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3.5 py-1 text-xs font-semibold text-purple-300 border border-purple-500/30 mb-4">
+            <Camera className="h-3.5 w-3.5 text-purple-300" />
+            Galerie Photos du Bucket
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-3">
+            Galerie Photos Exclusive
+          </h1>
+          <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
+            Découvrez l'ensemble des clichés et shootings réels de nos hôtesses avec affichage haute définition et ordre aléatoire.
+          </p>
+
+          {/* Controls Bar */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            {/* Filter Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 rounded-2xl bg-slate-900/90 p-1.5 border border-slate-800 backdrop-blur-md">
+              {filterOptions.map((opt) => {
+                const isActive = activeFilter === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => setActiveFilter(opt.key)}
+                    className={`relative rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
+                      isActive
+                        ? "bg-purple-600 text-white shadow-md"
+                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
+                    }`}
+                  >
+                    {opt.label} ({opt.count})
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleShuffle}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-bold text-slate-200 border border-slate-800 hover:border-purple-500 hover:text-white transition shadow-sm active:scale-95"
+              >
+                <Shuffle className="h-3.5 w-3.5 text-purple-400" />
+                Mélanger aléatoirement
+              </button>
+
+              <div className="flex items-center rounded-xl bg-slate-900 p-1 border border-slate-800">
+                <button
+                  onClick={() => setViewMode("grid")}
+                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs transition ${
+                    viewMode === "grid" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"
+                  }`}
+                  title="Vue Grille"
+                >
+                  <Grid3X3 className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setViewMode("3d")}
+                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs transition ${
+                    viewMode === "3d" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"
+                  }`}
+                  title="Vue 3D Cylindrique"
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                </button>
               </div>
             </div>
           </div>
-
-          {/* Main Carousel */}
-          <div className="lg:col-span-3">
-            {activeProfile && (
-              <div className="space-y-8">
-                {/* Profile Info */}
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-                  <h2 className="text-3xl font-bold text-slate-900 mb-2">
-                    {activeProfile.name}
-                  </h2>
-                  <p className="text-slate-600 mb-4">
-                    {activeProfile.category}
-                  </p>
-                  <p className="text-slate-700 leading-relaxed mb-6">
-                    {activeProfile.bio}
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <Link href={`/profiles/${activeProfile.id}`}>
-                      <Button>Voir le profil complet</Button>
-                    </Link>
-                    <Button variant="secondary">Réserver</Button>
-                  </div>
-                </div>
-
-                {/* 3D Carousel */}
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-6">
-                    Portfolio (3D Interactif)
-                  </h3>
-                  <p className="text-slate-600 mb-4 text-sm">
-                    💡 Conseil: Cliquez et glissez pour faire tourner le carrousel. Cliquez sur une image pour l'agrandir.
-                  </p>
-                  <ThreeDPhotoCarousel
-                    cards={getPortfolioImages(activeProfile.id)}
-                    onImageClick={(imgUrl, index) => {
-                      setSelectedImage(imgUrl);
-                    }}
-                  />
-                </div>
-
-                {/* Stats */}
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200 text-center">
-                    <div className="text-3xl font-bold text-purple-600">
-                      {activeProfile.performance_stats?.total_projects || 0}
-                    </div>
-                    <p className="text-slate-600 text-sm">Projets complétés</p>
-                  </div>
-                  <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200 text-center">
-                    <div className="text-3xl font-bold text-purple-600">
-                      {activeProfile.performance_stats?.avg_rating
-                        ? Number(activeProfile.performance_stats.avg_rating).toFixed(1)
-                        : "5"}
-                      ★
-                    </div>
-                    <p className="text-slate-600 text-sm">
-                      {activeProfile.performance_stats?.total_reviews || 0} avis
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-lg p-6 shadow-sm border border-slate-200 text-center">
-                    <div className="text-3xl font-bold text-purple-600">
-                      €{Number(activeProfile.base_rate || 100)}
-                    </div>
-                    <p className="text-slate-600 text-sm">Tarif de base/heure</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
         </div>
+      </section>
+
+      {/* Main Gallery Container */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10">
+        {viewMode === "3d" ? (
+          /* 3D Cylinder Mode */
+          <div className="rounded-3xl bg-slate-900/60 p-6 sm:p-10 border border-slate-800/80 shadow-2xl">
+            <div className="text-center mb-6">
+              <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+                Mode 3D Interactif
+              </span>
+              <p className="text-xs text-slate-400 mt-1">
+                Faites glisser pour tourner le carrousel. Cliquez sur une photo pour l'agrandir.
+              </p>
+            </div>
+            <ThreeDPhotoCarousel
+              cards={activeImages.map((img) => img.url)}
+              onImageClick={(url, idx) => setLightboxIndex(idx)}
+            />
+          </div>
+        ) : (
+          /* Grid View Mode */
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {activeImages.map((image, index) => {
+              const isLiked = !!likes[image.id];
+              return (
+                <motion.div
+                  key={image.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.25, delay: index * 0.03 }}
+                  onClick={() => setLightboxIndex(index)}
+                  className="group relative aspect-[4/5] cursor-pointer overflow-hidden rounded-2xl bg-slate-900 border border-slate-800/80 shadow-lg hover:border-purple-500/50 hover:shadow-purple-500/10 transition duration-300"
+                >
+                  {/* Photo */}
+                  <img
+                    src={image.url}
+                    alt={image.title || "Photo"}
+                    className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
+                    loading="lazy"
+                  />
+
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
+
+                  {/* Top Bar on Hover */}
+                  <div className="absolute top-3 inset-x-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition duration-300 z-10">
+                    <span className="rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-bold text-white uppercase backdrop-blur-md">
+                      {image.profileKey}
+                    </span>
+
+                    <button
+                      onClick={(e) => toggleLike(image.id, e)}
+                      className={`flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition ${
+                        isLiked ? "bg-pink-500 text-white" : "bg-black/50 text-white hover:bg-black/70"
+                      }`}
+                      aria-label="Aimer"
+                    >
+                      <Heart className={`h-4 w-4 ${isLiked ? "fill-white" : ""}`} />
+                    </button>
+                  </div>
+
+                  {/* Bottom Bar on Hover */}
+                  <div className="absolute bottom-3 inset-x-3 opacity-0 group-hover:opacity-100 transition duration-300 z-10">
+                    <p className="text-xs font-bold text-white line-clamp-1 mb-1">
+                      {image.title || `Shooting ${image.profileKey?.toUpperCase()}`}
+                    </p>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-purple-300">
+                      🔍 Agrandir en HD
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </section>
     </main>
   );

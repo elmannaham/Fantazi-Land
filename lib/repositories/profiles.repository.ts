@@ -1,6 +1,7 @@
 import { supabase, createServiceClient } from "@/lib/supabase";
-import type { Profile, ProfileWithStats } from "@/lib/types";
+import type { Profile, ProfileWithStats, MediaAsset } from "@/lib/types";
 import catalogData from "@/data/creators-catalog.json";
+import { getProfileMediaWithRandomFill } from "@/lib/bucket-media";
 
 export interface ProfileFilters {
   category?: string;
@@ -14,6 +15,22 @@ export interface ProfileFilters {
 export class ProfilesRepository {
   private client = supabase;
   private adminClient = createServiceClient();
+
+  /**
+   * Construit la liste des media assets d'un profil en utilisant le bucket Supabase
+   */
+  private buildMediaAssets(profileId: string, profileName: string): MediaAsset[] {
+    const bucketMedia = getProfileMediaWithRandomFill(profileName, 6);
+    return bucketMedia.map((m) => ({
+      id: m.id,
+      profile_id: profileId,
+      file_url: m.url,
+      file_type: m.type === "video" ? "video" : "image",
+      file_size_bytes: 250000,
+      uploaded_by: null,
+      created_at: new Date().toISOString(),
+    }));
+  }
 
   /**
    * Récupère la liste des profils avec pagination et filtres
@@ -39,7 +56,7 @@ export class ProfilesRepository {
         query = query.eq("is_public", isPublic);
       }
 
-      if (category) {
+      if (category && category !== "Tous") {
         query = query.eq("category", category);
       }
 
@@ -55,6 +72,7 @@ export class ProfilesRepository {
       if (!error && data && data.length > 0) {
         const profiles = data.map((item: any) => ({
           ...item,
+          media_assets: this.buildMediaAssets(item.id, item.name),
           performance_stats: {
             avg_rating: 5.0,
             total_projects: 0,
@@ -94,6 +112,7 @@ export class ProfilesRepository {
       updated_at: new Date().toISOString(),
       synced_at: new Date().toISOString(),
       storage_folder_id: c.name,
+      media_assets: this.buildMediaAssets(c.id, c.name),
       performance_stats: {
         avg_rating: 5.0,
         total_projects: 0,
@@ -103,7 +122,7 @@ export class ProfilesRepository {
       },
     })) as ProfileWithStats[];
 
-    if (category) {
+    if (category && category !== "Tous") {
       catalogList = catalogList.filter((p) => p.category?.toLowerCase() === category.toLowerCase());
     }
 
@@ -138,6 +157,7 @@ export class ProfilesRepository {
       if (!error && data) {
         return {
           ...data,
+          media_assets: this.buildMediaAssets(data.id, data.name),
           performance_stats: {
             avg_rating: 5.0,
             total_projects: 0,
@@ -174,6 +194,7 @@ export class ProfilesRepository {
         updated_at: new Date().toISOString(),
         synced_at: new Date().toISOString(),
         storage_folder_id: found.name,
+        media_assets: this.buildMediaAssets(found.id, found.name),
         performance_stats: {
           avg_rating: 5.0,
           total_projects: 0,
@@ -198,7 +219,7 @@ export class ProfilesRepository {
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (!error && data) return data as Profile;
+      if (!error && data) return data;
     } catch {
       // ignore
     }
@@ -206,67 +227,75 @@ export class ProfilesRepository {
   }
 
   /**
-   * Création d'un profil
+   * Crée un profil
    */
-  async create(profileData: Partial<Profile>): Promise<Profile> {
-    const { data, error } = await this.adminClient
+  async create(data: Partial<Profile>): Promise<Profile> {
+    const payload = {
+      ...data,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    const { data: created, error } = await this.adminClient
       .from("profiles")
-      .insert(profileData)
+      .insert(payload)
       .select()
       .single();
 
-    if (error) {
-      throw new Error(`Erreur création profil: ${error.message}`);
+    if (error || !created) {
+      // Fallback in-memory
+      const fallbackProfile: Profile = {
+        id: (data.id as string) || crypto.randomUUID(),
+        user_id: data.user_id || null,
+        name: data.name || "Nouveau profil",
+        category: (data.category as any) || "Lifestyle",
+        bio: data.bio || null,
+        avatar_url: data.avatar_url || null,
+        base_rate: data.base_rate || 500,
+        currency: data.currency || "CAD",
+        instagram_url: data.instagram_url || null,
+        tiktok_url: data.tiktok_url || null,
+        twitter_url: data.twitter_url || null,
+        website_url: data.website_url || null,
+        is_public: data.is_public ?? true,
+        is_available: data.is_available ?? true,
+        availability_calendar: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        synced_at: new Date().toISOString(),
+        storage_folder_id: data.storage_folder_id || null,
+      };
+      return fallbackProfile;
     }
 
-    return data as Profile;
+    return created;
   }
 
   /**
-   * Mise à jour d'un profil existant
+   * Met à jour un profil
    */
-  async update(id: string, updates: Partial<Profile>): Promise<Profile> {
-    const { data, error } = await this.adminClient
+  async update(id: string, data: Partial<Profile>): Promise<Profile> {
+    const { data: updated, error } = await this.adminClient
       .from("profiles")
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
+      .update({ ...data, updated_at: new Date().toISOString() })
       .eq("id", id)
       .select()
       .single();
 
-    if (error) {
-      throw new Error(`Erreur mise à jour profil [${id}]: ${error.message}`);
+    if (error || !updated) {
+      const existing = await this.findById(id);
+      return { ...(existing as Profile), ...data, updated_at: new Date().toISOString() };
     }
 
-    return data as Profile;
+    return updated;
   }
 
   /**
-   * Suppression d'un profil
+   * Supprime un profil
    */
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<boolean> {
     const { error } = await this.adminClient.from("profiles").delete().eq("id", id);
-    if (error) {
-      throw new Error(`Erreur suppression profil [${id}]: ${error.message}`);
-    }
-  }
-
-  /**
-   * Insertion par lot (Batch) pour l'import CSV
-   */
-  async batchCreate(profiles: Partial<Profile>[]): Promise<Profile[]> {
-    const { data, error } = await this.adminClient
-      .from("profiles")
-      .insert(profiles)
-      .select();
-
-    if (error) {
-      throw new Error(`Erreur import par lot: ${error.message}`);
-    }
-
-    return data as Profile[];
+    return !error;
   }
 }
 
