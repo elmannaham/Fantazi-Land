@@ -76,7 +76,7 @@ export class ProfilesService {
     });
 
     // Synchronisation Storage en arrière-plan
-    syncService.syncDbToStorage(newProfile).catch((err) => {
+    syncService.syncDbToStorage(newProfile).catch((err: any) => {
       console.error("Échec sync automatique lors de la création:", err);
     });
 
@@ -112,7 +112,7 @@ export class ProfilesService {
     const updatedProfile = await profilesRepository.update(id, updates);
 
     // Synchroniser vers le Storage
-    syncService.syncDbToStorage(updatedProfile).catch((err) => {
+    syncService.syncDbToStorage(updatedProfile).catch((err: any) => {
       console.error("Échec sync automatique lors de la mise à jour:", err);
     });
 
@@ -184,7 +184,7 @@ export class ProfilesService {
         });
 
         // Déclencher sync Storage en tâche de fond
-        syncService.syncDbToStorage(profile).catch((e) => console.error("Sync error import CSV:", e));
+        syncService.syncDbToStorage(profile).catch((e: any) => console.error("Sync error import CSV:", e));
 
         results.push({ name: validated.name, status: "success", profileId: profile.id });
         inserted++;

@@ -1,6 +1,4 @@
-/**
- * Centralized registry of all verified images & videos from Supabase Storage Bucket 'HOTESS'
- */
+import catalogData from "@/data/creators-catalog.json";
 
 export interface BucketMediaItem {
   id: string;
@@ -12,33 +10,45 @@ export interface BucketMediaItem {
 
 export const BUCKET_BASE_URL = "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS";
 
-export const BUCKET_IMAGES = [
-  // Alisha
-  { id: "alisha-av", url: `${BUCKET_BASE_URL}/Alisha/Avatar.JPG`, type: "image" as const, profileKey: "alisha", title: "Portrait Alisha" },
-  { id: "alisha-1", url: `${BUCKET_BASE_URL}/Alisha/images/Screenshot_20260715_031757_Instagram.jpg`, type: "image" as const, profileKey: "alisha", title: "Shooting Alisha I" },
-  { id: "alisha-2", url: `${BUCKET_BASE_URL}/Alisha/images/Screenshot_20260715_031804_Instagram.jpg`, type: "image" as const, profileKey: "alisha", title: "Shooting Alisha II" },
-  { id: "alisha-3", url: `${BUCKET_BASE_URL}/Alisha/images/Screenshot_20260715_031811_Instagram.jpg`, type: "image" as const, profileKey: "alisha", title: "Shooting Alisha III" },
+/**
+ * Construit la liste dynamique des images du bucket à partir du catalogue synchronisé
+ */
+function buildBucketImages(): BucketMediaItem[] {
+  const items: BucketMediaItem[] = [];
 
-  // SHANEL
-  { id: "shanel-av", url: `${BUCKET_BASE_URL}/SHANEL/Avatar.jpg`, type: "image" as const, profileKey: "shanel", title: "Portrait SHANEL" },
-  { id: "shanel-1", url: `${BUCKET_BASE_URL}/shanel/images/-4963280571542997999_121.jpg`, type: "image" as const, profileKey: "shanel", title: "Book SHANEL I" },
-  { id: "shanel-2", url: `${BUCKET_BASE_URL}/shanel/images/-4963280571542998000_121.jpg`, type: "image" as const, profileKey: "shanel", title: "Book SHANEL II" },
-  { id: "shanel-3", url: `${BUCKET_BASE_URL}/shanel/images/-4963280571542998001_121.jpg`, type: "image" as const, profileKey: "shanel", title: "Book SHANEL III" },
-  { id: "shanel-4", url: `${BUCKET_BASE_URL}/shanel/images/-4963280571542998002_121.jpg`, type: "image" as const, profileKey: "shanel", title: "Book SHANEL IV" },
-  { id: "shanel-5", url: `${BUCKET_BASE_URL}/shanel/images/-4963280571542998003_121.jpg`, type: "image" as const, profileKey: "shanel", title: "Book SHANEL V" },
+  (catalogData || []).forEach((profile: any) => {
+    const key = (profile.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
 
-  // SUNDAY
-  { id: "sunday-av", url: `${BUCKET_BASE_URL}/SUNDAY/Avatar.jpg`, type: "image" as const, profileKey: "sunday", title: "Portrait Sunday" },
-  { id: "sunday-1", url: `${BUCKET_BASE_URL}/sunday/images/-5967632276843597039_121.jpg`, type: "image" as const, profileKey: "sunday", title: "Événement Sunday I" },
-  { id: "sunday-2", url: `${BUCKET_BASE_URL}/sunday/images/-5967632276843597040_121.jpg`, type: "image" as const, profileKey: "sunday", title: "Événement Sunday II" },
-  { id: "sunday-3", url: `${BUCKET_BASE_URL}/sunday/images/-5967632276843597041_121.jpg`, type: "image" as const, profileKey: "sunday", title: "Événement Sunday III" },
+    // Ajouter l'avatar si disponible
+    if (profile.avatar) {
+      items.push({
+        id: `${key}-avatar`,
+        url: profile.avatar,
+        type: "image",
+        title: `Portrait ${profile.name}`,
+        profileKey: key,
+      });
+    }
 
-  // SUSHI
-  { id: "sushi-av", url: `${BUCKET_BASE_URL}/SUSHI/Avatar.jpg`, type: "image" as const, profileKey: "sushi", title: "Portrait Sushi" },
-  { id: "sushi-1", url: `${BUCKET_BASE_URL}/sushi/images/-5807877699798765022_121.jpg`, type: "image" as const, profileKey: "sushi", title: "Prestation Sushi I" },
-  { id: "sushi-2", url: `${BUCKET_BASE_URL}/sushi/images/-5807877699798765023_121.jpg`, type: "image" as const, profileKey: "sushi", title: "Prestation Sushi II" },
-  { id: "sushi-3", url: `${BUCKET_BASE_URL}/sushi/images/-5807877699798765024_121.jpg`, type: "image" as const, profileKey: "sushi", title: "Prestation Sushi III" },
-];
+    // Ajouter chaque photo de la galerie
+    (profile.gallery || []).forEach((imgUrl: string, idx: number) => {
+      // Éviter de dupliquer si l'avatar est identique à la première photo
+      if (imgUrl !== profile.avatar) {
+        items.push({
+          id: `${key}-photo-${idx + 1}`,
+          url: imgUrl,
+          type: "image",
+          title: `Shooting ${profile.name} #${idx + 1}`,
+          profileKey: key,
+        });
+      }
+    });
+  });
+
+  return items;
+}
+
+export const BUCKET_IMAGES: BucketMediaItem[] = buildBucketImages();
 
 export const BUCKET_VIDEOS: BucketMediaItem[] = [
   {
@@ -107,7 +117,7 @@ export function getRandomBucketImageUrls(count = 6): string[] {
 export function getProfileMediaWithRandomFill(profileName: string, targetCount = 6): BucketMediaItem[] {
   const cleanKey = profileName.toLowerCase().replace(/[^a-z0-9]/g, "");
   const ownMedia = ALL_BUCKET_MEDIA.filter((m) => m.profileKey && cleanKey.includes(m.profileKey));
-  
+
   if (ownMedia.length >= targetCount) {
     return ownMedia.slice(0, targetCount);
   }

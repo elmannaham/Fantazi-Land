@@ -25,14 +25,19 @@ export default function GaleriePage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [likes, setLikes] = useState<Record<string, boolean>>({});
 
-  // Liste des filtres d'hôtesses disponibles
-  const filterOptions = [
-    { key: "all", label: "Toutes les photos", count: BUCKET_IMAGES.length },
-    { key: "alisha", label: "ALISHA", count: BUCKET_IMAGES.filter((i) => i.profileKey === "alisha").length },
-    { key: "shanel", label: "SHANEL", count: BUCKET_IMAGES.filter((i) => i.profileKey === "shanel").length },
-    { key: "sunday", label: "Sunday", count: BUCKET_IMAGES.filter((i) => i.profileKey === "sunday").length },
-    { key: "sushi", label: "Sushi", count: BUCKET_IMAGES.filter((i) => i.profileKey === "sushi").length },
-  ];
+  // Liste dynamique des filtres d'hôtesses disponibles
+  const filterOptions = useMemo(() => {
+    const uniqueKeys = Array.from(new Set(BUCKET_IMAGES.map((i) => i.profileKey).filter(Boolean)));
+    const options = [
+      { key: "all", label: "Toutes les photos", count: BUCKET_IMAGES.length },
+      ...uniqueKeys.map((k) => ({
+        key: k as string,
+        label: (k as string).toUpperCase(),
+        count: BUCKET_IMAGES.filter((i) => i.profileKey === k).length,
+      })),
+    ];
+    return options;
+  }, []);
 
   // Filtrer les images
   useEffect(() => {

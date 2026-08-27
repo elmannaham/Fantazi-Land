@@ -125,18 +125,20 @@ export function BentoCreatorGrid({
               key={creator.id}
               whileHover={{ y: -3 }}
               transition={{ duration: 0.15 }}
-              className="rounded-3xl bg-white p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              className="rounded-3xl bg-white p-4 border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
                   {creator.avatar_url ? (
-                    <img
-                      src={creator.avatar_url}
-                      alt={creator.name}
-                      className="h-12 w-12 rounded-xl object-cover ring-2 ring-purple-100 shadow-sm"
-                    />
+                    <div className="relative aspect-square h-14 w-14 rounded-2xl overflow-hidden ring-2 ring-purple-100 shadow-sm shrink-0">
+                      <img
+                        src={creator.avatar_url}
+                        alt={creator.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
                   ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100 text-purple-700 font-bold">
+                    <div className="flex aspect-square h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 text-purple-700 font-bold shrink-0">
                       {creator.name.charAt(0)}
                     </div>
                   )}
@@ -155,8 +157,7 @@ export function BentoCreatorGrid({
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-800">
-                  {Number(creator.base_rate || 100)} {creator.currency || "EUR"}
-                  <span className="text-[10px] text-slate-400 font-normal">/h</span>
+                  {Number(creator.base_rate || 500)} {creator.currency || "CAD"}
                 </span>
 
                 <div className="flex gap-1.5">

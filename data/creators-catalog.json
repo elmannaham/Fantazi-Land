@@ -1,64 +1,83 @@
 [
   {
-    "id": "07d098b8-2435-4285-ab30-991aac7d6036",
-    "name": "ALISHA",
+    "id": "cc412f7a-41a9-421d-87ae-b79c0e7f159c",
+    "name": "Alisha",
     "email": "alisha@fantazi-land.com",
-    "category": "Photographie",
-    "bio": "Hôtesse et modèle d'exception spécialisée en shooting haute couture, accueil VIP et représentations de marque. Ponctualité, prestance et élégance naturelle.",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
     "baseRate": "500 CAD",
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Avatar.JPG",
     "galleryCount": 3,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031757_Instagram.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031804_Instagram.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031811_Instagram.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Images/Screenshot_20260715_031757_Instagram.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Images/Screenshot_20260715_031804_Instagram.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Images/Screenshot_20260715_031811_Instagram.jpg"
     ]
   },
   {
-    "id": "5391ed16-9f04-483a-86e3-4e220976fbb8",
+    "id": "7a999325-4102-4d91-a49c-d9826fe76c2d",
+    "name": "Euphoria",
+    "email": "euphoria@fantazi-land.com",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
+    "baseRate": "500 CAD",
+    "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/Avatar.jpg",
+    "galleryCount": 7,
+    "gallery": [
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/images/0dcddbe40a75f9d51630ee6db19ab5c8.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/images/6866cf779aab145e60e4008026b05b9e.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/images/9eaae57c4107e52647c00567fd55e8ad.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/images/ae8c397968d0c8ee1846068dad300d30.jpeg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/images/d78bc1e484caec9f6198c0996ba25ae3.jpeg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/images/e0693fb9740481017ca3bb992f285e73.jpeg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Euphoria/images/f6693953af87d1a42b9ad54da9f435c7.jpeg"
+    ]
+  },
+  {
+    "id": "58adcaad-236e-4d79-8f22-c04fe1dc95b9",
     "name": "SHANEL",
     "email": "shanel@fantazi-land.com",
-    "category": "Contenu Mode",
-    "bio": "Hôtesse événementielle prestige, égérie défilé et animatrice de salons haut de gamme. Expérience auprès de maisons de luxe et réceptions privées.",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
     "baseRate": "500 CAD",
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/Avatar.jpg",
     "galleryCount": 5,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542997999_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998000_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998001_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998002_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998003_121.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542997999_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998000_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998001_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998002_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998003_121.jpg"
     ]
   },
   {
-    "id": "99f05a9f-973b-4a07-81a0-013e9134c890",
-    "name": "Sunday",
+    "id": "e188e916-a242-4a69-9ee9-97ebe55a6f66",
+    "name": "SUNDAY",
     "email": "sunday@fantazi-land.com",
-    "category": "Lifestyle",
-    "bio": "Hôtesse d'accueil bilingue pour galas, congrès internationaux et cérémonies officielles. Excellente aisance relationnelle et sens du service.",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
     "baseRate": "500 CAD",
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/Avatar.jpg",
     "galleryCount": 3,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597039_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597040_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597041_121.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/images/-5967632276843597039_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/images/-5967632276843597040_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/images/-5967632276843597041_121.jpg"
     ]
   },
   {
-    "id": "3a47e7ca-eb6a-47c4-8527-1c695e8f2f20",
-    "name": "Sushi",
+    "id": "09028857-beb1-48fe-a3ac-d4806e4facdf",
+    "name": "SUSHI",
     "email": "sushi@fantazi-land.com",
-    "category": "Beauté",
-    "bio": "Hôtesse promotionnelle et ambassadrice produit pour lancements de marques cosmétiques, pop-ups et soirées presse exclusives.",
+    "category": "intime rencontre",
+    "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
     "baseRate": "500 CAD",
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/Avatar.jpg",
     "galleryCount": 3,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765022_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765023_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765024_121.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/images/-5807877699798765022_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/images/-5807877699798765023_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/images/-5807877699798765024_121.jpg"
     ]
   }
 ]

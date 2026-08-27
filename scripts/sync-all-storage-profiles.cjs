@@ -1,181 +1,137 @@
 const { createClient } = require("@supabase/supabase-js");
+const fs = require("fs");
+const path = require("path");
 
 const supabaseUrl = "https://uytihmscyjpwpdhqvnbw.supabase.co";
-const serviceRoleKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dGlobXNjeWpwd3BkaHF2bmJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NzU3MTk3NCwiZXhwIjoyMTAzMTQ3OTc0fQ.1d0m8r4V9EhsGls2DwFQ9LzJjetYiaJBbLQ7xkS08uc";
+const serviceRoleKey =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dGlobXNjeWpwd3BkaHF2bmJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NzU3MTk3NCwiZXhwIjoyMTAzMTQ3OTc0fQ.1d0m8r4V9EhsGls2DwFQ9LzJjetYiaJBbLQ7xkS08uc";
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-  }
+  auth: { persistSession: false, autoRefreshToken: false },
 });
+
+function safeParseJson(jsonString) {
+  try {
+    return JSON.parse(jsonString);
+  } catch {
+    try {
+      const cleaned = jsonString.replace(/,\s*([}\]])/g, "$1");
+      return JSON.parse(cleaned);
+    } catch {
+      return null;
+    }
+  }
+}
 
 async function main() {
   console.log("==================================================");
-  console.log("🚀 SCAN SUPABASE STORAGE (SERVICE ROLE ADMIN)");
+  console.log("🚀 SYNCHRONISATION OPTIMISÉE DU BUCKET SUPABASE");
   console.log(`URL: ${supabaseUrl}`);
   console.log("==================================================");
 
-  // 1. Lister tous les buckets
-  const { data: buckets, error: bErr } = await supabase.storage.listBuckets();
-  if (bErr) {
-    console.error("Erreur listBuckets:", bErr.message);
+  const bucketName = "HOTESS";
+  const { data: rootItems, error: rErr } = await supabase.storage.from(bucketName).list("", {
+    limit: 100,
+    sortBy: { column: "name", order: "asc" },
+  });
+
+  if (rErr) {
+    console.error(`Erreur scan [${bucketName}]:`, rErr.message);
     return;
   }
 
-  console.log(`\n📦 BUCKETS TROUVÉS (${buckets.length}) :`);
-  buckets.forEach(b => console.log(` - ${b.name} (id: ${b.id}, public: ${b.public})`));
+  const folderItems = (rootItems || []).filter((i) => !i.name.includes(".") && !i.name.startsWith("."));
+  console.log(`📂 Dossiers d'hôtesses trouvés : ${folderItems.length}`);
 
-  if (buckets.length === 0) {
-    console.log("Aucun bucket trouvé dans le projet.");
-    return;
-  }
+  const catalog = [];
 
-  // 2. Parcourir chaque bucket et extraire tous les dossiers
-  const validCategories = ["Photographie", "Vidéographie", "Contenu Mode", "Beauté", "Lifestyle", "Gaming"];
+  for (const folder of folderItems) {
+    const folderName = folder.name;
+    console.log(`\n📁 Traitement: ${folderName}`);
 
-  for (const bucket of buckets) {
-    console.log(`\n📂 SCAN DU BUCKET: [${bucket.name}]`);
-    const { data: rootItems, error: rErr } = await supabase.storage.from(bucket.name).list("", {
-      limit: 100,
-      sortBy: { column: "name", order: "asc" }
-    });
+    const { data: subFiles } = await supabase.storage.from(bucketName).list(folderName, { limit: 50 });
 
-    if (rErr) {
-      console.error(`Erreur scan [${bucket.name}]:`, rErr.message);
-      continue;
+    let avatarUrl = "";
+    let metadataObj = {};
+    const seenFilenames = new Set();
+    const gallery = [];
+
+    for (const file of subFiles || []) {
+      const fLower = file.name.toLowerCase();
+      if (fLower.startsWith("avatar") && /\.(jpg|jpeg|png|webp|gif)$/i.test(file.name)) {
+        const { data } = supabase.storage.from(bucketName).getPublicUrl(`${folderName}/${file.name}`);
+        avatarUrl = data.publicUrl;
+      }
+
+      if (fLower.includes("descrip") && /\.(json|txt)$/i.test(file.name)) {
+        try {
+          const { data: blob } = await supabase.storage.from(bucketName).download(`${folderName}/${file.name}`);
+          if (blob) {
+            const text = await blob.text();
+            const parsed = safeParseJson(text);
+            if (parsed) metadataObj = { ...metadataObj, ...parsed };
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
     }
 
-    if (!rootItems || rootItems.length === 0) {
-      console.log(` -> Aucun élément trouvé à la racine de ${bucket.name}`);
-      continue;
-    }
+    // Scanner les sous-dossiers
+    const { data: subDirItems } = await supabase.storage.from(bucketName).list(`${folderName}`, { limit: 50 });
+    const subDirs = (subDirItems || [])
+      .filter((i) => !i.name.includes(".") && !i.name.startsWith("."))
+      .map((d) => d.name);
 
-    console.log(` -> ${rootItems.length} élément(s) trouvés à la racine.`);
+    const checkDirs = subDirs.length > 0 ? subDirs : ["images"];
 
-    for (const item of rootItems) {
-      const isFile = item.name.includes(".") && !item.name.startsWith(".");
-      console.log(`\n   📁 Dossier/Fichier: ${item.name} (${isFile ? "Fichier" : "Dossier"})`);
-
-      let avatarUrl = null;
-      let mediaUrls = [];
-
-      if (!isFile) {
-        // Lister l'intérieur du dossier
-        const { data: subFiles } = await supabase.storage.from(bucket.name).list(item.name, { limit: 50 });
-        if (subFiles && subFiles.length > 0) {
-          console.log(`      ↳ Contient ${subFiles.length} fichier(s):`);
-          for (const f of subFiles) {
-            const isImg = /\.(jpg|jpeg|png|webp|gif)$/i.test(f.name);
-            const { data: pubData } = supabase.storage.from(bucket.name).getPublicUrl(`${item.name}/${f.name}`);
-            const publicUrl = pubData.publicUrl;
-            console.log(`         • ${f.name} -> ${publicUrl}`);
-            
-            if (isImg) {
-              mediaUrls.push(publicUrl);
-              if (!avatarUrl) avatarUrl = publicUrl;
+    for (const dir of checkDirs) {
+      const { data: imgFiles } = await supabase.storage.from(bucketName).list(`${folderName}/${dir}`, { limit: 100 });
+      if (imgFiles && imgFiles.length > 0) {
+        for (const img of imgFiles) {
+          if (/\.(jpg|jpeg|png|webp|gif|mp4)$/i.test(img.name)) {
+            const lowerName = img.name.toLowerCase();
+            if (!seenFilenames.has(lowerName)) {
+              seenFilenames.add(lowerName);
+              const { data } = supabase.storage.from(bucketName).getPublicUrl(`${folderName}/${dir}/${img.name}`);
+              gallery.push(data.publicUrl);
             }
           }
         }
-      } else if (/\.(jpg|jpeg|png|webp|gif)$/i.test(item.name)) {
-        const { data: pubData } = supabase.storage.from(bucket.name).getPublicUrl(item.name);
-        avatarUrl = pubData.publicUrl;
-        mediaUrls.push(avatarUrl);
-      }
-
-      // Décoder ou formater le nom du profil
-      let cleanName = item.name.replace(/[_-]/g, " ").replace(/\.[^/.]+$/, "").trim();
-      cleanName = cleanName.replace(/\b\w/g, (c) => c.toUpperCase());
-
-      let category = "Lifestyle";
-      let bio = `Créatrice Fantazi-Land (${item.name})`;
-      let baseRate = 1200;
-
-      // Si le nom contient un encodage Nom__Catégorie__Base64
-      if (item.name.includes("__")) {
-        const parts = item.name.split("__");
-        if (parts.length >= 2) {
-          cleanName = parts[0].replace(/[_-]/g, " ").trim();
-          category = parts[1].replace(/[_-]/g, " ").trim();
-        }
-        if (parts.length >= 3) {
-          try {
-            const meta = JSON.parse(Buffer.from(parts[parts.length - 1], "base64").toString("utf-8"));
-            if (meta.name) cleanName = meta.name;
-            if (meta.category) category = meta.category;
-            if (meta.bio) bio = meta.bio;
-            if (meta.baseRate) baseRate = meta.baseRate;
-          } catch (e) {
-            // ignore
-          }
-        }
-      }
-
-      // Mapper la catégorie
-      const catMatch = validCategories.find(c => c.toLowerCase() === category.toLowerCase());
-      category = catMatch || "Photographie";
-
-      // 3. Créer ou mettre à jour le profil en base de données
-      const profilePayload = {
-        name: cleanName,
-        category: category,
-        bio: bio,
-        avatar_url: avatarUrl,
-        base_rate: baseRate,
-        currency: "EUR",
-        is_public: true,
-        is_available: true,
-        storage_folder_id: item.name,
-        synced_at: new Date().toISOString(),
-      };
-
-      // Tenter l'insertion
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("id, name")
-        .or(`storage_folder_id.eq."${item.name}",name.eq."${cleanName}"`)
-        .maybeSingle();
-
-      if (existing) {
-        const { error: upErr } = await supabase
-          .from("profiles")
-          .update(profilePayload)
-          .eq("id", existing.id);
-
-        if (upErr) {
-          console.error(`      ❌ Erreur update profil ${cleanName}:`, upErr.message);
-        } else {
-          console.log(`      ✅ Profil mis à jour: "${cleanName}" (ID: ${existing.id})`);
-        }
-      } else {
-        const { data: inserted, error: insErr } = await supabase
-          .from("profiles")
-          .insert(profilePayload)
-          .select()
-          .single();
-
-        if (insErr) {
-          console.error(`      ❌ Erreur création profil ${cleanName}:`, insErr.message);
-        } else {
-          console.log(`      🎉 Nouveau profil créé: "${inserted.name}" [${inserted.category}] (ID: ${inserted.id})`);
-        }
       }
     }
+
+    const cleanName =
+      folderName.length > 2
+        ? folderName.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+        : metadataObj.nom || metadataObj.name || folderName;
+
+    const category = metadataObj.categorie || metadataObj.category || "Photographie";
+    const bio =
+      metadataObj.bio ||
+      `Hôtesse d'exception professionnelle (${cleanName}) synchronisée depuis le stockage.`;
+    const baseRate = `${metadataObj.base_rate || 500} ${metadataObj.currency || "CAD"}`;
+
+    const profileData = {
+      id: crypto.randomUUID(),
+      name: cleanName,
+      email: `${cleanName.toLowerCase().replace(/[^a-z0-9]/g, "")}@fantazi-land.com`,
+      category: category,
+      bio: bio,
+      baseRate: baseRate,
+      avatar: avatarUrl || gallery[0] || "",
+      galleryCount: gallery.length,
+      gallery: gallery,
+    };
+
+    catalog.push(profileData);
+    console.log(`   ✅ Profil ${cleanName} - ${gallery.length} photos uniques trouvées`);
   }
 
-  // 4. Afficher tous les profils finaux
-  const { data: finalProfiles, error: fErr } = await supabase
-    .from("profiles")
-    .select("id, name, category, avatar_url, base_rate, currency, is_public, is_available, storage_folder_id, created_at")
-    .order("created_at", { ascending: false });
-
-  console.log("\n==================================================");
-  console.log(`✨ TOTAL DES PROFILS DANS FANTAZI-LAND : ${finalProfiles?.length || 0}`);
-  console.log("==================================================");
-
-  (finalProfiles || []).forEach((p, idx) => {
-    console.log(`${idx + 1}. ${p.name} | Catégorie: ${p.category} | Tarif: ${p.base_rate || 0} ${p.currency} | Avatar: ${p.avatar_url ? "📸" : "❌"} | Dossier: ${p.storage_folder_id}`);
-  });
+  // Écrire le fichier catalog local
+  const catalogPath = path.join(__dirname, "..", "data", "creators-catalog.json");
+  fs.writeFileSync(catalogPath, JSON.stringify(catalog, null, 2), "utf-8");
+  console.log(`\n🎉 Synchronisation terminée ! ${catalog.length} profils enregistrés dans creators-catalog.json`);
 }
 
 main().catch(console.error);
