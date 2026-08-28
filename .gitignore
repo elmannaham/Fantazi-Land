@@ -3,10 +3,13 @@ node_modules/
 .pnp
 .pnp.js
 
-# Next.js
+# Build Outputs
 .next/
 out/
 build/
+dist/
+.wrangler/
+**/.wrangler/
 
 # Testing
 coverage/
@@ -41,5 +44,5 @@ npm-debug.log*
 *.tsbuildinfo
 .playwright-mcp/
 
-# My-app (experimental)
+# Experimental sub-apps
 my-app/
