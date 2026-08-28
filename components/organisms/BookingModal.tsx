@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Clock, CreditCard, Sparkles, CheckCircle2, User, Mail, FileText } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
+import { Avatar } from "@/components/atoms/Avatar";
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -123,17 +124,13 @@ export function BookingModal({ isOpen, onClose, creator }: BookingModalProps) {
               <div>
                 {/* Header */}
                 <div className="flex items-center gap-3.5 pb-5 border-b border-slate-100">
-                  {creator.avatarUrl ? (
-                    <img
-                      src={creator.avatarUrl}
-                      alt={creator.name}
-                      className="h-12 w-12 rounded-full object-cover ring-2 ring-purple-100 shadow-sm"
-                    />
-                  ) : (
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 text-purple-700 font-bold">
-                      {creator.name.charAt(0)}
-                    </div>
-                  )}
+                  <Avatar
+                    src={creator.avatarUrl || undefined}
+                    alt={creator.name}
+                    name={creator.name}
+                    size="md"
+                    className="h-12 w-12"
+                  />
                   <div>
                     <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2.5 py-0.5 text-[11px] font-semibold text-purple-700">
                       <Sparkles className="h-3 w-3" /> Réservation Prioritaire

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardBody } from "@/components/atoms/Card";
 import { Badge, StatusBadge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
+import { Avatar } from "@/components/atoms/Avatar";
 import type { ProfileWithStats } from "@/lib/types";
 
 export default function AdminProfilesPage() {
@@ -183,13 +184,13 @@ export default function AdminProfilesPage() {
                       >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center text-sm overflow-hidden flex-shrink-0">
-                              {profile.avatar_url ? (
-                                <img src={profile.avatar_url} alt={profile.name} className="h-full w-full object-cover" />
-                              ) : (
-                                profile.name[0]?.toUpperCase() || "?"
-                              )}
-                            </div>
+                            <Avatar
+                              src={profile.avatar_url || undefined}
+                              alt={profile.name}
+                              name={profile.name}
+                              size="md"
+                              className="h-10 w-10"
+                            />
                             <div>
                               <div className="font-semibold text-slate-900">{profile.name}</div>
                               <div className="text-xs text-slate-400">ID: {profile.id.slice(0, 8)}...</div>

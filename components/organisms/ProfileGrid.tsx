@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShieldCheck, Star, Calendar, Eye } from "lucide-react";
+import { OptimizedImage } from "@/components/atoms/OptimizedImage";
 import type { ProfileWithStats } from "@/lib/types";
 
 export interface ProfileGridProps {
@@ -18,7 +19,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.06,
+      staggerChildren: 0.05,
     },
   },
 };
@@ -46,7 +47,7 @@ export function ProfileGrid({
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
           <div
             key={i}
             className="flex flex-col rounded-3xl border border-slate-100 bg-white p-4 shadow-sm animate-pulse space-y-4"
@@ -87,12 +88,13 @@ export function ProfileGrid({
       animate="visible"
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
     >
-      {profiles.map((profile) => {
+      {profiles.map((profile, index) => {
         const avatarSrc = profile.avatar_url || (profile as any).avatar || undefined;
         const rate = profile.base_rate ?? (profile as any).baseRate ?? 500;
         const curr = profile.currency || "CAD";
         const score = Number(profile.performance_stats?.avg_rating ?? (profile as any).rating ?? 5.0);
         const reviews = profile.performance_stats?.total_reviews ?? (profile as any).reviewCount ?? 0;
+        const isPriority = index < 4; // LCP & fast rendering for above the fold
 
         return (
           <motion.div
@@ -104,13 +106,16 @@ export function ProfileGrid({
           >
             <div>
               {/* Photo Avatar en Format 1:1 Carré avec Coins Arrondis */}
-              <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-100 shadow-inner">
+              <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-slate-900 shadow-inner">
                 {avatarSrc ? (
-                  <img
+                  <OptimizedImage
                     src={avatarSrc}
                     alt={profile.name}
+                    fill
+                    priority={isPriority}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                    loading="lazy"
+                    fallbackInitials={profile.name.charAt(0)}
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-tr from-purple-700 via-purple-600 to-pink-500 text-4xl font-extrabold text-white">
@@ -119,10 +124,10 @@ export function ProfileGrid({
                 )}
 
                 {/* Gradient d'ombre subtil en bas de l'image */}
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/60 via-black/10 to-transparent z-10" />
 
                 {/* Badge Note Flottant */}
-                <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-amber-300 backdrop-blur-md border border-white/10 shadow-sm">
+                <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-amber-300 backdrop-blur-md border border-white/10 shadow-sm z-20">
                   <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                   <span>{Number(score).toFixed(1)}</span>
                   {reviews > 0 && (
@@ -131,7 +136,7 @@ export function ProfileGrid({
                 </div>
 
                 {/* Badge Disponibilité & Catégorie */}
-                <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between z-20">
                   <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-[11px] font-bold text-purple-900 shadow-md backdrop-blur-sm uppercase tracking-wide">
                     {profile.category}
                   </span>

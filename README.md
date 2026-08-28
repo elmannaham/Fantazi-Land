@@ -1,5 +1,7 @@
 # 🌟 Fantazi-Land — Plateforme & Agence de Booking pour Hôtesses d'Exception
+### 🚀 Version Officielle 1.0.2 (Main Deployment)
 
+[![Version](https://img.shields.io/badge/version-1.0.2-gold?style=for-the-badge)](https://github.com/elmannaham/Fantazi-Land)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)

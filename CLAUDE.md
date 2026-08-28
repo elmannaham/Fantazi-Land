@@ -8,9 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Description :** Application web full-stack de pointe pour une agence d'hôtesses et d'égéries de marque. Elle offre un site vitrine avec animations 21st.dev, une galerie photos interactive issue du bucket Supabase Storage (`HOTESS`), un système de réservation avec modal interactif et devis en temps réel, un moteur de synchronisation automatique et une intégration avec le CRM Base44.
 
-**Statut :** Version 1.0.1 — Production-ready  
+**Statut :** Version 1.0.2 (Main Official Release) — Production-ready & Image Optimized  
 **Mainteneur :** Lead Developer & Claude Code  
-**Date de dernière mise à jour :** 2026-08-26  
+**Date de dernière mise à jour :** 2026-08-28  
 
 ---
 

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
 import { BUCKET_IMAGES, shuffleArray, BucketMediaItem } from "@/lib/bucket-media";
+import { OptimizedImage } from "@/components/atoms/OptimizedImage";
 
 export default function GaleriePage() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
@@ -58,7 +59,7 @@ export default function GaleriePage() {
     setLikes((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Gestion de la navigation Lightbox au clavier
+  // Navigation Lightbox au clavier
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (lightboxIndex === null) return;
@@ -98,216 +99,207 @@ export default function GaleriePage() {
                 <span className="rounded-full bg-purple-600/80 px-3 py-1 text-xs font-bold text-white uppercase tracking-wider backdrop-blur-md">
                   {currentLightboxImage.profileKey}
                 </span>
-                <span className="text-xs text-slate-400 font-medium">
-                  Photo {lightboxIndex + 1} sur {activeImages.length}
+                <span className="text-sm font-medium text-slate-300">
+                  {currentLightboxImage.title || `Photo ${lightboxIndex + 1}`}
                 </span>
               </div>
 
-              <button
-                onClick={() => setLightboxIndex(null)}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition active:scale-95"
-                aria-label="Fermer"
-              >
-                <X className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-slate-400 mr-2">
+                  {lightboxIndex + 1} / {activeImages.length}
+                </span>
+                <button
+                  onClick={() => setLightboxIndex(null)}
+                  className="rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition active:scale-95"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
             </div>
 
-            {/* Navigation Previous */}
+            {/* Prev Button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : activeImages.length - 1));
               }}
-              className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition active:scale-95"
-              aria-label="Photo précédente"
+              className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/20 transition z-20"
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
 
-            {/* Image display */}
-            <motion.div
-              key={currentLightboxImage.id}
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="relative max-h-[85vh] max-w-5xl overflow-hidden rounded-2xl shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={currentLightboxImage.url}
-                alt={currentLightboxImage.title || "Photo Galerie"}
-                className="max-h-[80vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
-              />
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-center">
-                <p className="text-sm font-semibold text-white">
-                  {currentLightboxImage.title || `Hôtesse ${currentLightboxImage.profileKey?.toUpperCase()}`}
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Navigation Next */}
+            {/* Next Button */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setLightboxIndex((prev) => (prev !== null && prev < activeImages.length - 1 ? prev + 1 : 0));
               }}
-              className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-20 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition active:scale-95"
-              aria-label="Photo suivante"
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/20 transition z-20"
             >
               <ChevronRight className="h-6 w-6" />
             </button>
+
+            {/* Main Image in Lightbox */}
+            <div
+              className="relative max-h-[82vh] max-w-5xl w-full h-[80vh] flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <OptimizedImage
+                src={currentLightboxImage.url}
+                alt={currentLightboxImage.title || "Photo Shooting"}
+                fill
+                priority
+                sizes="100vw"
+                className="object-contain rounded-2xl shadow-2xl"
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Header */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 pt-16 pb-10 px-4 text-center border-b border-slate-900">
-        <div className="mx-auto max-w-4xl">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3.5 py-1 text-xs font-semibold text-purple-300 border border-purple-500/30 mb-4">
-            <Camera className="h-3.5 w-3.5 text-purple-300" />
-            Galerie Photos du Bucket
-          </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-3">
-            Galerie Photos Exclusive
-          </h1>
-          <p className="text-sm sm:text-base text-slate-300 max-w-xl mx-auto">
-            Découvrez l'ensemble des clichés et shootings réels de nos hôtesses avec affichage haute définition et ordre aléatoire.
-          </p>
-
-          {/* Controls Bar */}
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            {/* Filter Pills */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 rounded-2xl bg-slate-900/90 p-1.5 border border-slate-800 backdrop-blur-md">
-              {filterOptions.map((opt) => {
-                const isActive = activeFilter === opt.key;
-                return (
-                  <button
-                    key={opt.key}
-                    onClick={() => setActiveFilter(opt.key)}
-                    className={`relative rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
-                      isActive
-                        ? "bg-purple-600 text-white shadow-md"
-                        : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60"
-                    }`}
-                  >
-                    {opt.label} ({opt.count})
-                  </button>
-                );
-              })}
+      {/* Hero Header */}
+      <div className="relative overflow-hidden border-b border-white/10 bg-gradient-to-b from-purple-950/50 to-transparent pt-12 pb-10 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/20 px-3.5 py-1 text-xs font-semibold text-purple-300 border border-purple-500/30 backdrop-blur-md mb-3">
+                <Sparkles className="h-3.5 w-3.5 text-pink-400 animate-pulse" />
+                Live Supabase Storage Gallery
+              </div>
+              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+                Galerie <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">Exclusive</span>
+              </h1>
+              <p className="mt-2 text-sm sm:text-base text-slate-400 max-w-xl">
+                Explorez l'intégralité des photos et books synchronisés depuis le bucket <code className="text-purple-300 font-mono">HOTESS</code>.
+              </p>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 onClick={handleShuffle}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-2 text-xs font-bold text-slate-200 border border-slate-800 hover:border-purple-500 hover:text-white transition shadow-sm active:scale-95"
+                className="inline-flex items-center gap-2 rounded-2xl bg-white/10 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white border border-white/15 backdrop-blur-md hover:bg-white/20 active:scale-95 transition"
               >
-                <Shuffle className="h-3.5 w-3.5 text-purple-400" />
-                Mélanger aléatoirement
+                <Shuffle className="h-4 w-4 text-purple-400" />
+                Mélanger l'ordre
               </button>
 
-              <div className="flex items-center rounded-xl bg-slate-900 p-1 border border-slate-800">
+              <div className="flex rounded-2xl bg-white/10 p-1 border border-white/15 backdrop-blur-md">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs transition ${
-                    viewMode === "grid" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"
+                  className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-semibold transition ${
+                    viewMode === "grid" ? "bg-purple-600 text-white shadow-md" : "text-slate-300 hover:text-white"
                   }`}
-                  title="Vue Grille"
                 >
                   <Grid3X3 className="h-3.5 w-3.5" />
+                  Grille
                 </button>
                 <button
                   onClick={() => setViewMode("3d")}
-                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs transition ${
-                    viewMode === "3d" ? "bg-purple-600 text-white" : "text-slate-400 hover:text-white"
+                  className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs sm:text-sm font-semibold transition ${
+                    viewMode === "3d" ? "bg-purple-600 text-white shadow-md" : "text-slate-300 hover:text-white"
                   }`}
-                  title="Vue 3D Cylindrique"
                 >
                   <Layers className="h-3.5 w-3.5" />
+                  3D Cylindre
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Main Gallery Container */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-10">
+          {/* Filters Bar */}
+          <div className="mt-8 flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {filterOptions.map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setActiveFilter(opt.key)}
+                className={`whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
+                  activeFilter === opt.key
+                    ? "bg-purple-600 text-white shadow-md shadow-purple-600/30 scale-105"
+                    : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-slate-200"
+                }`}
+              >
+                {opt.label} ({opt.count})
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Gallery Area */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-10">
         {viewMode === "3d" ? (
-          /* 3D Cylinder Mode */
-          <div className="rounded-3xl bg-slate-900/60 p-6 sm:p-10 border border-slate-800/80 shadow-2xl">
-            <div className="text-center mb-6">
-              <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
-                Mode 3D Interactif
+          <div className="space-y-6">
+            <div className="text-center">
+              <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
+                Expérience 3D Interactive (Glissez pour tourner)
               </span>
-              <p className="text-xs text-slate-400 mt-1">
-                Faites glisser pour tourner le carrousel. Cliquez sur une photo pour l'agrandir.
-              </p>
             </div>
-            <ThreeDPhotoCarousel
-              cards={activeImages.map((img) => img.url)}
-              onImageClick={(url, idx) => setLightboxIndex(idx)}
-            />
+            <div className="relative h-[550px] w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-900 shadow-2xl">
+              <ThreeDPhotoCarousel
+                cards={activeImages.map((img) => img.url)}
+                onImageClick={(url, idx) => setLightboxIndex(idx)}
+                autoRotate
+              />
+            </div>
           </div>
         ) : (
-          /* Grid View Mode */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {activeImages.map((image, index) => {
               const isLiked = !!likes[image.id];
+              const isPriority = index < 6;
+
               return (
                 <motion.div
                   key={image.id}
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.25, delay: index * 0.03 }}
+                  transition={{ duration: 0.25 }}
                   onClick={() => setLightboxIndex(index)}
-                  className="group relative aspect-[4/5] cursor-pointer overflow-hidden rounded-2xl bg-slate-900 border border-slate-800/80 shadow-lg hover:border-purple-500/50 hover:shadow-purple-500/10 transition duration-300"
+                  className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-slate-900 border border-white/10 shadow-lg cursor-pointer hover:border-purple-500/50 hover:shadow-purple-500/10 transition duration-300"
                 >
-                  {/* Photo */}
-                  <img
+                  <OptimizedImage
                     src={image.url}
                     alt={image.title || "Photo"}
-                    className="h-full w-full object-cover group-hover:scale-105 transition duration-500"
-                    loading="lazy"
+                    fill
+                    priority={isPriority}
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
 
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
+                  {/* Gradient overlay */}
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
 
-                  {/* Top Bar on Hover */}
-                  <div className="absolute top-3 inset-x-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition duration-300 z-10">
-                    <span className="rounded-full bg-black/60 px-2.5 py-0.5 text-[10px] font-bold text-white uppercase backdrop-blur-md">
+                  {/* Top profile tag */}
+                  <div className="absolute top-2.5 left-2.5 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <span className="rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-bold text-purple-300 backdrop-blur-md uppercase tracking-wider">
                       {image.profileKey}
                     </span>
-
-                    <button
-                      onClick={(e) => toggleLike(image.id, e)}
-                      className={`flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-md transition ${
-                        isLiked ? "bg-pink-500 text-white" : "bg-black/50 text-white hover:bg-black/70"
-                      }`}
-                      aria-label="Aimer"
-                    >
-                      <Heart className={`h-4 w-4 ${isLiked ? "fill-white" : ""}`} />
-                    </button>
                   </div>
 
-                  {/* Bottom Bar on Hover */}
-                  <div className="absolute bottom-3 inset-x-3 opacity-0 group-hover:opacity-100 transition duration-300 z-10">
-                    <p className="text-xs font-bold text-white line-clamp-1 mb-1">
-                      {image.title || `Shooting ${image.profileKey?.toUpperCase()}`}
+                  {/* Like Button */}
+                  <button
+                    onClick={(e) => toggleLike(image.id, e)}
+                    className={`absolute top-2.5 right-2.5 z-20 rounded-full p-1.5 transition duration-200 ${
+                      isLiked ? "bg-pink-600 text-white" : "bg-black/40 text-white hover:bg-pink-600 opacity-0 group-hover:opacity-100"
+                    }`}
+                  >
+                    <Heart className={`h-3.5 w-3.5 ${isLiked ? "fill-white" : ""}`} />
+                  </button>
+
+                  {/* Bottom caption */}
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <p className="text-xs font-semibold text-white truncate">
+                      {image.title || "Shooting photo"}
                     </p>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-medium text-purple-300">
-                      🔍 Agrandir en HD
-                    </span>
                   </div>
                 </motion.div>
               );
             })}
           </div>
         )}
-      </section>
+      </div>
     </main>
   );
 }

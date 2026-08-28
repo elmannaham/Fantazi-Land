@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { syncService } from "@/lib/services/sync.service";
 import { errorHandler, validationError } from "@/lib/errors";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   try {
     const payload = await request.json();

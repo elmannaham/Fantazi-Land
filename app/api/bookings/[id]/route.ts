@@ -3,6 +3,8 @@ import { bookingsService } from "@/lib/services/bookings.service";
 import { BookingStatusEnum } from "@/lib/schemas";
 import { errorHandler, validationError } from "@/lib/errors";
 
+export const dynamic = "force-dynamic";
+
 interface RouteParams {
   params: {
     id: string;

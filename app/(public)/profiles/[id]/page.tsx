@@ -7,6 +7,7 @@ import { Rating } from "@/components/atoms/Rating";
 import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
 import { Card, CardBody } from "@/components/atoms/Card";
+import { OptimizedImage } from "@/components/atoms/OptimizedImage";
 import { useProfile } from "@/lib/hooks/useProfiles";
 
 export default function ProfileDetailPage({ params }: { params: { id: string } }) {
@@ -131,12 +132,19 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
               onClick={(e) => e.stopPropagation()}
             />
           ) : (
-            <img
-              src={selectedImage}
-              alt="Agrandie"
-              className="max-h-[90vh] max-w-4xl object-contain rounded-2xl shadow-2xl"
+            <div
+              className="relative max-h-[85vh] max-w-4xl w-full h-[80vh] flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
-            />
+            >
+              <OptimizedImage
+                src={selectedImage}
+                alt="Agrandie"
+                fill
+                priority
+                sizes="90vw"
+                className="object-contain rounded-2xl shadow-2xl"
+              />
+            </div>
           )}
         </div>
       )}
@@ -323,7 +331,7 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
           <section className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
             <h2 className="text-xl font-bold text-slate-900 mb-6">Portfolio & Galerie</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {profile.media_assets.map((asset) => {
+              {profile.media_assets.map((asset, idx) => {
                 const isVideo = asset.file_type === "video" || asset.file_url.endsWith(".mp4");
                 return (
                   <div
@@ -338,13 +346,16 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
                         </div>
                       </div>
                     ) : (
-                      <img
+                      <OptimizedImage
                         src={asset.file_url}
-                        alt="Portfolio"
+                        alt="Portfolio photo"
+                        fill
+                        priority={idx < 3}
+                        sizes="(max-width: 640px) 50vw, 33vw"
                         className="h-full w-full object-cover group-hover:scale-105 transition duration-300"
                       />
                     )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-medium text-xs gap-1">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white font-medium text-xs gap-1 z-10">
                       {isVideo ? "▶ Lire la vidéo" : "🔍 Agrandir"}
                     </div>
                   </div>

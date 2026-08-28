@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncService } from "@/lib/services/sync.service";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const profiles = await syncService.getCachedSyncedProfiles();

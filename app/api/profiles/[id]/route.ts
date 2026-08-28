@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { profilesService } from "@/lib/services/profiles.service";
 import { errorHandler } from "@/lib/errors";
 
+export const dynamic = "force-dynamic";
+
 interface RouteParams {
   params: {
     id: string;

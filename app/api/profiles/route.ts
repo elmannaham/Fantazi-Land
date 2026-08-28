@@ -5,6 +5,8 @@ import { profileQuerySchema, createProfileSchema } from "@/lib/schemas";
 import { errorHandler } from "@/lib/errors";
 import { authenticateRequest } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = Object.fromEntries(request.nextUrl.searchParams.entries());

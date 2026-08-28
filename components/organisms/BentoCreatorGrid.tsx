@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Sparkles, Star, ArrowRight, ShieldCheck, Eye, Zap, Layers } from "lucide-react";
+import { OptimizedImage } from "@/components/atoms/OptimizedImage";
 import type { ProfileWithStats } from "@/lib/types";
 
 interface BentoCreatorGridProps {
@@ -60,19 +61,23 @@ export function BentoCreatorGrid({
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-              <div className="relative">
+              <div className="relative h-20 w-20 sm:h-24 sm:w-24 overflow-hidden rounded-2xl ring-4 ring-purple-500/40 shadow-2xl shrink-0 bg-slate-800">
                 {starCreator.avatar_url ? (
-                  <img
+                  <OptimizedImage
                     src={starCreator.avatar_url}
                     alt={starCreator.name}
-                    className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl object-cover ring-4 ring-purple-500/40 shadow-2xl"
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 80px, 96px"
+                    className="h-full w-full object-cover"
+                    fallbackInitials={starCreator.name.charAt(0)}
                   />
                 ) : (
-                  <div className="flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 text-3xl font-extrabold text-white shadow-xl">
+                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-tr from-purple-600 to-pink-500 text-3xl font-extrabold text-white">
                     {starCreator.name.charAt(0)}
                   </div>
                 )}
-                <div className="absolute -bottom-1 -right-1 rounded-full bg-emerald-500 p-1 text-white shadow-md ring-2 ring-slate-900">
+                <div className="absolute -bottom-1 -right-1 rounded-full bg-emerald-500 p-1 text-white shadow-md ring-2 ring-slate-900 z-10">
                   <ShieldCheck className="h-3.5 w-3.5" />
                 </div>
               </div>
@@ -99,17 +104,16 @@ export function BentoCreatorGrid({
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Link
-                href={`/profiles/${starCreator.id}`}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white backdrop-blur-md transition hover:bg-white/20"
-              >
-                <Eye className="h-3.5 w-3.5" />
-                Voir Profil
+            <div className="flex items-center gap-2.5">
+              <Link href={`/profiles/${starCreator.id}`}>
+                <button className="flex items-center gap-1 rounded-xl bg-white/10 hover:bg-white/20 px-3.5 py-2 text-xs font-semibold text-white transition active:scale-95">
+                  <Eye className="h-3.5 w-3.5" />
+                  Détails
+                </button>
               </Link>
               <button
                 onClick={() => onBookCreator?.(starCreator)}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-purple-500/25 transition hover:brightness-110 active:scale-95"
+                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-purple-500/30 hover:scale-105 active:scale-95 transition"
               >
                 Réserver
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -118,88 +122,75 @@ export function BentoCreatorGrid({
           </div>
         </motion.div>
 
-        {/* Colonne Cartes Secondaires */}
-        <div className="md:col-span-1 lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-          {secondaryCreators.map((creator) => (
-            <motion.div
-              key={creator.id}
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.15 }}
-              className="rounded-3xl bg-white p-4 border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
+        {/* Cartes Secondaires Bento */}
+        {secondaryCreators.map((creator) => (
+          <motion.div
+            key={creator.id}
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.2 }}
+            className="relative overflow-hidden rounded-3xl bg-white p-5 border border-slate-200 shadow-md flex flex-col justify-between group hover:border-purple-300 hover:shadow-xl transition-all"
+          >
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="rounded-full bg-purple-50 px-2.5 py-0.5 text-[10px] font-bold text-purple-700 uppercase tracking-wide">
+                  {creator.category}
+                </span>
+                <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                  <Star className="h-3 w-3 fill-amber-400" />
+                  {Number(creator.performance_stats?.avg_rating || 5.0).toFixed(1)}
+                </div>
+              </div>
+
+              <div className="mt-4 flex items-center gap-3">
+                <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-slate-100 ring-2 ring-purple-100 shrink-0">
                   {creator.avatar_url ? (
-                    <div className="relative aspect-square h-14 w-14 rounded-2xl overflow-hidden ring-2 ring-purple-100 shadow-sm shrink-0">
-                      <img
-                        src={creator.avatar_url}
-                        alt={creator.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+                    <OptimizedImage
+                      src={creator.avatar_url}
+                      alt={creator.name}
+                      fill
+                      sizes="56px"
+                      className="h-full w-full object-cover"
+                      fallbackInitials={creator.name.charAt(0)}
+                    />
                   ) : (
-                    <div className="flex aspect-square h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 text-purple-700 font-bold shrink-0">
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-tr from-purple-700 to-pink-500 text-xl font-extrabold text-white">
                       {creator.name.charAt(0)}
                     </div>
                   )}
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-sm">{creator.name}</h4>
-                    <span className="text-[11px] font-semibold text-purple-600 capitalize">
-                      {creator.category}
-                    </span>
-                  </div>
                 </div>
-                <span className="flex items-center gap-0.5 text-xs font-bold text-amber-500 bg-amber-50 px-2 py-0.5 rounded-md">
-                  <Star className="h-3 w-3 fill-amber-400" />
-                  {Number(creator.performance_stats?.avg_rating || 5.0).toFixed(1)}
-                </span>
+
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-extrabold text-base text-slate-900 truncate group-hover:text-purple-700 transition-colors">
+                    {creator.name}
+                  </h4>
+                  <p className="text-xs text-slate-500 truncate">
+                    {creator.bio || "Hôtesse événementielle"}
+                  </p>
+                </div>
               </div>
+            </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-800">
-                  {Number(creator.base_rate || 500)} {creator.currency || "CAD"}
-                </span>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-xs font-bold text-purple-900">
+                {Number(creator.base_rate || 100)} {creator.currency || "EUR"}
+              </span>
 
-                <div className="flex gap-1.5">
-                  <Link
-                    href={`/profiles/${creator.id}`}
-                    className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:bg-purple-50 hover:text-purple-700 transition"
-                  >
-                    Profil
-                  </Link>
-                  <button
-                    onClick={() => onBookCreator?.(creator)}
-                    className="rounded-lg bg-purple-600 px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-purple-700 transition shadow-sm"
-                  >
-                    Réserver
+              <div className="flex gap-1.5">
+                <Link href={`/profiles/${creator.id}`}>
+                  <button className="p-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    <Eye className="h-3.5 w-3.5" />
                   </button>
-                </div>
+                </Link>
+                <button
+                  onClick={() => onBookCreator?.(creator)}
+                  className="rounded-lg bg-purple-600 hover:bg-purple-700 px-2.5 py-1 text-xs font-bold text-white shadow-sm transition"
+                >
+                  Book
+                </button>
               </div>
-            </motion.div>
-          ))}
-
-          {/* Mini Carte Teaser Portfolio 3D */}
-          <Link
-            href="/portfolio"
-            className="group rounded-3xl bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 p-5 border border-purple-200/60 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-          >
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-200/60 px-2.5 py-0.5 text-[10px] font-bold text-purple-800">
-                <Layers className="h-3 w-3 text-purple-700" />
-                Expérience Immersive
-              </div>
-              <h4 className="font-extrabold text-slate-900 text-base mt-2 group-hover:text-purple-700 transition-colors">
-                Galerie Portfolio 3D
-              </h4>
-              <p className="text-xs text-slate-600 mt-1">
-                Faites tourner les carrousels 3D interactifs de nos hôtesses.
-              </p>
             </div>
-            <div className="mt-4 flex items-center gap-1 text-xs font-bold text-purple-700">
-              Explorer en 3D <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-        </div>
+          </motion.div>
+        ))}
       </div>
     </div>
   );

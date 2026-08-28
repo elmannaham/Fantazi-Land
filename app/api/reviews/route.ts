@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { reviewsService } from "@/lib/services/reviews.service";
 import { errorHandler, validationError } from "@/lib/errors";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const profileId = request.nextUrl.searchParams.get("profileId");
