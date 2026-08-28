@@ -52,8 +52,8 @@ export function HeroSection({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1 }}
-          className="font-extrabold tracking-[-0.02em] leading-[1.15] mb-7 max-w-[900px] text-4xl sm:text-6xl md:text-[64px]"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
+          className="font-extrabold tracking-[-0.01em] leading-[1.15] mb-7 max-w-[900px] text-4xl sm:text-6xl md:text-[64px]"
+          style={{ fontFamily: "'Playfair Display', serif" }}
         >
           <span
             style={{

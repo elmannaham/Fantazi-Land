@@ -13,14 +13,15 @@ import { StatsSection } from "@/components/sections/StatsSection";
 import { PortfolioTeaserSection } from "@/components/sections/PortfolioTeaserSection";
 import type { ProfileWithStats } from "@/lib/types";
 
+export const dynamic = "force-dynamic";
+
 const CATEGORIES = [
   "Tous",
-  "Photographie",
+  "Intime Rencontre",
   "Vidéographie",
+  "Dinner & Show",
   "Contenu Mode",
-  "Beauté",
-  "Lifestyle",
-  "Gaming",
+  "Lifestylee",
 ];
 
 export default function HomePage() {

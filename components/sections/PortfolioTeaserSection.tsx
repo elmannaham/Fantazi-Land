@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Layers, ArrowRight, Sparkles, Image, Compass } from "lucide-react";
+import { Layers, ArrowRight, Sparkles, Image as ImageIcon, Compass } from "lucide-react";
 
 export function PortfolioTeaserSection() {
   return (
@@ -57,7 +57,7 @@ export function PortfolioTeaserSection() {
                 <span className="text-[10px] font-bold">Rendu 60 FPS</span>
               </div>
               <div className="aspect-square rounded-xl bg-purple-950/60 border border-purple-500/30 flex flex-col items-center justify-center p-2 text-center">
-                <Image className="h-5 w-5 text-pink-400 mb-1" />
+                <ImageIcon className="h-5 w-5 text-pink-400 mb-1" />
                 <span className="text-[10px] font-bold">Lightbox HD</span>
               </div>
               <div className="aspect-square rounded-xl bg-purple-950/60 border border-purple-500/30 flex flex-col items-center justify-center p-2 text-center">

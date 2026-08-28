@@ -8,6 +8,10 @@
     --foreground: 222 47% 11%;
   }
 
+  html {
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  }
+
   body {
     @apply bg-white text-gray-900 antialiased;
   }
