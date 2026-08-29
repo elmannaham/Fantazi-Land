@@ -1,0 +1,27 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "description": "Supabase project anon/public key (Settings > API). App falls back to a local catalog without it, but live DB reads need the real key.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "description": "Supabase service role key (server-side only, Settings > API). Needed for admin writes and Storage sync.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "description": "PostgreSQL connection string (Supabase pooler, pgbouncer). Needed for Prisma queries; app falls back to local catalog if unreachable.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "DIRECT_URL",
+      "description": "PostgreSQL direct connection string (Supabase session pooler) used for Prisma migrations.",
+      "requiredAtBoot": false
+    }
+  ]
+}
