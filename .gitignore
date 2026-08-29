@@ -10,24 +10,31 @@ build/
 dist/
 .wrangler/
 **/.wrangler/
+.vinext/
+**/.vinext/
+.turbo/
+**/.turbo/
 
-# Testing
+# Testing & Reports
 coverage/
 test-results/
 playwright-report/
+.playwright-mcp/
 
-# Environment
+# Environment & Secrets
 .env
 .env.local
 .env.*.local
+*.env
 
-# IDE
+# IDE & Editor
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tsbuildinfo
 
-# OS
+# OS Artifacts
 .DS_Store
 Thumbs.db
 
@@ -38,11 +45,16 @@ supabase/.branches/
 # Vercel
 .vercel
 
-# Misc
+# Logs
 *.log
 npm-debug.log*
-*.tsbuildinfo
-.playwright-mcp/
+yarn-debug.log*
+yarn-error.log*
 
-# Experimental sub-apps
+# Prototypes & sub-apps
 my-app/
+fantazy-land/.next/
+fantazy-land/.vinext/
+fantazy-land/.wrangler/
+fantazy-land/dist/
+fantazy-land/node_modules/
