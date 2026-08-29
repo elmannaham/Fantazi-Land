@@ -12,8 +12,8 @@ services:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL}
       DIRECT_URL: ${DIRECT_URL}
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      NEXT_PUBLIC_SUPABASE_URL: ${https://uytihmscyjpwpdhqvnbw.storage.supabase.co/storage/v1/s3}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dGlobXNjeWpwd3BkaHF2bmJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NzE5NzQsImV4cCI6MjEwMzE0Nzk3NH0.hZBHGOWhRRm9Y3Lqs2Iwoymf2pj2A9hol0D-DRBuVdo}
     depends_on:
       db:
         condition: service_healthy
