@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "Fantazi-Land",
+    "slug": "fantazi-land-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "fantazi-land",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.fantaziland.mobile",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Fantazi-Land a besoin de votre caméra pour prendre des photos de profil.",
+        "NSPhotoLibraryUsageDescription": "Fantazi-Land a besoin d'accéder à vos photos pour les ajouter à votre profil."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#7c3aed"
+      },
+      "package": "com.fantaziland.mobile",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Autoriser Fantazi-Land à accéder à votre caméra pour prendre des photos de profil."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Autoriser Fantazi-Land à accéder à vos photos pour les ajouter à votre profil."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#7c3aed"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      },
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
