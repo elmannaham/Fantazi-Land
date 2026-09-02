@@ -4,11 +4,22 @@ export const API_BASE_URL = typeof process !== "undefined" && process.env.EXPO_P
   ? import.meta.env.VITE_API_URL
   : "http://localhost:3000";
 
-export const SUPABASE_URL = typeof process !== "undefined" && process.env.EXPO_PUBLIC_SUPABASE_URL
-  ? process.env.EXPO_PUBLIC_SUPABASE_URL
-  : typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL
-  ? import.meta.env.VITE_SUPABASE_URL
-  : "https://uytihmscyjpwpdhqvnbw.supabase.co";
+export const SUPABASE_URL = (() => {
+  const url = typeof process !== "undefined" && process.env.EXPO_PUBLIC_SUPABASE_URL
+    ? process.env.EXPO_PUBLIC_SUPABASE_URL
+    : typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL
+    ? import.meta.env.VITE_SUPABASE_URL
+    : null;
+
+  if (!url) {
+    throw new Error(
+      "VITE_SUPABASE_URL environment variable is required. " +
+      "Set EXPO_PUBLIC_SUPABASE_URL (mobile) or VITE_SUPABASE_URL (web)."
+    );
+  }
+
+  return url;
+})();
 
 export const SUPABASE_ANON_KEY = typeof process !== "undefined" && process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
   ? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY

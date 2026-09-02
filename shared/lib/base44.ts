@@ -14,7 +14,14 @@ function getBase44Config() {
     ? process.env.BASE44_API_URL
     : typeof import.meta !== "undefined" && import.meta.env?.VITE_BASE44_API_URL
     ? import.meta.env.VITE_BASE44_API_URL
-    : "https://agence-de-booking-crud-ec63fc9d.base44.app/api";
+    : null;
+
+  if (!apiUrl) {
+    throw new Error(
+      "VITE_BASE44_API_URL environment variable is required. " +
+      "Set BASE44_API_URL (mobile) or VITE_BASE44_API_URL (web)."
+    );
+  }
 
   const apiKey = typeof process !== "undefined" && process.env.BASE44_API_KEY
     ? process.env.BASE44_API_KEY
