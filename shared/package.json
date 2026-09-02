@@ -1,0 +1,32 @@
+{
+  "name": "@shared",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    "./lib/types": {
+      "import": "./lib/types.ts",
+      "types": "./lib/types.ts"
+    },
+    "./lib/schemas": {
+      "import": "./lib/schemas.ts",
+      "types": "./lib/schemas.ts"
+    },
+    "./lib/constants": {
+      "import": "./lib/constants.ts",
+      "types": "./lib/constants.ts"
+    },
+    "./lib/supabase": {
+      "import": "./lib/supabase.ts",
+      "types": "./lib/supabase.ts"
+    },
+    "./lib/base44": {
+      "import": "./lib/base44.ts",
+      "types": "./lib/base44.ts"
+    }
+  },
+  "devDependencies": {
+    "typescript": "latest",
+    "@supabase/supabase-js": "latest",
+    "zod": "latest"
+  }
+}

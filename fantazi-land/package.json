@@ -4,23 +4,24 @@
   "private": true,
   "packageManager": "npm",
   "dependencies": {
+    "@shared": "workspace:*",
+    "@vinext/cloudflare": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "vinext": "latest",
     "react-server-dom-webpack": "latest",
-    "@vinext/cloudflare": "latest"
+    "vinext": "latest"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "latest",
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "tailwindcss": "latest",
-    "typescript": "latest",
-    "vite": "latest",
     "@vitejs/plugin-react": "latest",
     "@vitejs/plugin-rsc": "latest",
-    "@cloudflare/vite-plugin": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest",
+    "vite": "^8.2.2",
     "wrangler": "latest"
   },
   "type": "module",
@@ -29,5 +30,9 @@
     "build": "vinext build",
     "start": "wrangler dev --config dist/server/wrangler.json",
     "deploy": "vinext-cloudflare deploy --config dist/server/wrangler.json"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260831.1": true
   }
 }
