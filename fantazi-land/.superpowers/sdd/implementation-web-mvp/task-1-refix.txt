@@ -1,0 +1,80 @@
+ shared/lib/base44.ts    |  9 ++++++++-
+ shared/lib/constants.ts | 21 ++++++++++++++++-----
+ 2 files changed, 24 insertions(+), 6 deletions(-)
+36c5d72 fix: remove hardcoded API URLs, require env vars instead
+diff --git a/shared/lib/base44.ts b/shared/lib/base44.ts
+index 853385e..1ad1814 100644
+--- a/shared/lib/base44.ts
++++ b/shared/lib/base44.ts
+@@ -7,21 +7,28 @@
+  * Configuration:
+  * - Requires BASE44_API_URL environment variable (API endpoint)
+  * - Requires BASE44_API_KEY environment variable (authentication token)
+  */
+ 
+ function getBase44Config() {
+   const apiUrl = typeof process !== "undefined" && process.env.BASE44_API_URL
+     ? process.env.BASE44_API_URL
+     : typeof import.meta !== "undefined" && import.meta.env?.VITE_BASE44_API_URL
+     ? import.meta.env.VITE_BASE44_API_URL
+-    : "https://agence-de-booking-crud-ec63fc9d.base44.app/api";
++    : null;
++
++  if (!apiUrl) {
++    throw new Error(
++      "VITE_BASE44_API_URL environment variable is required. " +
++      "Set BASE44_API_URL (mobile) or VITE_BASE44_API_URL (web)."
++    );
++  }
+ 
+   const apiKey = typeof process !== "undefined" && process.env.BASE44_API_KEY
+     ? process.env.BASE44_API_KEY
+     : typeof import.meta !== "undefined" && import.meta.env?.VITE_BASE44_API_KEY
+     ? import.meta.env.VITE_BASE44_API_KEY
+     : "";
+ 
+   return { apiUrl, apiKey };
+ }
+ 
+diff --git a/shared/lib/constants.ts b/shared/lib/constants.ts
+index c4b0df3..84f7f33 100644
+--- a/shared/lib/constants.ts
++++ b/shared/lib/constants.ts
+@@ -1,21 +1,32 @@
+ export const API_BASE_URL = typeof process !== "undefined" && process.env.EXPO_PUBLIC_API_URL
+   ? process.env.EXPO_PUBLIC_API_URL
+   : typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL
+   ? import.meta.env.VITE_API_URL
+   : "http://localhost:3000";
+ 
+-export const SUPABASE_URL = typeof process !== "undefined" && process.env.EXPO_PUBLIC_SUPABASE_URL
+-  ? process.env.EXPO_PUBLIC_SUPABASE_URL
+-  : typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL
+-  ? import.meta.env.VITE_SUPABASE_URL
+-  : "https://uytihmscyjpwpdhqvnbw.supabase.co";
++export const SUPABASE_URL = (() => {
++  const url = typeof process !== "undefined" && process.env.EXPO_PUBLIC_SUPABASE_URL
++    ? process.env.EXPO_PUBLIC_SUPABASE_URL
++    : typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL
++    ? import.meta.env.VITE_SUPABASE_URL
++    : null;
++
++  if (!url) {
++    throw new Error(
++      "VITE_SUPABASE_URL environment variable is required. " +
++      "Set EXPO_PUBLIC_SUPABASE_URL (mobile) or VITE_SUPABASE_URL (web)."
++    );
++  }
++
++  return url;
++})();
+ 
+ export const SUPABASE_ANON_KEY = typeof process !== "undefined" && process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+   ? process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY
+   : typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_ANON_KEY
+   ? import.meta.env.VITE_SUPABASE_ANON_KEY
+   : "";
+ 
+ export const CATEGORIES = [
+   "Tous",
+   "Photographie",

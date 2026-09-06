@@ -58,3 +58,6 @@ fantazy-land/.vinext/
 fantazy-land/.wrangler/
 fantazy-land/dist/
 fantazy-land/node_modules/
+
+.vercel
+.env*
