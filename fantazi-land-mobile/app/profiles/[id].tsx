@@ -47,15 +47,45 @@ export default function ProfileDetailScreen() {
     loadProfile();
   }, [loadProfile]);
 
+  const ALLOWED_HOSTS: Record<string, string[]> = {
+    Instagram: ['instagram.com', 'www.instagram.com'],
+    TikTok: ['tiktok.com', 'www.tiktok.com'],
+    Twitter: ['twitter.com', 'x.com', 'www.twitter.com', 'www.x.com'],
+    Website: [],
+  };
+
   const handleSocialLink = useCallback(
     (url: string | null | undefined, platform: string) => {
       if (!url) {
         Alert.alert('Indisponible', `Aucun lien ${platform} disponible`);
         return;
       }
-      Linking.openURL(url).catch(() => {
-        Alert.alert('Erreur', `Impossible d'ouvrir le lien ${platform}`);
-      });
+
+      try {
+        const parsed = new URL(url);
+
+        // Enforce HTTPS only
+        if (parsed.protocol !== 'https:') {
+          Alert.alert('Erreur', 'Lien non sécurisé (HTTPS requis)');
+          return;
+        }
+
+        // Validate host for known platforms
+        const allowed = ALLOWED_HOSTS[platform];
+        if (allowed && allowed.length > 0) {
+          const hostname = parsed.hostname.toLowerCase();
+          if (!allowed.includes(hostname)) {
+            Alert.alert('Erreur', 'Domaine non autorisé pour cette plateforme');
+            return;
+          }
+        }
+
+        Linking.openURL(parsed.toString()).catch(() => {
+          Alert.alert('Erreur', `Impossible d'ouvrir le lien ${platform}`);
+        });
+      } catch {
+        Alert.alert('Erreur', 'URL invalide');
+      }
     },
     []
   );
