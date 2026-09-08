@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 📋 Projet: Fantazi-Land Mobile
 
-**Description:** React Native mobile companion app to Fantazi-Land booking platform. Profiles, booking management, camera integration, and secure authentication.
+**Description:** React Native mobile companion app to Fantazi-Land booking platform. Browse creator profiles, manage bookings, integrate camera, and secure authentication via Supabase.
 
-**Status:** v1.0.0 — Development  
-**Stack:** Expo 57.0.18, React Native 0.86.3, React 19, TypeScript 6.0.3  
-**Last Updated:** 2026-09-01
+**Status:** v1.0.0 — Production (Google Play Store submission)  
+**Stack:** Expo 57.0.18, React Native 0.86.3, React 19.2.3, TypeScript 6.0.3, Zod 4.5.4, Zustand 5.0.15  
+**Last Updated:** 2026-09-08
 
 ---
 
@@ -19,34 +19,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Installation
 ```bash
 npm install
+npx expo install      # Sync native dependencies with Expo SDK
 ```
 
 ### Development
 ```bash
-npm start              # Start Expo dev server
-npm run android        # Launch on Android
-npm run ios            # Launch on iOS
-npm run web            # Launch on web
+npm start             # Start Expo dev server (choose android/ios/web in interactive menu)
+npm run android       # Launch on Android emulator/device
+npm run ios           # Launch on iOS simulator
+npm run web           # Launch on web browser
 ```
 
-### Type Checking & Validation
+### Quality Checks
 ```bash
-tsc --noEmit           # Type check (strict mode enabled)
-npx expo lint          # ESLint check
-npx prettier --check   # Format check
-npx expo-doctor        # Verify Expo + native deps health
+npx tsc --noEmit      # Type check (strict mode enabled, 0 errors required)
+npx expo lint         # ESLint check
+npx expo-doctor       # Verify Expo SDK + native dependencies health
+npm audit             # Security audit of dependencies
 ```
 
-### Building
+### Building for Deployment
 ```bash
-eas build --platform android --profile preview
-eas build --platform ios --profile preview
-```
-
-### Testing
-```bash
-npm test               # Run unit tests (Jest)
-npm run test:coverage  # With coverage report (80% minimum)
+eas build --platform android --profile preview   # Preview APK (testing)
+eas build --platform android --profile production # Production build
+eas submit --platform android --latest            # Submit to Google Play Store
 ```
 
 ---
@@ -56,112 +52,213 @@ npm run test:coverage  # With coverage report (80% minimum)
 ### Directory Structure
 ```
 fantazi-land-mobile/
-├── app/                    # Expo Router routes (file-based navigation)
-│   ├── (tabs)/            # Tab-based navigation layout
-│   ├── profiles/[id]/     # Dynamic profile detail route
-│   ├── booking/[profileId]/ # Dynamic booking modal
-│   └── _layout.tsx        # Root layout (splash, permissions, nav)
+├── app/                      # Expo Router (file-based navigation)
+│   ├── (tabs)/              # Tab layout container
+│   │   ├── index.tsx        # Home screen (main profiles feed)
+│   │   ├── portfolio.tsx    # Gallery/portfolio screen
+│   │   ├── search.tsx       # Search/filter screen
+│   │   ├── profile.tsx      # User profile screen
+│   │   └── _layout.tsx      # Tab bar navigation
+│   │
+│   ├── profiles/[id].tsx     # Dynamic route: single profile detail
+│   ├── booking/[profileId].tsx # Dynamic route: booking request modal
+│   ├── _layout.tsx           # Root layout (splash, init, permissions)
+│   └── README.md             # Expo Router usage notes
 │
-├── components/            # React components (UI-only, no business logic)
+├── components/               # React components (UI-only, no business logic)
 │   ├── ProfileCard.tsx
+│   ├── BookingModal.tsx
 │   └── [other presentational components]
 │
-├── lib/                   # Business logic, utilities, types
-│   ├── types.ts          # Type definitions (Profile, Booking, Review, etc.)
-│   ├── schemas.ts        # Zod validation schemas (if used)
-│   ├── constants.ts      # App-wide constants
-│   ├── camera.ts         # Camera utilities
-│   ├── notifications.ts  # Push notification setup
-│   └── [other utilities]
+├── lib/                      # Business logic, utilities, types
+│   ├── api/                 # API client layer (Supabase queries)
+│   │   ├── client.ts        # Supabase client instances (public + service)
+│   │   ├── profiles.ts      # Profile queries
+│   │   ├── bookings.ts      # Booking queries
+│   │   └── reviews.ts       # Review queries
+│   │
+│   ├── auth/                # Authentication
+│   │   ├── supabase.ts      # Supabase auth setup
+│   │   └── session.ts       # Auth session management
+│   │
+│   ├── cache/               # Client-side caching
+│   │   └── mmkv.ts          # MMKV local storage (react-native-mmkv)
+│   │
+│   ├── types.ts             # TypeScript type definitions
+│   ├── constants.ts         # App-wide constants (API URLs, timeouts, etc.)
+│   ├── camera.ts            # Camera permission + capture utilities
+│   └── notifications.ts     # Push notification registration + setup
 │
-├── assets/               # Images, icons (splash, icon)
-├── android/              # Android native config (gradle, manifest)
-├── app.json              # Expo config
-├── eas.json              # EAS Build profiles (dev, preview, prod)
-├── package.json
-└── tsconfig.json
+├── assets/                   # Images, icons (splash.png, icon.png)
+├── android/                  # Android native code (generated by Expo)
+├── app.json                  # Expo config (name, version, plugins, permissions)
+├── eas.json                  # EAS Build profiles (dev, preview, production)
+├── tsconfig.json             # TypeScript config (strict mode)
+├── package.json              # Dependencies + scripts
+└── .env.example              # Template for environment variables
 ```
 
+### File-Based Routing (Expo Router)
+
+Routes are automatically generated from `app/` directory structure:
+
+| File | Route | Purpose |
+|------|-------|---------|
+| `app/(tabs)/index.tsx` | `/(tabs)/` (tab: home) | Home screen - main profiles feed |
+| `app/(tabs)/portfolio.tsx` | `/(tabs)/portfolio` | Gallery/portfolio screen |
+| `app/(tabs)/search.tsx` | `/(tabs)/search` | Search & filter |
+| `app/(tabs)/profile.tsx` | `/(tabs)/profile` | User profile & settings |
+| `app/profiles/[id].tsx` | `/profiles/:id` | Single profile detail (dynamic) |
+| `app/booking/[profileId].tsx` | `/booking/:profileId` | Booking modal (dynamic) |
+
+**Dynamic segments** use square brackets: `[param]` becomes a route parameter accessible via `useLocalSearchParams()`.
+
 ### Key Types (lib/types.ts)
-- **Profile** — Creator profile with category, rates, social links, availability
-- **Booking** — Booking request with status, dates, budget
-- **Review** — Client review/rating
-- **MediaAsset** — Profile images/videos from Supabase Storage
-- **PerformanceStats** — Creator metrics (rating, completion rate, etc.)
-
-### Navigation (Expo Router)
-- `/app/(tabs)/` — Tab-based main screens
-- `/app/profiles/[id]/` — Individual profile detail
-- `/app/booking/[profileId]/` — Booking request modal
-
-Route parameters are **typed and validated** using Zod before use to prevent crashes from invalid deep links.
+- **Profile** — Creator profile (id, name, category, rate, bio, availability, social links)
+- **Booking** — Booking request (id, profileId, dates, duration, budget, status)
+- **Review** — Client review (id, profileId, rating, comment, createdAt)
+- **MediaAsset** — Profile image/video from Supabase Storage (id, url, alt)
 
 ### State Management
-- **Local State:** `useState` for single-screen concerns (form inputs, UI toggles)
-- **Global State:** Zustand store for cross-screen state (auth, user profile, cache)
-- **Server Data:** Supabase queries (fetch via API, not stored in client state)
+
+**Local State** (component-level, `useState`):
+- Form inputs, UI toggles, temporary UI state
+- Single-screen concerns only
+
+**Global State** (Zustand store, `useAuthStore`, `useProfileStore`):
+- Currently logged-in user
+- Cached profiles
+- App-level configuration
+
+**Server State** (Supabase):
+- Fetched via `lib/api/` layer
+- Validated with Zod schemas before storing
+- Not replicated in client state (always fetch fresh when needed)
+
+Example flow:
+```
+User action (press book) 
+  → API call (lib/api/bookings.ts) 
+  → Validate response (Zod) 
+  → Update Zustand store 
+  → Component re-renders
+```
+
+### Data Validation Layer
+
+All external input validated with Zod at API boundary:
+
+```typescript
+// lib/types.ts
+import { z } from 'zod';
+
+export const ProfileSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  category: z.enum(['Photography', 'Videography', 'Beauté', 'Lifestyle', 'Gaming']),
+  rate: z.number().positive(),
+});
+
+export type Profile = z.infer<typeof ProfileSchema>;
+
+// lib/api/profiles.ts
+export async function fetchProfile(id: string) {
+  const response = await supabaseClient
+    .from('profiles')
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  return ProfileSchema.parse(response.data); // Throws if invalid
+}
+
+// In component: type-safe data
+const profile = await fetchProfile('123'); // ProfileSchema validated
+```
 
 ---
 
 ## 📋 Code Quality Standards
 
-### Pre-Commit Checklist
-Before committing:
-- [ ] `tsc --noEmit` passes (0 errors in strict mode)
-- [ ] `npx expo lint` passes
-- [ ] `npx prettier --check` passes (auto-fix with `npx prettier --write`)
-- [ ] `npm test:coverage` ≥ 80% coverage
-- [ ] No `console.log` in production code
-- [ ] No hardcoded secrets (API keys, tokens)
-- [ ] No `any` or `unknown` types without narrowing
+### Pre-Commit Checklist (MANDATORY)
+Before committing ANY code:
+- [ ] `npx tsc --noEmit` passes (0 TypeScript errors, strict mode)
+- [ ] `npx expo lint` passes (no ESLint violations)
+- [ ] No hardcoded secrets or API keys (use `.env` + EAS Secrets)
+- [ ] No `console.log`, `console.warn`, `console.error` in production code
+- [ ] No `any` or `unknown` types without proper narrowing
+- [ ] Immutability used in state updates (spread operator, not mutation)
 
 ### Immutability (CRITICAL)
-Use **spread operator** for state updates — never mutate objects in-place:
+Use spread operator for state updates — **never mutate objects in-place**:
 
 ```typescript
-// WRONG: mutation
-const user = profile;
-user.name = 'New Name';
-setProfile(user);
+// ❌ WRONG — mutates original object
+const profile = currentProfile;
+profile.name = 'New Name';
+setProfile(profile);
 
-// CORRECT: immutability
-setProfile({ ...profile, name: 'New Name' });
+// ✅ CORRECT — creates new object
+setProfile({ ...currentProfile, name: 'New Name' });
+
+// ✅ Also correct — for arrays
+setProfiles([...profiles, newProfile]);
+setProfiles(profiles.filter(p => p.id !== idToRemove));
 ```
 
 ### Error Handling
-Handle errors explicitly; never silently swallow:
+Explicitly handle errors; never silently swallow them:
 
 ```typescript
+// ❌ WRONG
+const profile = await fetchProfile(id);
+setProfile(profile);
+
+// ✅ CORRECT
 try {
-  const result = await fetchProfile(id);
-  setProfile(result);
+  const profile = await fetchProfile(id);
+  setProfile(profile);
 } catch (error) {
-  hilog.error('Error loading profile: %{public}s', String(error));
-  setError('Failed to load profile. Please try again.');
+  console.error('Failed to load profile:', error);
+  setError('Unable to load profile. Please try again.');
 }
 ```
 
 ### Input Validation
-Validate all external input (API responses, deep-link params) with Zod:
+Validate ALL external input before use:
+- API responses → Zod schema
+- Deep-link parameters → Zod schema
+- User form input → Zod schema before submit
 
 ```typescript
+// app/profiles/[id].tsx
+import { useLocalSearchParams } from 'expo-router';
 import { z } from 'zod';
 
-const ProfileSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1),
-  category: z.enum(['Photography', 'Videography', 'Contenu Mode', 'Beauté', 'Lifestyle', 'Gaming']),
-});
+const ParamsSchema = z.object({ id: z.string().uuid() });
 
-const data = ProfileSchema.parse(apiResponse);
+export default function ProfileScreen() {
+  const params = useLocalSearchParams();
+  const parsed = ParamsSchema.safeParse(params);
+  
+  if (!parsed.success) {
+    return <ErrorScreen message="Invalid profile ID" />;
+  }
+  
+  // params.id is now type-safe
+  const { data: profile } = useProfile(parsed.data.id);
+  // ...
+}
 ```
 
-### Component Layout
-- One component per file (unless a small private subcomponent)
-- Type component props explicitly with `interface Props`
-- No business logic in components — delegate to hooks or services
+### Component Architecture
+- **One component per file** (unless private subcomponent for same file)
+- **Type all props** with `interface Props`
+- **No business logic** in components (delegate to hooks or API layer)
+- **Focus on UI rendering** only
 
 ```typescript
+// ✅ CORRECT: Focused, testable component
 interface ProfileCardProps {
   profile: Profile;
   onPress: (id: string) => void;
@@ -170,48 +267,85 @@ interface ProfileCardProps {
 export function ProfileCard({ profile, onPress }: ProfileCardProps) {
   return (
     <Pressable onPress={() => onPress(profile.id)}>
-      {/* UI only */}
+      {/* UI only — no fetching, no state, no business logic */}
+      <Image source={{ uri: profile.photoUrl }} />
+      <Text>{profile.name}</Text>
     </Pressable>
   );
 }
 ```
 
 ### Naming Conventions
-- Components: `PascalCase` file & export (`ProfileCard.tsx`)
-- Utilities/hooks: `camelCase` file (`useProfile.ts`)
-- Types/interfaces: `PascalCase` (`Profile`, `BookingStatus`)
-- Constants: `UPPER_SNAKE_CASE` (`MAX_BOOKING_DAYS`)
+- **Components:** `PascalCase` filename & export (`ProfileCard.tsx`)
+- **Hooks/utilities:** `camelCase` filename (`useProfile.ts`, `formatPrice.ts`)
+- **Types/interfaces:** `PascalCase` (`Profile`, `BookingStatus`)
+- **Constants:** `UPPER_SNAKE_CASE` (`MAX_BOOKING_DAYS`, `CACHE_TTL_MS`)
 
 ---
 
 ## 🔄 Key Libraries & Patterns
 
 ### Expo Router (Navigation)
-- File-based routing: `app/` directory structure becomes routes
-- Type-safe params with Zod validation
-- Deep linking support (validate params before use)
+
+File-based routing — files in `app/` auto-become routes:
 
 ```typescript
 // app/profiles/[id].tsx
 import { useLocalSearchParams } from 'expo-router';
-import { z } from 'zod';
-
-const Params = z.object({ id: z.string().uuid() });
 
 export default function ProfileScreen() {
-  const parsed = Params.safeParse(useLocalSearchParams());
-  if (!parsed.success) return <NotFound />;
-  // ... fetch and render profile
+  const { id } = useLocalSearchParams<{ id: string }>();
+  
+  // Component code
+  return <Profile id={id} />;
 }
 ```
 
-### Supabase Integration
-- Use `@supabase/supabase-js` for queries
-- Store auth tokens in `expo-secure-store` (not AsyncStorage)
-- Validate server responses with Zod
+Programmatic navigation:
+```typescript
+import { router } from 'expo-router';
 
-### expo-secure-store
-Safe persistent storage for auth tokens:
+// Push to route
+router.push(`/profiles/${profileId}`);
+
+// Go back
+router.back();
+
+// Navigate to tab
+router.navigate('/(tabs)/portfolio');
+```
+
+**Always validate dynamic params** using Zod before use (see Input Validation section above).
+
+### Supabase Integration
+
+```typescript
+// lib/api/client.ts
+import { createClient } from '@supabase/supabase-js';
+
+// Public client (browser-safe, no secrets)
+export const supabasePublic = createClient(
+  process.env.EXPO_PUBLIC_SUPABASE_URL!,
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!
+);
+
+// lib/api/profiles.ts
+export async function fetchProfile(id: string) {
+  const { data, error } = await supabasePublic
+    .from('profiles')
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  if (error) throw error;
+  return ProfileSchema.parse(data);
+}
+```
+
+### Secure Storage (expo-secure-store)
+
+Safe persistent storage for auth tokens (not `AsyncStorage`, which is unencrypted):
+
 ```typescript
 import * as SecureStore from 'expo-secure-store';
 
@@ -220,189 +354,380 @@ await SecureStore.setItemAsync('auth_token', token);
 
 // Read token
 const token = await SecureStore.getItemAsync('auth_token');
+
+// Delete token
+await SecureStore.deleteItemAsync('auth_token');
 ```
 
-### React Native Reanimated
-Performant animations (runs on UI thread, not JS thread):
-```typescript
-import Animated, { 
-  useAnimatedStyle, 
-  useSharedValue,
-  withSpring 
-} from 'react-native-reanimated';
+### Local Caching (react-native-mmkv)
 
-const scale = useSharedValue(1);
-const animatedStyle = useAnimatedStyle(() => ({
-  transform: [{ scale: scale.value }],
+Fast, encrypted key-value storage for app state:
+
+```typescript
+// lib/cache/mmkv.ts
+import { MMKV } from 'react-native-mmkv';
+
+export const storage = new MMKV();
+
+// Use in Zustand
+const useAuthStore = create<AuthStore>()((set) => ({
+  token: storage.getString('auth_token'),
+  setToken: (token: string) => {
+    storage.set('auth_token', token);
+    set({ token });
+  },
 }));
 ```
 
-### Zustand (State Management)
-Lightweight global state when needed:
+### Animations (React Native Reanimated)
+
+Performant animations (run on UI thread, not JS thread):
+
+```typescript
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
+
+export function ScaleButton() {
+  const scale = useSharedValue(1);
+  
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+  
+  return (
+    <Animated.View
+      style={animatedStyle}
+      onTouchStart={() => {
+        scale.value = withSpring(0.9);
+      }}
+    />
+  );
+}
+```
+
+### State Management (Zustand)
+
+Lightweight global state for auth, cached data:
+
 ```typescript
 import { create } from 'zustand';
 
-const useAuthStore = create((set) => ({
+interface AuthStore {
+  user: User | null;
+  setUser: (user: User) => void;
+  logout: () => void;
+}
+
+export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   setUser: (user) => set({ user }),
   logout: () => set({ user: null }),
 }));
+
+// In component
+const { user, logout } = useAuthStore();
 ```
 
 ---
 
 ## 📱 Platform-Specific Notes
 
-### Permissions (iOS & Android)
-- Declared in `app.json` under `plugins` (camera, photo library, notifications)
-- Runtime requests happen in `app/_layout.tsx` via `registerForPushNotifications()`
-- Respect user denials gracefully
+### Permissions
+
+Declared in `app.json` under `plugins` section (camera, photos, notifications).
+
+Runtime requests in `app/_layout.tsx`:
+
+```typescript
+import * as Permissions from 'expo-permissions';
+
+useEffect(() => {
+  (async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    if (status !== 'granted') {
+      console.warn('Camera permission denied');
+    }
+  })();
+}, []);
+```
+
+Permission messages appear in `app.json`:
+```json
+{
+  "plugins": [
+    ["expo-camera", {
+      "cameraPermission": "Autoriser l'accès à votre caméra"
+    }]
+  ]
+}
+```
 
 ### Camera & Image Picker
-- `expo-camera` for camera access
-- `expo-image-picker` for photo library access
-- Prompts user with permission request (messages in `app.json`)
 
-### Push Notifications
-- `expo-notifications` for handling notifications
-- Registered during app init in `_layout.tsx`
-- Token stored securely for backend push delivery
-
-### Safe Area
-- Use `react-native-safe-area-context` to respect notches/home indicators
-- Do NOT hardcode safe area offsets
-
----
-
-## 🧪 Testing
-
-### File Structure
-```
-tests/
-├── unit/              # Isolated utility/hook tests
-│   ├── lib/
-│   └── hooks/
-├── integration/       # API calls, Supabase queries
-└── e2e/              # Critical user flows (Maestro/Detox)
-```
-
-### Unit Test Example
 ```typescript
-import { renderHook } from '@testing-library/react-native';
-import { useProfile } from '@/lib/hooks';
+import * as ImagePicker from 'expo-image-picker';
+import { CameraView } from 'expo-camera';
 
-test('useProfile fetches and caches profile', async () => {
-  const { result } = renderHook(() => useProfile('123'));
-  
-  await waitFor(() => {
-    expect(result.current.data).toBeDefined();
-  });
+// Take photo with camera
+const result = await ImagePicker.launchCameraAsync({
+  mediaTypes: 'images',
+  quality: 0.7,
+});
+
+// Pick from library
+const result = await ImagePicker.launchImageLibraryAsync({
+  mediaTypes: 'images',
 });
 ```
 
-### Coverage Target: 80%
-- All utilities in `lib/`
-- All custom hooks
-- Component logic (state, conditionals)
-- Critical user flows (booking, auth, profile fetch)
+### Push Notifications
 
----
+Registered during app init in `app/_layout.tsx`:
 
-## 🚢 Deployment (EAS)
+```typescript
+import * as Notifications from 'expo-notifications';
 
-### Profiles (eas.json)
-- **development** — Internal debug build with dev client
-- **preview** — Beta testing (APK on Android, AD-HOC on iOS)
-- **production** — App Store / Play Store release (app-bundle on Android)
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
-### Build Commands
-```bash
-# Preview build
-eas build --platform android --profile preview
-
-# Production build
-eas build --platform ios --profile production
-eas build --platform android --profile production
-
-# Submit to stores
-eas submit --platform ios --latest
-eas submit --platform android --latest
+useEffect(() => {
+  registerForPushNotifications();
+}, []);
 ```
 
-### Pre-Release Checklist
-- [ ] `tsc --noEmit` clean
-- [ ] `npx expo lint` clean
-- [ ] `npm test:coverage` ≥ 80%
-- [ ] `npx expo-doctor` healthy (no deprecated APIs or mismatched versions)
-- [ ] Critical flows tested on physical devices (iOS + Android)
-- [ ] No secrets in bundle (check `.env` usage)
-- [ ] Version bumped in `app.json` (for App Store review)
+### Safe Area
+
+Use `react-native-safe-area-context` to respect notches:
+
+```typescript
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export default function HomeScreen() {
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      {/* Content automatically respects notch/home indicator */}
+    </SafeAreaView>
+  );
+}
+```
 
 ---
 
 ## 🔐 Security
 
-### Secrets
-- **NEVER** hardcode API keys or tokens in source code
-- Use EAS Secrets for build-time secrets (database URLs, API endpoints)
-- Reference via `process.env.EXPO_PUBLIC_*` (public, visible to client) or build-only vars
-- Store auth tokens in `expo-secure-store`, not `AsyncStorage`
+### Secrets Management
 
-### Data Validation
-Every external input is validated:
-- API responses → Zod schema
-- Deep-link params → Zod schema
-- User form input → Zod schema before submit
+**Public keys** (safe to commit):
+- `EXPO_PUBLIC_SUPABASE_URL` → commit to `.env.example`
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` → commit to `.env.example`
+
+**Private keys** (NEVER commit):
+- `SUPABASE_SERVICE_ROLE_KEY` → EAS Secrets only
+- Database passwords → EAS Secrets only
+
+Use EAS Secrets for production values:
+```bash
+# Set a secret for a build profile
+eas secret:create --scope project --name SUPER_SECRET_VALUE
+
+# Reference in eas.json build environment
+```
+
+### Auth Token Storage
+
+Always use `expo-secure-store` for auth tokens (not `AsyncStorage`):
+
+```typescript
+// ✅ CORRECT
+await SecureStore.setItemAsync('auth_token', token);
+
+// ❌ WRONG
+await AsyncStorage.setItem('auth_token', token); // Unencrypted!
+```
 
 ### Network Security
-- HTTPS only (enforced by default)
-- Validate SSL certificates
-- Implement request timeout + retry logic
+
+- HTTPS enforced by default in production
+- Certificate pinning recommended for sensitive API calls
+- Implement request timeouts + retry logic
+
+---
+
+## 🔄 Development Workflow
+
+### Before Starting Work
+1. Pull latest: `git pull origin main`
+2. Create feature branch: `git checkout -b feat/description`
+3. Reinstall deps: `npm install && npx expo install`
+4. Start dev server: `npm start`
+
+### While Developing
+
+**Terminal 1:** Keep dev server running
+```bash
+npm start
+```
+
+**Terminal 2:** Test on device
+```bash
+npm run android  # or: npm run ios, npm run web
+```
+
+**Make changes** to code — Expo will hot-reload the app.
+
+### Testing Your Changes
+- Test on physical device (simulator behavior differs)
+- Test both Android + iOS if time allows
+- Test deep links: `npx uri-scheme open "fantazi-land://profiles/123" --android`
+
+### Before Committing
+
+```bash
+# 1. Type check
+npx tsc --noEmit
+
+# 2. Lint
+npx expo lint
+
+# 3. Verify Expo SDK health
+npx expo-doctor
+
+# 4. Only then: commit
+git add .
+git commit -m "feat: description of change"
+```
+
+### Commit Message Format
+```
+<type>: <description>
+
+<optional body with reasoning>
+
+Types: feat, fix, refactor, docs, test, chore, perf, ci
+```
+
+### Creating a Pull Request
+1. Push: `git push origin feat/description`
+2. Open PR on GitHub with:
+   - Clear title
+   - Description of changes
+   - Test plan (what was tested)
+3. Ensure CI passes (type-check, lint, tests if any)
+
+---
+
+## 🚢 Deployment
+
+### Build Profiles (eas.json)
+
+| Profile | Purpose | Command |
+|---------|---------|---------|
+| **preview** | Testing on devices | `eas build --platform android --profile preview` |
+| **production** | Google Play Store release | `eas build --platform android --profile production` |
+
+### Production Release Checklist
+
+```bash
+# 1. Type check & lint
+npx tsc --noEmit
+npx expo lint
+
+# 2. Verify Expo SDK
+npx expo-doctor
+
+# 3. Test on physical devices
+npm run android  # or: npm run ios
+
+# 4. Bump version in app.json
+# Increment: version (e.g., 1.0.0 → 1.0.1)
+# Increment: android.versionCode by 1
+
+# 5. Build
+eas build --platform android --profile production
+
+# 6. Submit
+eas submit --platform android --latest
+
+# 7. Monitor in Google Play Console
+# - Vitals (crash rate, ANR)
+# - User reviews
+# - Version rollout (phased: 10% → 25% → 50% → 100%)
+```
+
+### Rollout Strategy
+
+Never launch at 100% immediately — catch regressions via staged rollout:
+- **Phase 1:** 10% (2–4h monitoring)
+- **Phase 2:** 25% (4–8h monitoring)
+- **Phase 3:** 50% (full day)
+- **Phase 4:** 100% (full release)
 
 ---
 
 ## 🏛️ Troubleshooting
 
-### Build/Runtime Errors
+### Build & Runtime
 
-#### "Cannot find module" or type errors after pulling
+**"Cannot find module" after pulling**
 ```bash
-npm install              # Reinstall deps
-npx expo install         # Sync Expo SDK with native deps
-tsc --noEmit             # Re-check types
+npm install
+npx expo install
+npx tsc --noEmit
 ```
 
-#### Expo cached state issues
+**Port 8081 already in use**
 ```bash
-expo start -c            # Clear cache
-npx expo-doctor          # Verify Expo + native deps
+npm start -- -p 8082  # Use different port
 ```
 
-#### Port 8081 already in use (Expo)
+**Type errors with `tsc --noEmit`**
 ```bash
-npm start -- -p 8082     # Use different port
+npx tsc --noEmit --pretty  # Formatted output
+# Fix errors one by one, then retry
 ```
 
-#### "New Architecture not compatible" errors
-- Verify all native dependencies are New Architecture compatible (SDK 55+)
-- Check Expo SDK changelog for breaking changes
-- Run `npx expo-doctor` to identify conflicts
+**Expo cached state issues**
+```bash
+expo start -c  # Clear cache
+```
 
-#### Android/iOS build fails
-1. Clean: `eas build --platform android --clear-cache`
-2. Check native deps: `npx expo install --check`
-3. Verify signing credentials in Xcode (iOS) or Google Play Console (Android)
+**"New Architecture not compatible" errors**
+- Verify all native packages support New Architecture (SDK 55+)
+- Check Expo changelog before upgrading
+- Run `npx expo-doctor` to diagnose
+
+**Android/iOS build fails with EAS**
+```bash
+eas build --platform android --clear-cache  # Clear EAS cache
+npx expo install --check  # Verify native deps
+# Check app.json for invalid fields (old splash config, etc.)
+```
+
+### App Crashes on Launch
+
+1. Check device logs: `adb logcat` (Android) or Xcode console (iOS)
+2. Verify `.env` file exists and has correct values
+3. Check Supabase connection: is the service online?
+4. Validate deep-link params (if opened via deep link)
 
 ### Performance
 
-#### App starts slowly
-- Profile with Hermes profiler (enabled by default on Expo SDK 53+)
-- Defer non-critical work with `InteractionManager.runAfterInteractions()`
-- Lazy-load heavy screens
+**App starts slowly:**
+- Profile with Hermes profiler (enabled by default)
+- Defer non-critical work: `InteractionManager.runAfterInteractions()`
+- Lazy-load heavy screens with `React.lazy`
 
-#### FlatList renders slowly
-- Provide `keyExtractor` that returns stable keys
-- Memoize `renderItem` callback
+**FlatList/ScrollView stutters:**
+- Add `keyExtractor` with stable keys
+- Memoize `renderItem` with `useCallback`
 - Use `removeClippedSubviews` for long lists
 - Consider `FlashList` (Shopify) for very large lists
 
@@ -413,41 +738,36 @@ npm start -- -p 8082     # Use different port
 | File | Purpose |
 |------|---------|
 | `app.json` | Expo config (name, version, permissions, plugins, icon/splash) |
-| `eas.json` | EAS Build profiles (dev, preview, production) |
-| `tsconfig.json` | TypeScript config (strict mode, path aliases) |
-| `app/_layout.tsx` | Root layout (splash, permissions, navigation setup) |
-| `lib/types.ts` | Type definitions for Profile, Booking, Review, etc. |
-| `lib/notifications.ts` | Push notification registration |
-| `lib/camera.ts` | Camera utilities |
-| `package.json` | Dependencies, scripts |
+| `eas.json` | EAS Build profiles (preview, production) |
+| `tsconfig.json` | TypeScript config (strict mode enabled) |
+| `app/_layout.tsx` | Root layout (splash, init, app-level setup) |
+| `lib/types.ts` | Type definitions (Profile, Booking, Review, etc.) |
+| `lib/api/` | API layer (Supabase queries, validation) |
+| `lib/auth/` | Authentication (Supabase auth, token management) |
+| `lib/cache/` | Client-side caching (MMKV) |
+| `.env.example` | Template for environment variables |
+| `AGENTS.md` | Expo SDK version info & critical notes |
 
 ---
 
 ## 🎓 Learning Resources
 
 - **Expo Docs (v57):** https://docs.expo.dev/versions/v57.0.0/
+- **Expo Router:** https://expo.github.io/router/introduction
 - **React Native:** https://reactnative.dev/docs/getting-started
-- **Expo Router:** https://expo.github.io/router
-- **Supabase:** https://supabase.com/docs
+- **Supabase:** https://supabase.com/docs/reference/javascript
 - **Zod Validation:** https://zod.dev/
 - **React Native Reanimated:** https://docs.swmansion.com/react-native-reanimated/
 - **Zustand:** https://github.com/pmndrs/zustand
 
 ---
 
-## 🤔 Questions?
+## ⚠️ Critical Notes
 
-- **Navigation question?** Check Expo Router docs (link above) or `/app` directory structure
-- **Type question?** Check `lib/types.ts` for domain models
-- **API integration question?** Check Supabase docs + validation in `lib/schemas.ts`
-- **Deployment question?** Check `eas.json` profiles and EAS docs
+**Expo SDK Version:** Uses Expo SDK 57.0.18. Always check versioned docs before implementing features — APIs change between SDK versions.
 
----
+**New Architecture:** Expo SDK 55+ requires New Architecture (Fabric + TurboModules). All native dependencies must be compatible. Run `npx expo-doctor` to verify.
 
-## Important Notes
+**Hermes Engine:** JavaScript engine (Hermes) is enabled by default. Provides faster startup and lower memory, but has subtle behavioral differences from JSCore — test thoroughly before release.
 
-⚠️ **Expo SDK Version:** This project uses Expo SDK 57.0.18. Before upgrading, read the changelog and test thoroughly on both platforms.
-
-⚠️ **New Architecture:** Expo SDK 55+ runs on the New Architecture by default. All native dependencies must be compatible. Use `npx expo-doctor` to verify.
-
-⚠️ **Hermes:** JavaScript engine (Hermes) is enabled by default. It provides faster startup and lower memory usage but has subtle behavioral differences from JSCore — test carefully.
+**Physical Device Testing:** Simulator behavior differs from real devices. Always test critical flows on physical Android + iOS devices before release.
