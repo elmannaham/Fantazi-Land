@@ -6,19 +6,19 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
+"wasmer/winterjs" = "1"
+
+[fs]
+"/src" = "."
 
 [[command]]
 name = "server"
-module = "wasmer/winterjs:latest"
+module = "wasmer/winterjs:winterjs"
 runner = "https://webc.org/runner/winterjs"
 
 [command.annotations.wasi]
 env = ["NODE_ENV=production"]
+main_args = ["/src/.next/standalone/server.js"]
 
 [command.annotations.http]
-port = 3000
-
-[[command]]
-name = "node-runner"
-module = "wasmer/nodejs:20.10.0"
-runner = "wasi"
+port = 3001

@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
+  serverExternalPackages: ["@prisma/client", "prisma"],
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400, // 24 heures de cache

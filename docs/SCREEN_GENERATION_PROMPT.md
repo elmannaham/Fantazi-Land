@@ -421,7 +421,7 @@ Spécifications:
 - Accessibilité: WCAG AA
 
 Contenu obligatoire:
-- Avatar large avec parallax au scroll
+- Avatar large 9:16 avec parallax au scroll
 - Nom, catégorie, note ⭐, bio
 - Tarification affichée clairement
 - Galerie media (3-6 images) avec lightbox
