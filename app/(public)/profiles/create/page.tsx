@@ -38,6 +38,11 @@ export default function CreateProfilePage() {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendMessage, setResendMessage] = useState<string | null>(null);
 
+  // Account type chosen at signup: "creator" continues into the profile
+  // form below, "fan" is a simple client account with no hostess profile.
+  const [accountType, setAccountType] = useState<"creator" | "fan" | null>(null);
+  const [roleSynced, setRoleSynced] = useState(false);
+
   const [formData, setFormData] = useState({
     name: "",
     category: "Photographie",
@@ -65,11 +70,37 @@ export default function CreateProfilePage() {
       setUser(session?.user ?? null);
       if (session?.user) {
         setPendingConfirmationEmail(null);
+      } else {
+        setRoleSynced(false);
       }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user || !accountType || roleSynced) return;
+
+    const syncRole = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+
+        await fetch("/api/auth/role", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ role: accountType === "fan" ? "client" : "creator" }),
+        });
+      } finally {
+        setRoleSynced(true);
+      }
+    };
+
+    syncRole();
+  }, [user, accountType, roleSynced]);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -310,12 +341,60 @@ export default function CreateProfilePage() {
                   onClick={() => {
                     setPendingConfirmationEmail(null);
                     setIsLogin(true);
+                    setAccountType(null);
                     setError(null);
                     setResendMessage(null);
                   }}
                   className="text-sm text-purple-600 hover:underline"
                 >
                   Retour à la connexion
+                </button>
+              </div>
+            </div>
+          ) : !user && !isLogin && !accountType ? (
+            /* Account Type Selection (signup only) */
+            <div>
+              <div className="mb-8 text-center">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                  Rejoindre Fantazi-Land
+                </h1>
+                <p className="mt-2 text-sm text-gray-600">
+                  Comment souhaitez-vous utiliser la plateforme ?
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setAccountType("creator")}
+                  className="flex flex-col items-center gap-2 rounded-xl border-2 border-gray-200 p-6 text-center transition-all hover:border-purple-500 hover:bg-purple-50 active:scale-95"
+                >
+                  <span className="text-3xl">✨</span>
+                  <span className="font-semibold text-gray-900">Créateur / Créatrice</span>
+                  <span className="text-xs text-gray-500">
+                    Je propose mes services et gère mon profil
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType("fan")}
+                  className="flex flex-col items-center gap-2 rounded-xl border-2 border-gray-200 p-6 text-center transition-all hover:border-purple-500 hover:bg-purple-50 active:scale-95"
+                >
+                  <span className="text-3xl">💜</span>
+                  <span className="font-semibold text-gray-900">Fan</span>
+                  <span className="text-xs text-gray-500">
+                    Je découvre et réserve des créateurs
+                  </span>
+                </button>
+              </div>
+
+              <div className="text-center pt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(true)}
+                  className="text-sm text-purple-600 hover:underline"
+                >
+                  Déjà un compte ? Se connecter
                 </button>
               </div>
             </div>
@@ -329,7 +408,9 @@ export default function CreateProfilePage() {
                 <p className="mt-2 text-sm text-gray-600">
                   {isLogin
                     ? "Connectez-vous pour créer et gérer votre profil."
-                    : "Créez votre compte pour rejoindre l'agence Fantazi-Land."}
+                    : accountType === "fan"
+                      ? "Créez votre compte Fan pour découvrir et réserver des créateurs."
+                      : "Créez votre compte pour rejoindre l'agence Fantazi-Land."}
                 </p>
               </div>
 
@@ -370,13 +451,39 @@ export default function CreateProfilePage() {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    onClick={() => setIsLogin(!isLogin)}
+                    onClick={() => {
+                      setIsLogin(!isLogin);
+                      setAccountType(null);
+                    }}
                     className="text-sm text-purple-600 hover:underline"
                   >
                     {isLogin ? "Pas encore de compte ? S'inscrire" : "Déjà un compte ? Se connecter"}
                   </button>
                 </div>
               </form>
+            </div>
+          ) : accountType === "fan" ? (
+            /* Fan Welcome */
+            <div className="text-center">
+              <div
+                className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-50 text-2xl"
+                aria-hidden="true"
+              >
+                💜
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+                Bienvenue, {user.email} !
+              </h1>
+              <p className="mt-2 text-sm text-gray-600">
+                Votre compte Fan est prêt. Découvrez le catalogue et réservez vos créateurs
+                préférés.
+              </p>
+              <Link
+                href="/"
+                className="mt-8 inline-flex w-full items-center justify-center rounded-xl bg-purple-600 py-3 text-white font-semibold shadow-lg transition hover:bg-purple-700 sm:w-auto sm:px-8"
+              >
+                Explorer le catalogue
+              </Link>
             </div>
           ) : (
             /* Profile Creation Form */

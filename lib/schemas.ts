@@ -14,6 +14,14 @@ export const ProfileCategoryEnum = z.enum([
 
 export const CurrencyEnum = z.enum(["EUR", "USD", "GBP", "CAD"]);
 
+// Deliberately excludes "admin" — this backs a self-service endpoint
+// (POST /api/auth/role) and must never let a user grant themselves admin.
+export const SelfServiceUserRoleEnum = z.enum(["client", "creator"]);
+
+export const setUserRoleSchema = z.object({
+  role: SelfServiceUserRoleEnum,
+});
+
 export const BookingStatusEnum = z.enum([
   "pending",
   "confirmed",
