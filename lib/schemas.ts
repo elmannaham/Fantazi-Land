@@ -7,9 +7,12 @@ export const ProfileCategoryEnum = z.enum([
   "Beauté",
   "Lifestyle",
   "Gaming",
+  "intime rencontre",
+  "Dinner & Show",
+  "Homme",
 ]);
 
-export const CurrencyEnum = z.enum(["EUR", "USD", "GBP"]);
+export const CurrencyEnum = z.enum(["EUR", "USD", "GBP", "CAD"]);
 
 export const BookingStatusEnum = z.enum([
   "pending",
@@ -63,6 +66,8 @@ export const createProfileSchema = z.object({
   isPublic: z.boolean().default(true),
   isAvailable: z.boolean().default(true),
   availabilityCalendar: z.record(z.string(), z.number()).optional().nullable(),
+  mediaUrls: z.array(z.string()).optional().nullable(),
+  gallery: z.array(z.string()).optional().nullable(),
 });
 
 export const updateProfileSchema = createProfileSchema.partial();

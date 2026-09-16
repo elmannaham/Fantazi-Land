@@ -168,7 +168,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.inputLabel}>Catégorie d'Activité</Text>
             <View style={styles.categoryPicker}>
-              {(['Photographie', 'Vidéographie', 'Contenu Mode', 'Beauté', 'Lifestyle', 'Gaming'] as const).map((cat) => (
+              {(['Photographie', 'Vidéographie', 'Contenu Mode', 'Beauté', 'Lifestyle', 'Gaming', 'intime rencontre', 'Dinner & Show', 'Homme'] as const).map((cat) => (
                 <Pressable
                   key={cat}
                   style={[styles.categoryBadge, profileCategory === cat && styles.categoryBadgeActive]}

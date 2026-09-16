@@ -118,6 +118,9 @@ export default function AdminProfilesPage() {
                   <option value="Beauté">Beauté</option>
                   <option value="Lifestyle">Lifestyle</option>
                   <option value="Gaming">Gaming</option>
+                  <option value="intime rencontre">intime rencontre</option>
+                  <option value="Dinner & Show">Dinner & Show</option>
+                  <option value="Homme">Homme</option>
                 </select>
               </div>
             </div>

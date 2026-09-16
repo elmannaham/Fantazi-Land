@@ -21,6 +21,9 @@ const CATEGORIES = [
   "Beauté",
   "Lifestyle",
   "Gaming",
+  "intime rencontre",
+  "Dinner & Show",
+  "Homme",
 ];
 
 export default function HomePage() {

@@ -91,7 +91,7 @@ export function ProfileGrid({
       {profiles.map((profile, index) => {
         const avatarSrc = profile.avatar_url || (profile as any).avatar || undefined;
         const rate = profile.base_rate ?? (profile as any).baseRate ?? 500;
-        const curr = profile.currency || "CAD";
+        const curr = "CAD";
         const score = Number(profile.performance_stats?.avg_rating ?? (profile as any).rating ?? 5.0);
         const reviews = profile.performance_stats?.total_reviews ?? (profile as any).reviewCount ?? 0;
         const isPriority = index < 4; // LCP & fast rendering for above the fold
@@ -162,7 +162,7 @@ export function ProfileGrid({
 
                   <div className="text-right">
                     <span className="text-lg font-black text-purple-900 tracking-tighter">
-                      {rate}€
+                      {rate} $ {curr}
                     </span>
                     <span className="block text-[9px] font-black text-slate-400 uppercase">PAR HEURE</span>
                   </div>

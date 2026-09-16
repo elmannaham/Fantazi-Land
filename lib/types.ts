@@ -26,7 +26,10 @@ export type ProfileCategory =
   | "Contenu Mode"
   | "Beauté"
   | "Lifestyle"
-  | "Gaming";
+  | "Gaming"
+  | "intime rencontre"
+  | "Dinner & Show"
+  | "Homme";
 
 export interface PerformanceStats {
   id: string;
