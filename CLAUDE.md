@@ -7,11 +7,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 📋 Projet: Fantazi-Land — Plateforme & Agence de Booking pour Hôtesses d'Exception
 
 ### ⚠️ Monorepo Structure
-This repository contains **two separate projects**:
-1. **Web platform** (this root directory) — Next.js 14.2 booking platform for browsers
+This repository contains **two active projects**:
+1. **Web platform** (this root directory) — Next.js 16 booking platform for browsers
 2. **Mobile companion** (`fantazi-land-mobile/`) — Expo 57 React Native app for iOS/Android
 
 Each project has its own `package.json`, dependencies, and build pipeline. See `fantazi-land-mobile/CLAUDE.md` for mobile-specific guidance. **Web and mobile share the same Supabase backend** but maintain separate codebases.
+
+**Stray/experimental directories — not part of either active project, do not edit unless explicitly asked:**
+- `fantazi-land/` — an unrelated `vinext` (Cloudflare Workers/Vite RSC) scaffold with its own `package.json`, tracked in git but disconnected from the Next.js app.
+- `fantazy-land/`, `my-app/`, `shared/`, `agence-de-booking-crud/` — leftover prototypes / a Base44 CLI skill checkout. `my-app/` and most of `fantazy-land/` are gitignored.
+
+If a task references "the app", it means the root Next.js project unless the user explicitly points at `fantazi-land-mobile/`.
 
 **Description :** Application web full-stack de pointe pour une agence d'hôtesses et d'égéries de marque. Elle offre un site vitrine avec animations 21st.dev, une galerie photos interactive issue du bucket Supabase Storage (`HOTESS`), un système de réservation avec modal interactif et devis en temps réel, un moteur de synchronisation automatique et une intégration avec le CRM Base44.
 
@@ -36,7 +42,7 @@ Each project has its own `package.json`, dependencies, and build pipeline. See `
 
 ## 🏗️ Stack Technique
 
-- **Front-end** : Next.js 14.2 (App Router), React 18, Tailwind CSS v3.4, Framer Motion v11.3, Lucide Icons.
+- **Front-end** : Next.js 16 (App Router), React 18, Tailwind CSS v3.4, Framer Motion v11.3, Lucide Icons.
 - **Back-end & API** : Next.js API Routes (Node.js runtime), Zod v3.23 (validation runtime).
 - **ORM & Base de Données** : Prisma 5.18 (schema generation), PostgreSQL (Supabase), Supabase Storage (Bucket `HOTESS`).
 - **CRM & Workflows** : Base44 REST API (App ID: `6a8ea8ad929a72d7ec63fc9d`).
@@ -338,22 +344,26 @@ Repositories provide:
 ## 📁 Structure des Dossiers
 
 ```
-fantazi-land/
-├── app/                            # Next.js 14 App Router
+. (repo root — package.json name "fantazi-land"; not to be confused with the stray fantazi-land/ subfolder)
+├── app/                            # Next.js App Router
 │   ├── (public)/                   # Pages publiques marketing
 │   │   ├── layout.tsx              # Root public layout & Navbar
 │   │   ├── page.tsx                # Accueil (Hero, Bento, Category Filters, 1:1 Profile Grid, Booking Modal)
 │   │   ├── portfolio/page.tsx      # Galerie Photos exclusive du bucket (HD Grid, 3D Carousel, Lightbox)
 │   │   ├── about/page.tsx          # Présentation agence & mission
+│   │   ├── slideshow/              # Diaporama plein écran
 │   │   ├── profiles/[id]/page.tsx  # Fiche détaillée hôtesse + portfolio dédié + réservation
 │   │   └── profiles/create/page.tsx# Formulaire de création de profil hôtesse
-│   ├── (dashboard)/                # Espace privé hôtesses (/dashboard)
-│   ├── admin/                      # Espace administration & monitoring (/admin, /admin/profiles, /admin/activity)
+│   ├── (dashboard)/                # Espace privé hôtesses (/dashboard, /profile)
+│   ├── admin/                      # Espace administration & monitoring (/admin, /admin/profiles, /admin/activity, /admin/failed-syncs)
 │   └── api/                        # Routes API RESTful
-│       ├── profiles/               # GET liste (support include=media_assets), POST création
-│       ├── bookings/               # GET, POST réservations
+│       ├── profiles/               # GET liste (support include=media_assets), POST création, import-csv, [id]
+│       ├── bookings/               # GET, POST réservations, [id]
 │       ├── reviews/                # GET, POST avis clients
+│       ├── auth/me/                # Session utilisateur courante
 │       ├── admin/sync/             # GET statut, POST déclencheur de synchronisation du bucket
+│       ├── failed-syncs/           # Dead-letter queue des synchronisations échouées, [id]
+│       ├── upload/                 # Upload de médias vers Supabase Storage
 │       └── webhooks/storage-sync/  # Webhook reverse sync Storage
 │
 ├── components/                     # Architecture Atomic Design & 21st.dev
@@ -367,10 +377,12 @@ fantazi-land/
 ├── lib/                            # Logique métier & Services
 │   ├── bucket-media.ts             # Registre dynamique des médias du bucket & utilitaires shuffle
 │   ├── supabase.ts                 # Clients Supabase (Public & Service Role)
+│   ├── auth.ts                     # Auth Bearer/cookie token extraction + role-based authorization for API routes
+│   ├── errors.ts                   # Typed error helpers (unauthorizedError, forbiddenError, …)
 │   ├── types.ts                    # Interfaces TypeScript (Profile, MediaAsset, Booking, Review)
 │   ├── schemas.ts                  # Schémas Zod de validation
-│   ├── repositories/               # profiles, bookings, reviews, dlq repositories
-│   └── services/                   # profiles, sync, bookings, reviews services
+│   ├── repositories/               # profiles, bookings, reviews, media, dlq repositories
+│   └── services/                   # profiles, profile-creation, sync, bookings, reviews, base44-user services
 │
 ├── data/                           # Données locales synchronisées
 │   └── creators-catalog.json       # Catalogue JSON synchronisé du bucket
