@@ -6,14 +6,15 @@ import { errorHandler, validationError } from "@/lib/errors";
 export const dynamic = "force-dynamic";
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
-    const booking = await bookingsService.getBookingById(params.id);
+    const { id } = await params;
+    const booking = await bookingsService.getBookingById(id);
     return NextResponse.json({
       success: true,
       data: booking,
@@ -25,6 +26,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const parsedStatus = BookingStatusEnum.safeParse(body.status);
 
@@ -34,7 +36,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const updated = await bookingsService.updateBookingStatus(params.id, parsedStatus.data);
+    const updated = await bookingsService.updateBookingStatus(id, parsedStatus.data);
 
     return NextResponse.json({
       success: true,

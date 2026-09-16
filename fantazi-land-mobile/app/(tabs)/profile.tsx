@@ -12,7 +12,9 @@ import {
   Dimensions,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { signIn, signOut, getCurrentUser, type AuthUser } from '../../lib/auth/session';
+import { signIn, signUp, signOut, getCurrentUser, type AuthUser } from '../../lib/auth/session';
+import { createProfile, type CreateProfileDto } from '../../lib/api/profiles';
+import type { ProfileCategory } from '../../lib/types';
 
 export default function ProfileScreen() {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -20,8 +22,17 @@ export default function ProfileScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled, setDarkModeEnabled] = useState(false);
+
+  // Profile Creation states
+  const [isCreatingProfile, setIsCreatingProfile] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [profileCategory, setProfileCategory] = useState<ProfileCategory>('Photographie');
+  const [profileBio, setProfileBio] = useState('');
+  const [profileBaseRate, setProfileBaseRate] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   useEffect(() => {
     getCurrentUser().then(setUser).finally(() => setIsLoading(false));
@@ -46,6 +57,31 @@ export default function ProfileScreen() {
     }
   }, [email, password]);
 
+  const handleSignUp = useCallback(async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Erreur', 'Email et mot de passe requis');
+      return;
+    }
+    if (password.length < 6) {
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
+      return;
+    }
+    setIsSigningIn(true);
+    try {
+      await signUp(email.trim(), password);
+      Alert.alert(
+        'Succès',
+        'Votre compte a été créé avec succès. Vous pouvez maintenant vous connecter.'
+      );
+      setIsSignUp(false);
+      setPassword('');
+    } catch (err) {
+      Alert.alert('Erreur', err instanceof Error ? err.message : 'Inscription échouée');
+    } finally {
+      setIsSigningIn(false);
+    }
+  }, [email, password]);
+
   const handleSignOut = useCallback(async () => {
     Alert.alert(
       'Déconnexion',
@@ -58,11 +94,47 @@ export default function ProfileScreen() {
           onPress: async () => {
             await signOut();
             setUser(null);
+            setIsCreatingProfile(false);
           },
         },
       ]
     );
   }, []);
+
+  const handleCreateProfileSubmit = useCallback(async () => {
+    if (!profileName.trim()) {
+      Alert.alert('Erreur', 'Le nom du profil est requis');
+      return;
+    }
+    const rate = parseFloat(profileBaseRate);
+    if (profileBaseRate && isNaN(rate)) {
+      Alert.alert('Erreur', 'Le tarif de base doit être un nombre valide');
+      return;
+    }
+
+    setIsSavingProfile(true);
+    try {
+      const dto: CreateProfileDto = {
+        name: profileName.trim(),
+        category: profileCategory,
+        bio: profileBio.trim() || null,
+        baseRate: profileBaseRate ? rate : null,
+        currency: 'EUR',
+        isPublic: true,
+        isAvailable: true,
+      };
+      await createProfile(dto);
+      Alert.alert('Succès', 'Votre profil de créateur a été créé avec succès !');
+      setIsCreatingProfile(false);
+      setProfileName('');
+      setProfileBio('');
+      setProfileBaseRate('');
+    } catch (err) {
+      Alert.alert('Erreur', err instanceof Error ? err.message : 'Création du profil échouée');
+    } finally {
+      setIsSavingProfile(false);
+    }
+  }, [profileName, profileCategory, profileBio, profileBaseRate]);
 
   if (isLoading) {
     return (
@@ -73,6 +145,79 @@ export default function ProfileScreen() {
   }
 
   if (user) {
+    if (isCreatingProfile) {
+      return (
+        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+          <View style={styles.formHeader}>
+            <Pressable style={styles.backBtn} onPress={() => setIsCreatingProfile(false)}>
+              <Feather name="arrow-left" size={18} color="#7c3aed" />
+              <Text style={styles.backBtnText}>Annuler</Text>
+            </Pressable>
+            <Text style={styles.formTitle}>Créer un Profil Créateur</Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.inputLabel}>Nom professionnel / Pseudonyme</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: Clara d'Exception"
+              placeholderTextColor="#94a3b8"
+              value={profileName}
+              onChangeText={setProfileName}
+            />
+
+            <Text style={styles.inputLabel}>Catégorie d'Activité</Text>
+            <View style={styles.categoryPicker}>
+              {(['Photographie', 'Vidéographie', 'Contenu Mode', 'Beauté', 'Lifestyle', 'Gaming'] as const).map((cat) => (
+                <Pressable
+                  key={cat}
+                  style={[styles.categoryBadge, profileCategory === cat && styles.categoryBadgeActive]}
+                  onPress={() => setProfileCategory(cat)}
+                >
+                  <Text style={[styles.categoryBadgeText, profileCategory === cat && styles.categoryBadgeTextActive]}>
+                    {cat}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Text style={styles.inputLabel}>Tarif horaire (€)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: 250"
+              placeholderTextColor="#94a3b8"
+              value={profileBaseRate}
+              onChangeText={setProfileBaseRate}
+              keyboardType="numeric"
+            />
+
+            <Text style={styles.inputLabel}>Biographie / Présentation</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Présentez votre univers, vos compétences..."
+              placeholderTextColor="#94a3b8"
+              value={profileBio}
+              onChangeText={setProfileBio}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
+
+          <Pressable
+            style={[styles.signInBtn, isSavingProfile && styles.signInBtnDisabled]}
+            onPress={handleCreateProfileSubmit}
+            disabled={isSavingProfile}
+          >
+            {isSavingProfile ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.signInText}>Publier mon profil sur l'agence</Text>
+            )}
+          </Pressable>
+        </ScrollView>
+      );
+    }
+
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
         {/* User Avatar & Info */}
@@ -101,6 +246,16 @@ export default function ProfileScreen() {
             <Text style={styles.statValue}>0</Text>
             <Text style={styles.statLabel}>Messages</Text>
           </View>
+        </View>
+
+        {/* Actions Créateurs */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Espace Agence & Création</Text>
+          <Pressable style={styles.menuItem} onPress={() => setIsCreatingProfile(true)}>
+            <Feather name="plus-circle" size={20} color="#7c3aed" />
+            <Text style={styles.menuText}>Devenir Créateur / Créer un Profil</Text>
+            <Feather name="chevron-right" size={20} color="#cbd5e1" />
+          </Pressable>
         </View>
 
         {/* Settings Section */}
@@ -179,9 +334,11 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.loginContent}>
-      <Feather name="lock" size={48} color="#7c3aed" />
-      <Text style={styles.loginTitle}>Connexion</Text>
-      <Text style={styles.loginSubtitle}>Accédez à votre espace Fantazi-Land</Text>
+      <Feather name={isSignUp ? "user-plus" : "lock"} size={48} color="#7c3aed" />
+      <Text style={styles.loginTitle}>{isSignUp ? "Inscription" : "Connexion"}</Text>
+      <Text style={styles.loginSubtitle}>
+        {isSignUp ? "Créez votre compte Fantazi-Land" : "Accédez à votre espace Fantazi-Land"}
+      </Text>
 
       <TextInput
         style={styles.input}
@@ -203,14 +360,26 @@ export default function ProfileScreen() {
 
       <Pressable
         style={[styles.signInBtn, isSigningIn && styles.signInBtnDisabled]}
-        onPress={handleSignIn}
+        onPress={isSignUp ? handleSignUp : handleSignIn}
         disabled={isSigningIn}
       >
         {isSigningIn ? (
           <ActivityIndicator size="small" color="#fff" />
         ) : (
-          <Text style={styles.signInText}>Se connecter</Text>
+          <Text style={styles.signInText}>{isSignUp ? "S'inscrire" : "Se connecter"}</Text>
         )}
+      </Pressable>
+
+      <Pressable
+        style={styles.toggleModeBtn}
+        onPress={() => {
+          setIsSignUp(!isSignUp);
+          setPassword('');
+        }}
+      >
+        <Text style={styles.toggleModeText}>
+          {isSignUp ? "Déjà un compte ? Se connecter" : "Vous n'avez pas de compte ? S'inscrire"}
+        </Text>
       </Pressable>
     </ScrollView>
   );
@@ -406,5 +575,80 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#fff',
+  },
+  formHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    position: 'relative',
+    justifyContent: 'center',
+    height: 40,
+  },
+  backBtn: {
+    position: 'absolute',
+    left: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  backBtnText: {
+    fontSize: 14,
+    color: '#7c3aed',
+    fontWeight: '600',
+  },
+  formTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0f172a',
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#334155',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 6,
+  },
+  categoryPicker: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+  },
+  categoryBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#f1f5f9',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  categoryBadgeActive: {
+    backgroundColor: '#ede9fe',
+    borderColor: '#c084fc',
+  },
+  categoryBadgeText: {
+    fontSize: 12,
+    color: '#64748b',
+    fontWeight: '500',
+  },
+  categoryBadgeTextActive: {
+    color: '#7c3aed',
+    fontWeight: '600',
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+    paddingTop: 12,
+  },
+  toggleModeBtn: {
+    marginTop: 20,
+    paddingVertical: 10,
+  },
+  toggleModeText: {
+    fontSize: 14,
+    color: '#7c3aed',
+    fontWeight: '600',
   },
 });

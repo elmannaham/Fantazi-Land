@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 📋 Projet: Fantazi-Land — Plateforme & Agence de Booking pour Hôtesses d'Exception
 
+### ⚠️ Monorepo Structure
+This repository contains **two separate projects**:
+1. **Web platform** (this root directory) — Next.js 14.2 booking platform for browsers
+2. **Mobile companion** (`fantazi-land-mobile/`) — Expo 57 React Native app for iOS/Android
+
+Each project has its own `package.json`, dependencies, and build pipeline. See `fantazi-land-mobile/CLAUDE.md` for mobile-specific guidance. **Web and mobile share the same Supabase backend** but maintain separate codebases.
+
 **Description :** Application web full-stack de pointe pour une agence d'hôtesses et d'égéries de marque. Elle offre un site vitrine avec animations 21st.dev, une galerie photos interactive issue du bucket Supabase Storage (`HOTESS`), un système de réservation avec modal interactif et devis en temps réel, un moteur de synchronisation automatique et une intégration avec le CRM Base44.
 
 **Statut :** Version 1.0.2 (Main Official Release) — Production-ready & Image Optimized  
@@ -150,27 +157,143 @@ node scripts/sync-all-storage-profiles.cjs # Sync complet du bucket HOTESS
 ### Layered Architecture
 The project uses **Repositories → Services → API Routes** for clean separation of concerns:
 
+```
+┌─────────────────────────────────────────┐
+│  Components (UI only)                   │ ← React components call hooks/API
+├─────────────────────────────────────────┤
+│  API Routes (HTTP endpoints)            │ ← Receive request, call service
+├─────────────────────────────────────────┤
+│  Services (Business Logic)              │ ← Validation, orchestration, errors
+├─────────────────────────────────────────┤
+│  Repositories (Data Access)             │ ← Prisma queries, return domain models
+├─────────────────────────────────────────┤
+│  Database (PostgreSQL via Supabase)     │ ← Single source of truth
+└─────────────────────────────────────────┘
+```
+
 - **Repositories** (`lib/repositories/`) : Direct database access via Prisma, return domain models
+  - Methods: `findAll()`, `findById()`, `create()`, `update()`, `delete()`
+  - Example: `profileRepository.findById(id)` → `Profile | null`
+
 - **Services** (`lib/services/`) : Business logic, validation, orchestration of repositories
+  - Validate input with Zod schemas
+  - Handle errors explicitly (throw with meaningful messages)
+  - Orchestrate multiple repositories if needed
+  - Example: `bookingService.create(data)` → validates input, checks dates, calls repository
+
 - **API Routes** (`app/api/`) : HTTP endpoints, delegate to services, return typed responses
+  - Parse request body with Zod
+  - Call service, catch errors
+  - Return typed JSON response via schema
+
 - **Components** (`components/`) : UI rendering only, accept props, call API via hooks
+  - No direct database access
+  - No business logic
+  - Hooks for async data loading
+
+### Repository Pattern Example
+
+```typescript
+// lib/repositories/profiles.ts
+import { prisma } from '@/lib/prisma'
+import { ProfileSchema, type Profile } from '@/lib/types'
+
+export class ProfileRepository {
+  async findById(id: string): Promise<Profile | null> {
+    const row = await prisma.profile.findUnique({ where: { id } })
+    return row ? ProfileSchema.parse(row) : null
+  }
+
+  async findAll(limit = 50, offset = 0): Promise<Profile[]> {
+    const rows = await prisma.profile.findMany({ take: limit, skip: offset })
+    return rows.map(r => ProfileSchema.parse(r))
+  }
+
+  async create(data: unknown): Promise<Profile> {
+    const validated = ProfileCreateSchema.parse(data)
+    const row = await prisma.profile.create({ data: validated })
+    return ProfileSchema.parse(row)
+  }
+}
+
+export const profileRepository = new ProfileRepository()
+```
+
+### Service Pattern Example
+
+```typescript
+// lib/services/bookings.ts
+import { bookingRepository } from '@/lib/repositories/bookings'
+import { profileRepository } from '@/lib/repositories/profiles'
+import { BookingCreateSchema, BookingResponseSchema } from '@/lib/schemas'
+
+export class BookingService {
+  async create(data: unknown) {
+    // 1. Validate input
+    const validated = BookingCreateSchema.parse(data)
+    
+    // 2. Check business rules
+    const profile = await profileRepository.findById(validated.profileId)
+    if (!profile) throw new Error('Profile not found')
+    
+    if (validated.endDate <= validated.startDate) {
+      throw new Error('End date must be after start date')
+    }
+    
+    // 3. Delegate to repository
+    const booking = await bookingRepository.create(validated)
+    
+    // 4. Return validated response
+    return BookingResponseSchema.parse(booking)
+  }
+}
+
+export const bookingService = new BookingService()
+```
+
+### API Route Pattern Example
+
+```typescript
+// app/api/bookings/route.ts
+import { bookingService } from '@/lib/services/bookings'
+import { BookingResponseSchema } from '@/lib/schemas'
+
+export async function POST(request: Request) {
+  try {
+    const data = await request.json()
+    const booking = await bookingService.create(data)
+    
+    return Response.json(
+      { success: true, data: booking },
+      { status: 201 }
+    )
+  } catch (error) {
+    return Response.json(
+      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 400 }
+    )
+  }
+}
+```
 
 ### Data Validation
 - **Zod schemas** (`lib/schemas.ts`) : Runtime validation for all user input and API responses
 - Infer TypeScript types from schemas with `z.infer<typeof schema>`
-- Validate at system boundaries (API routes) before passing to services
+- Validate at system boundaries (API routes before services) to ensure type safety
 
 ### Supabase + Prisma Integration
 - **PostgreSQL** accessed via Prisma ORM (`schema.prisma`)
 - **Supabase Storage** (`HOTESS` bucket) accessed via `@supabase/supabase-js`
 - **RLS Policies** on PostgreSQL tables for row-level security
 - Generate types from Supabase with `npm run db:types` (overwrites `lib/database.types.ts`)
+- **Never commit `.env` or `DATABASE_URL`** — use `.env.local` for local development
 
 ### Naming Conventions
 - **Files/Components**: `PascalCase` for React components (`.tsx`), `camelCase` for utilities (`.ts`)
 - **Variables/Functions**: `camelCase`
 - **Interfaces/Types**: `PascalCase` (e.g., `ProfileType`, `BookingResponse`)
 - **Constants**: `UPPER_SNAKE_CASE`
+- **Repository classes**: `PascalCase` + `Repository` suffix (e.g., `ProfileRepository`)
 
 ---
 
@@ -306,10 +429,12 @@ npm run test:e2e:headed
 tests/
   ├── setup.ts                 # Vitest setup (jsdom, mocks)
   ├── unit/                    # Unit tests for lib/ utilities
-  │   ├── repositories/
-  │   ├── services/
-  │   └── schemas/
+  │   ├── repositories/        # Test repository patterns (findById, create, etc.)
+  │   ├── services/            # Test business logic, validation, error handling
+  │   └── schemas/             # Test Zod schema validation
   ├── integration/             # API routes, services with DB
+  │   ├── api/                 # Test API route behavior + response schemas
+  │   └── services/            # Test services with mocked DB
   └── e2e/                     # Playwright critical flows
       ├── booking.spec.ts
       ├── admin-sync.spec.ts
@@ -319,7 +444,7 @@ tests/
 ### Common Test Patterns
 
 ```typescript
-// Unit test: Arrange-Act-Assert
+// Unit test: Arrange-Act-Assert pattern
 test('should_format_price_correctly', () => {
   // Arrange
   const price = 150
@@ -338,7 +463,41 @@ test('GET /api/profiles returns valid ProfileResponse[]', async () => {
   
   expect(ProfileResponseSchema.array().safeParse(data).success).toBe(true)
 })
+
+// Service test with error handling
+test('BookingService.create throws when dates are invalid', async () => {
+  const service = new BookingService(mockRepository)
+  
+  await expect(
+    service.create({ 
+      profileId: '123', 
+      startDate: new Date('2000-01-01'),
+      endDate: new Date('2000-01-01')
+    })
+  ).rejects.toThrow('End date must be after start date')
+})
+
+// Repository test pattern
+test('ProfileRepository.findById returns typed Profile', async () => {
+  const profile = await profileRepository.findById('test-id')
+  
+  expect(profile).toMatchObject({
+    id: 'test-id',
+    name: expect.any(String),
+    rate: expect.any(Number),
+  })
+  
+  // Zod validation passes
+  expect(ProfileSchema.safeParse(profile).success).toBe(true)
+})
 ```
+
+### Test Coverage Requirements
+
+- **lib/repositories/** — 85%+ (data access layer must be reliable)
+- **lib/services/** — 80%+ (business logic validation)
+- **components/** — 70%+ (UI testing, avoid testing implementation details)
+- **app/api/** — 80%+ (all happy paths + error cases)
 
 ---
 

@@ -1,5 +1,20 @@
 import { apiClient } from './client';
-import type { ProfileWithStats } from '../types';
+import type { ProfileWithStats, ProfileCategory } from '../types';
+
+export interface CreateProfileDto {
+  name: string;
+  category: ProfileCategory;
+  bio?: string | null;
+  avatarUrl?: string | null;
+  baseRate?: number | null;
+  currency?: string;
+  instagram?: string | null;
+  tiktok?: string | null;
+  twitter?: string | null;
+  website?: string | null;
+  isPublic?: boolean;
+  isAvailable?: boolean;
+}
 
 export async function fetchProfiles(params?: {
   category?: string;
@@ -22,3 +37,11 @@ export async function fetchProfiles(params?: {
 export async function fetchProfileById(id: string): Promise<ProfileWithStats> {
   return apiClient<ProfileWithStats>(`/api/profiles/${id}?include=media_assets`);
 }
+
+export async function createProfile(data: CreateProfileDto): Promise<ProfileWithStats> {
+  return apiClient<ProfileWithStats>('/api/profiles', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+

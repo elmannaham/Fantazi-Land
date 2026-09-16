@@ -5,14 +5,14 @@ import { errorHandler } from "@/lib/errors";
 export const dynamic = "force-dynamic";
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const includeMedia = request.nextUrl.searchParams.get("includeMedia") !== "false";
     const includeReviews = request.nextUrl.searchParams.get("includeReviews") !== "false";
     const reviewLimit = Number(request.nextUrl.searchParams.get("reviewLimit")) || 5;
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const updated = await profilesService.updateProfile(id, body);
 
@@ -49,7 +49,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     await profilesService.deleteProfile(id);
 
     return NextResponse.json({

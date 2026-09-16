@@ -15,6 +15,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Feather } from '@expo/vector-icons';
 import { fetchProfileById } from '../../lib/api/profiles';
+import { generatePersonalizedBio } from '../../lib/utils/bio-generator';
 import type { ProfileWithStats } from '../../lib/types';
 
 const { width } = Dimensions.get('window');
@@ -134,7 +135,16 @@ export default function ProfileDetailScreen() {
         <Text style={styles.categoryText}>{profile.category}</Text>
       </View>
 
-      {profile.bio && <Text style={styles.bio}>{profile.bio}</Text>}
+      <Text style={styles.bio}>
+        {profile.bio || generatePersonalizedBio({
+          name: profile.name,
+          category: profile.category,
+          baseRate: profile.base_rate,
+          currency: profile.currency || "EUR",
+          avgRating: stats?.avg_rating,
+          totalProjects: stats?.total_projects
+        })}
+      </Text>
 
       {stats && (
         <View style={styles.statsRow}>
@@ -306,7 +316,7 @@ const styles = StyleSheet.create({
   },
   avatar: {
     width: width,
-    height: width * 0.8,
+    height: width * 1.1,
     backgroundColor: '#e2e8f0',
   },
   avatarPlaceholder: {
