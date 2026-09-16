@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
+  // "standalone" produces a lean, self-contained server for the Docker/Base44
+  // target (see Dockerfile). It is NOT compatible with Vercel's own build
+  // pipeline — it breaks Vercel's trace-file generation and every deploy
+  // fails with "ENOENT .next/next-server.js.nft.json". Vercel sets the
+  // VERCEL env var automatically during its builds, so skip it there.
+  ...(process.env.VERCEL ? {} : { output: "standalone" }),
   serverExternalPackages: ["@prisma/client", "prisma"],
   images: {
     formats: ["image/avif", "image/webp"],
