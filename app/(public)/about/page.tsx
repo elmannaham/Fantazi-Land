@@ -1,20 +1,68 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/atoms/Button";
 
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-purple-700 via-purple-600 to-pink-600 py-20 px-4 text-white shadow-md">
-        <div className="relative mx-auto max-w-4xl text-center">
-          <h1 className="mb-4 text-4xl font-extrabold tracking-tight sm:text-6xl">
-            À propos de Fantazi-Land
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg opacity-90 sm:text-xl">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-slate-950 via-purple-950 to-slate-950 py-24 px-4 text-center sm:py-28">
+        {/* Ambient glow */}
+        <div
+          className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[420px] w-[90vw] max-w-[640px] -translate-x-1/2 rounded-full blur-[110px]"
+          style={{ background: "radial-gradient(circle, rgba(168,85,247,0.25) 0%, transparent 70%)" }}
+        />
+
+        <div className="relative z-10 mx-auto max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold tracking-wide text-purple-200"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+            Depuis 2024 · L'agence de référence
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.1 }}
+            className="mb-4 text-4xl font-extrabold tracking-tight text-white sm:text-6xl"
+          >
+            À propos de{" "}
+            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 bg-clip-text text-transparent">
+              Fantazi-Land
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.2 }}
+            className="mx-auto max-w-2xl text-lg text-slate-300 sm:text-xl"
+          >
             Révolutionner la mise en relation entre hôtesses et clients
-          </p>
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.3 }}
+            className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <Link href="/profiles/create" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto">Devenir Hôtesse</Button>
+            </Link>
+            <Link href="/" className="w-full sm:w-auto">
+              <Button variant="secondary" className="w-full sm:w-auto">
+                Découvrir nos Hôtesses
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 
