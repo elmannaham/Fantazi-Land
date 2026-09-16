@@ -1,7 +1,7 @@
 services:
   - type: web
     name: fantazi-land
-    env: node
+    runtime: node
     plan: starter
     region: frankfurt # ou oregon / ohio
     buildCommand: npm install && npm run build

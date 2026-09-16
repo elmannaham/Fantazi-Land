@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import Link from "next/link";
 import { Avatar } from "@/components/atoms/Avatar";
 import { Rating } from "@/components/atoms/Rating";
@@ -9,9 +9,11 @@ import { Button } from "@/components/atoms/Button";
 import { Card, CardBody } from "@/components/atoms/Card";
 import { OptimizedImage } from "@/components/atoms/OptimizedImage";
 import { useProfile } from "@/lib/hooks/useProfiles";
+import { generatePersonalizedBio } from "@/lib/utils/bio-generator";
 
-export default function ProfileDetailPage({ params }: { params: { id: string } }) {
-  const { profile, isLoading, error } = useProfile(params.id);
+export default function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const { profile, isLoading, error } = useProfile(id);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingStatus, setBookingStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -282,7 +284,8 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
               src={profile.avatar_url || undefined}
               alt={profile.name}
               name={profile.name}
-              size="xl"
+              size="2xl"
+              className="shadow-2xl border-4 border-white/20"
             />
             <div className="flex-1">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
@@ -322,7 +325,14 @@ export default function ProfileDetailPage({ params }: { params: { id: string } }
         <section className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
           <h2 className="text-xl font-bold text-slate-900 mb-4">À propos de l'hôtesse</h2>
           <p className="text-slate-700 leading-relaxed whitespace-pre-line">
-            {profile.bio || "Cette hôtesse n'a pas encore ajouté de biographie détaillée."}
+            {profile.bio || generatePersonalizedBio({
+              name: profile.name,
+              category: profile.category,
+              baseRate: profile.base_rate,
+              currency: profile.currency || "EUR",
+              avgRating: avgRating,
+              totalProjects: totalProjects
+            })}
           </p>
         </section>
 

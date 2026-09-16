@@ -1,38 +1,93 @@
 {
-  "projectName": "Fantazi-Land - Content Creator Booking Platform",
-  "designSystem": {
-    "brand": {
-      "primary": "#a855f7",
-      "primaryDark": "#7e22ce",
-      "neutral": {
-        "50": "#f8fafc",
-        "100": "#f1f5f9",
-        "200": "#e2e8f0",
-        "300": "#cbd5e1",
-        "500": "#64748b",
-        "600": "#475569",
-        "900": "#0f172a"
+  "version": 1,
+  "project": {
+    "name": "fantazi-land",
+    "productType": null,
+    "stack": [
+      "nextjs",
+      "react",
+      "tailwind-v3"
+    ]
+  },
+  "sources": {
+    "tokens": [
+      "app/globals.css"
+    ],
+    "components": [
+      "components/ui"
+    ],
+    "assets": [],
+    "instructions": [
+      "CLAUDE.md"
+    ]
+  },
+  "design": {
+    "colorMode": "light",
+    "colors": {
+      "--background": {
+        "value": "0 0% 100%",
+        "source": "app/globals.css"
+      },
+      "--foreground": {
+        "value": "222 47% 11%",
+        "source": "app/globals.css"
       }
     },
-    "typography": {
-      "fontFamily": "Inter, system-ui, sans-serif",
-      "weights": [400, 500, 600, 700]
-    },
-    "spacing": "4px base (Tailwind default scale)",
-    "radius": "rounded-lg (8px default)",
-    "animations": ["fade-in (0.3s)", "slide-up (0.4s)"]
+    "typography": {},
+    "spacing": {},
+    "radius": {},
+    "shadows": {},
+    "motion": {},
+    "density": "unknown"
   },
   "components": {
-    "atoms": ["Button", "Card", "Badge", "Rating", "Avatar"],
-    "molecules": ["KPICard"],
-    "organisms": ["ProfileForm", "BookingsList", "ReviewsList", "ProfileGrid", "SyncHealthMonitor"]
+    "installed": [
+      "3d-carousel",
+      "3d-carousel-demo"
+    ],
+    "preferredPrimitives": [],
+    "patterns": []
   },
-  "decisions": {
-    "layout": "Next.js 14 App Router with layout groups ((public), (dashboard), admin)",
-    "stateManagement": "React hooks + Context (Zustand optional for complex state)",
-    "forms": "React with Zod validation",
-    "brandPalette": "Purple-focused (a855f7) for CTAs, action-focused UI",
-    "density": "Compact-to-comfortable (16px padding default, 12px on mobile)",
-    "animation": "Subtle fade + slide-up on page transitions, micro-interactions on hover"
-  }
+  "constraints": {
+    "must": [],
+    "avoid": []
+  },
+  "decisions": [
+    {
+      "topic": "hero-sections",
+      "choice": "Dark-luxury hero language (dark gradient bg + purple/pink/amber gradient text + framer-motion stagger entrance + badge + dual CTA) is the shared visual identity for page heroes on Home, Portfolio, and About. Home's HeroSection.tsx uses a richer bespoke palette (#121523/#e65c9f/#fddc6d) as the flagship treatment; Portfolio and About share the standard Tailwind purple-400/pink-400/amber-300 gradient for consistency with each other.",
+      "date": "2026-09-16"
+    }
+  ],
+  "evidence": [
+    {
+      "fact": "components.installed",
+      "source": "components/ui"
+    },
+    {
+      "fact": "design.colorMode:light",
+      "source": "app/globals.css"
+    },
+    {
+      "fact": "design.tokens",
+      "source": "app/globals.css"
+    },
+    {
+      "fact": "project.instructions",
+      "source": "CLAUDE.md"
+    },
+    {
+      "fact": "project.stack:nextjs",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:react",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:tailwind-v3",
+      "source": "package.json"
+    }
+  ],
+  "generatedAt": "2026-09-16T18:11:35.055Z"
 }

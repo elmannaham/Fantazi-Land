@@ -4,7 +4,7 @@ interface AvatarProps {
   src?: string | null;
   alt: string;
   name?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   className?: string;
 }
 
@@ -14,6 +14,8 @@ export function Avatar({ src, alt, name, size = "md", className = "" }: AvatarPr
     md: "h-12 w-12 text-sm",
     lg: "h-16 w-16 text-base",
     xl: "h-24 w-24 text-2xl",
+    "2xl": "h-40 w-40 text-4xl sm:h-48 sm:w-48",
+    "3xl": "h-56 w-56 text-6xl sm:h-64 sm:w-64",
   };
 
   const pixelSizes = {
@@ -21,6 +23,8 @@ export function Avatar({ src, alt, name, size = "md", className = "" }: AvatarPr
     md: 48,
     lg: 64,
     xl: 96,
+    "2xl": 192,
+    "3xl": 256,
   };
 
   const initials = name

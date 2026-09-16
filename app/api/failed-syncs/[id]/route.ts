@@ -6,11 +6,12 @@ export const dynamic = "force-dynamic";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.failedSync.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
@@ -22,11 +23,12 @@ export async function DELETE(
 // Manual retry endpoint
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const item = await prisma.failedSync.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!item) {
@@ -35,7 +37,7 @@ export async function POST(
 
     // Reset to pending for immediate retry
     const updated = await prisma.failedSync.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status: "pending",
         retry_count: 0,

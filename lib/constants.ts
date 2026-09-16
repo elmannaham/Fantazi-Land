@@ -7,12 +7,16 @@ export const CATEGORIES: ProfileCategory[] = [
   "Beauté",
   "Lifestyle",
   "Gaming",
+  "intime rencontre",
+  "Dinner & Show",
+  "Homme",
 ];
 
 export const CURRENCIES = [
   { value: "EUR", label: "EUR", symbol: "\u20ac" },
   { value: "USD", label: "USD", symbol: "$" },
   { value: "GBP", label: "GBP", symbol: "\u00a3" },
+  { value: "CAD", label: "CAD", symbol: "$" },
 ] as const;
 
 export const BOOKING_STATUS_LABELS: Record<string, string> = {

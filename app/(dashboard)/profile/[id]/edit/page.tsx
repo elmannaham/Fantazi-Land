@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardBody, CardHeader } from "@/components/atoms/Card";
@@ -8,9 +8,10 @@ import { Button } from "@/components/atoms/Button";
 import { Avatar } from "@/components/atoms/Avatar";
 import { useProfile } from "@/lib/hooks/useProfiles";
 
-export default function ProfileEditorPage({ params }: { params: { id: string } }) {
+export default function ProfileEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const { profile, isLoading, error } = useProfile(params.id);
+  const { id } = use(params);
+  const { profile, isLoading, error } = useProfile(id);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -63,7 +64,7 @@ export default function ProfileEditorPage({ params }: { params: { id: string } }
       setSaveStatus("saving");
       setSaveMessage(null);
 
-      const res = await fetch(`/api/profiles/${params.id}`, {
+      const res = await fetch(`/api/profiles/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -101,7 +102,7 @@ export default function ProfileEditorPage({ params }: { params: { id: string } }
     }
 
     try {
-      const res = await fetch(`/api/profiles/${params.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/profiles/${id}`, { method: "DELETE" });
       if (res.ok) {
         alert("Profil supprimé.");
         router.push("/admin/profiles");
@@ -141,7 +142,7 @@ export default function ProfileEditorPage({ params }: { params: { id: string } }
       {/* Header */}
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Link href={`/profiles/${params.id}`} className="text-xs text-purple-600 hover:underline font-medium mb-1 block">
+          <Link href={`/profiles/${id}`} className="text-xs text-purple-600 hover:underline font-medium mb-1 block">
             ← Voir la fiche publique
           </Link>
           <h1 className="text-3xl font-bold text-slate-900">Éditer le profil</h1>

@@ -161,7 +161,11 @@ export default function GaleriePage() {
       <div className="relative overflow-hidden border-b border-white/10 bg-gradient-to-b from-purple-950/50 to-transparent pt-12 pb-10 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45 }}
+            >
               <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/20 px-3.5 py-1 text-xs font-semibold text-purple-300 border border-purple-500/30 backdrop-blur-md mb-3">
                 <Sparkles className="h-3.5 w-3.5 text-pink-400 animate-pulse" />
                 Live Supabase Storage Gallery
@@ -172,7 +176,7 @@ export default function GaleriePage() {
               <p className="mt-2 text-sm sm:text-base text-slate-400 max-w-xl">
                 Explorez l'intégralité des photos et books synchronisés depuis le bucket <code className="text-purple-300 font-mono">HOTESS</code>.
               </p>
-            </div>
+            </motion.div>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-3">

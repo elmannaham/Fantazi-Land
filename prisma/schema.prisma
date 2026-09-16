@@ -10,11 +10,14 @@ datasource db {
 
 enum ProfileCategory {
   Photographie
-  Videographie
-  Contenu_Mode  @map("Contenu Mode")
-  Beaute        @map("Beauté")
+  Videographie      @map("Vidéographie")
+  Contenu_Mode      @map("Contenu Mode")
+  Beaute            @map("Beauté")
   Lifestyle
   Gaming
+  IntimeRencontre   @map("intime rencontre")
+  DinnerShow        @map("Dinner & Show")
+  Homme
 
   @@map("profile_category")
 }
