@@ -2,9 +2,20 @@ const { createClient } = require("@supabase/supabase-js");
 const fs = require("fs");
 const path = require("path");
 
-const supabaseUrl = "https://uytihmscyjpwpdhqvnbw.supabase.co";
-const serviceRoleKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5dGlobXNjeWpwd3BkaHF2bmJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NzU3MTk3NCwiZXhwIjoyMTAzMTQ3OTc0fQ.1d0m8r4V9EhsGls2DwFQ9LzJjetYiaJBbLQ7xkS08uc";
+// Credentials come from the environment (.env.local locally). Never hardcode keys here.
+try {
+  process.loadEnvFile(".env.local");
+} catch {
+  // .env.local is optional when variables are already exported
+}
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !serviceRoleKey) {
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in environment.");
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { persistSession: false, autoRefreshToken: false },

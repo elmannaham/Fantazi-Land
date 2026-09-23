@@ -50,7 +50,7 @@
 | **Stockage & Fichiers** | Supabase Storage (Bucket `HOTESS`) |
 | **Intégration Externe** | [Base44 API](https://app.base44.com/apps/6a8ea8ad929a72d7ec63fc9d) (CRM & Workflows) |
 | **Qualité & Tests** | [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) (E2E), TypeScript strict |
-| **Déploiements** | Vercel, Base44, Cloudflare, Render, Wasmer |
+| **Déploiements** | Vercel, Base44, Railway |
 
 ---
 
@@ -73,7 +73,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=votre_cle_anon
 SUPABASE_SERVICE_ROLE_KEY=votre_cle_service_role
 
 BASE44_API_URL=https://agence-de-booking-crud-ec63fc9d.base44.app/api
-BASE44_API_KEY=5f77c7690c884054ba1d3f2c75961284
+BASE44_API_KEY=<your_base44_api_key>
 
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NODE_ENV=development
@@ -114,24 +114,9 @@ Fantazi-Land intègre les configurations prêtes à l'emploi pour tous les grand
   docker run -p 3000:3000 fantazi-land:latest
   ```
 
-### 3. ☁️ Cloudflare (Pages / Workers)
-* **Configuration** : [`wrangler.toml`](./wrangler.toml)
-* **Déploiement** :
-  ```bash
-  npx @cloudflare/next-on-pages
-  npx wrangler pages deploy .vercel/output/static --project-name=fantazi-land
-  ```
-
-### 4. 🟣 Render.com (Web Service)
-* **Configuration** : [`render.yaml`](./render.yaml)
-* **Déploiement** : 1-clic via **New > Blueprint** sur [dashboard.render.com](https://dashboard.render.com). Build et health check automatiques (`/api/admin/sync`).
-
-### 5. 🌐 Wasmer (Edge & WebAssembly)
-* **Configuration** : [`wasmer.toml`](./wasmer.toml)
-* **Déploiement** :
-  ```bash
-  wasmer deploy
-  ```
+### 3. 🚂 Railway
+* **Configuration** : [`Dockerfile`](./Dockerfile)
+* **Déploiement** : automatique à chaque push sur `master`.
 
 ---
 
