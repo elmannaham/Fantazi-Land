@@ -68,7 +68,9 @@ export function BentoCreatorGrid({
               </div>
               <div className="flex items-center gap-1.5 rounded-full bg-amber-400/90 px-3 py-1.5 text-xs font-black text-slate-950 backdrop-blur-md shadow-lg shadow-amber-400/20">
                 <Star className="h-3.5 w-3.5 fill-slate-950" />
-                {Number(starCreator.performance_stats?.avg_rating || 5.0).toFixed(1)}
+                {(starCreator.performance_stats?.total_reviews ?? 0) > 0
+                  ? Number(starCreator.performance_stats?.avg_rating).toFixed(1)
+                  : "NOUVEAU"}
               </div>
             </div>
 
@@ -163,7 +165,9 @@ export function BentoCreatorGrid({
                   </span>
                   <div className="flex items-center gap-1 text-xs font-black text-amber-500 bg-amber-50 px-2 py-1 rounded-full border border-amber-100">
                     <Star className="h-3 w-3 fill-amber-500" />
-                    {Number(creator.performance_stats?.avg_rating || 5.0).toFixed(1)}
+                    {(creator.performance_stats?.total_reviews ?? 0) > 0
+                      ? Number(creator.performance_stats?.avg_rating).toFixed(1)
+                      : "NOUVEAU"}
                   </div>
                 </div>
 

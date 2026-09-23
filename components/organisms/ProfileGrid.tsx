@@ -128,8 +128,14 @@ export function ProfileGrid({
 
                 {/* Badge Note Flottant */}
                 <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 sm:px-3 sm:py-1.5 text-[11px] sm:text-xs font-black text-amber-300 backdrop-blur-md border border-white/10 shadow-sm z-20">
-                  <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-amber-400 text-amber-400" />
-                  <span>{Number(score).toFixed(1)}</span>
+                  {reviews > 0 ? (
+                    <>
+                      <Star className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-amber-400 text-amber-400" />
+                      <span>{Number(score).toFixed(1)}</span>
+                    </>
+                  ) : (
+                    <span className="uppercase tracking-wider text-[10px]">Nouveau</span>
+                  )}
                 </div>
 
                 {/* Badge Disponibilité & Catégorie */}

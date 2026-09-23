@@ -11,6 +11,7 @@ import { CategoryFilterBar } from "@/components/molecules/CategoryFilterBar";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { StatsSection } from "@/components/sections/StatsSection";
 import { PortfolioTeaserSection } from "@/components/sections/PortfolioTeaserSection";
+import { computeAgencyStats } from "@/lib/stats";
 import type { ProfileWithStats } from "@/lib/types";
 
 const CATEGORIES = [
@@ -31,6 +32,8 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState("Tous");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedBookingCreator, setSelectedBookingCreator] = useState<ProfileWithStats | null>(null);
+
+  const agencyStats = useMemo(() => computeAgencyStats(profiles), [profiles]);
 
   // Calcul dynamique des compteurs par catégorie
   const countMap = useMemo(() => {
@@ -74,6 +77,9 @@ export default function HomePage() {
       {/* 1. Hero Section 21st.dev Style */}
       <HeroSection
         totalProfilesCount={profiles.length}
+        availableCount={agencyStats.availableCount}
+        avgRating={agencyStats.avgRating}
+        totalReviews={agencyStats.totalReviews}
         onExploreClick={() => {
           const el = document.getElementById("catalogue");
           el?.scrollIntoView({ behavior: "smooth" });
@@ -148,7 +154,7 @@ export default function HomePage() {
       <PortfolioTeaserSection />
 
       {/* 5. Section Métriques & Réassurance */}
-      <StatsSection />
+      <StatsSection stats={agencyStats} />
 
       {/* Modal de Réservation Interactive */}
       {selectedBookingCreator && (

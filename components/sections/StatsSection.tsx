@@ -2,35 +2,87 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, Award, ShieldCheck, Zap, Sparkles } from "lucide-react";
+import { Users, Award, Zap, Sparkles, Layers, Tag, type LucideIcon } from "lucide-react";
+import { formatRate } from "@/lib/format";
+import type { AgencyStats } from "@/lib/stats";
 
-export function StatsSection() {
-  const stats = [
+interface StatsSectionProps {
+  stats: AgencyStats;
+}
+
+interface StatItem {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+  description: string;
+}
+
+function formatHours(hours: number): string {
+  return hours < 1 ? "< 1h" : `${Math.round(hours)}h`;
+}
+
+/** Builds the metric cards from real catalogue data, skipping metrics with no data yet. */
+function buildStatItems(stats: AgencyStats): StatItem[] {
+  const items: StatItem[] = [
     {
       icon: Users,
-      value: "500+",
-      label: "Collaborations Réussies",
-      description: "Campagnes marques & shootings éditoriaux",
-    },
-    {
-      icon: Award,
-      value: "99.4%",
-      label: "Satisfaction Clients",
-      description: "Avis vérifiés et retours 5 étoiles",
-    },
-    {
-      icon: ShieldCheck,
-      value: "100%",
-      label: "Paiements Sécurisés",
-      description: "Fonds bloqués jusqu'à validation des livrables",
-    },
-    {
-      icon: Zap,
-      value: "< 24h",
-      label: "Délai Moyen de Réponse",
-      description: "Prise de contact et devis instantanés",
+      value: String(stats.profileCount),
+      label: "Hôtesses au catalogue",
+      description: `${stats.availableCount} disponible${stats.availableCount > 1 ? "s" : ""} actuellement`,
     },
   ];
+
+  if (stats.totalProjects > 0) {
+    items.push({
+      icon: Layers,
+      value: String(stats.totalProjects),
+      label: "Missions réalisées",
+      description: "Réservations menées à terme sur la plateforme",
+    });
+  }
+
+  if (stats.avgRating !== null) {
+    items.push({
+      icon: Award,
+      value: `${stats.avgRating.toFixed(1)}/5`,
+      label: "Note moyenne",
+      description: `Sur ${stats.totalReviews} avis client${stats.totalReviews > 1 ? "s" : ""}`,
+    });
+  }
+
+  if (stats.avgResponseHours !== null) {
+    items.push({
+      icon: Zap,
+      value: formatHours(stats.avgResponseHours),
+      label: "Délai moyen de réponse",
+      description: "Temps de réponse moyen des hôtesses",
+    });
+  }
+
+  if (stats.minRate !== null) {
+    items.push({
+      icon: Tag,
+      value: formatRate(stats.minRate, stats.currency),
+      label: "Tarif horaire de départ",
+      description: `${stats.categoryCount} catégorie${stats.categoryCount > 1 ? "s" : ""} de prestations`,
+    });
+  }
+
+  return items;
+}
+
+const GRID_COLUMNS: Record<number, string> = {
+  1: "lg:grid-cols-1",
+  2: "lg:grid-cols-2",
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+  5: "lg:grid-cols-5",
+};
+
+export function StatsSection({ stats }: StatsSectionProps) {
+  if (stats.profileCount === 0) return null;
+
+  const items = buildStatItems(stats);
 
   return (
     <section className="bg-slate-900 py-16 px-4 text-white relative overflow-hidden my-16 rounded-3xl mx-4 sm:mx-8">
@@ -42,18 +94,18 @@ export function StatsSection() {
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-300 border border-purple-500/20 mb-3">
             <Sparkles className="h-3.5 w-3.5" />
-            L'Engagement Fantazi-Land
+            Fantazi-Land en chiffres
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
             La Référence du Booking Haut de Gamme
           </h2>
           <p className="text-slate-400 text-sm mt-2">
-            Une infrastructure pensée pour valoriser les hôtesses et garantir un résultat parfait aux annonceurs.
+            Des chiffres calculés en direct à partir de notre catalogue.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, i) => {
+        <div className={`grid grid-cols-1 sm:grid-cols-2 ${GRID_COLUMNS[items.length] ?? "lg:grid-cols-4"} gap-6`}>
+          {items.map((stat, i) => {
             const Icon = stat.icon;
             return (
               <motion.div

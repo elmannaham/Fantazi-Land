@@ -7,13 +7,25 @@ import { ShieldCheck, Star, CheckCircle } from "lucide-react";
 
 interface HeroSectionProps {
   totalProfilesCount: number;
+  availableCount: number;
+  /** Review-weighted rating, or null when there are no reviews yet. */
+  avgRating: number | null;
+  totalReviews: number;
   onExploreClick?: () => void;
 }
 
 export function HeroSection({
   totalProfilesCount,
+  availableCount,
+  avgRating,
+  totalReviews,
   onExploreClick,
 }: HeroSectionProps) {
+  const ratingLabel =
+    avgRating !== null
+      ? `Note moyenne de ${avgRating.toFixed(1)}/5 (${totalReviews} avis)`
+      : `${availableCount} hôtesse${availableCount > 1 ? "s" : ""} disponible${availableCount > 1 ? "s" : ""}`;
+
   return (
     <section className="relative flex min-h-[80vh] sm:min-h-[90vh] items-center justify-center overflow-hidden px-5 py-16 text-center sm:px-6 sm:py-28"
       style={{
@@ -147,7 +159,7 @@ export function HeroSection({
           </div>
           <div className="flex items-center gap-2">
             <Star className="h-4 w-4 fill-[#fddc6d] text-[#fddc6d]" />
-            <span>Note Moyenne de 4.9/5</span>
+            <span>{ratingLabel}</span>
           </div>
         </motion.div>
       </div>
