@@ -36,7 +36,7 @@
     "setup": "node scripts/setup.js"
   },
   "dependencies": {
-    "@prisma/client": "^5.18.0",
+    "@prisma/client": "^6.19.3",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/server": "^1.4.1",
     "@supabase/supabase-js": "^2.45.0",
@@ -66,7 +66,7 @@
     "postcss": "^8.4.40",
     "prettier": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.5",
-    "prisma": "^5.18.0",
+    "prisma": "^6.19.3",
     "supabase": "^2.116.0",
     "tailwindcss": "^3.4.7",
     "typescript": "^5.7.3",
@@ -78,10 +78,10 @@
   },
   "allowScripts": {
     "esbuild@0.21.5": true,
-    "prisma@5.22.0": true,
     "supabase@1.226.4": true,
     "unrs-resolver@1.12.2": true,
-    "@prisma/client@5.22.0": true,
-    "@prisma/engines@5.22.0": true
+    "@prisma/client@6.19.3": true,
+    "prisma@6.19.3": true,
+    "@prisma/engines@6.19.3": true
   }
 }
