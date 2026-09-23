@@ -2,18 +2,24 @@
 
 import { useState, use } from "react";
 import Link from "next/link";
-import { Avatar } from "@/components/atoms/Avatar";
 import { Rating } from "@/components/atoms/Rating";
-import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
 import { Card, CardBody } from "@/components/atoms/Card";
 import { OptimizedImage } from "@/components/atoms/OptimizedImage";
+import { ProfileHero } from "@/components/sections/ProfileHero";
 import { useProfile } from "@/lib/hooks/useProfiles";
 import { generatePersonalizedBio } from "@/lib/utils/bio-generator";
+import { useLoadableImages } from "@/lib/hooks/useLoadableImages";
+import type { MediaAsset } from "@/lib/types";
+
+const getAssetUrl = (asset: MediaAsset) => asset.file_url;
+const NO_ASSETS: MediaAsset[] = [];
 
 export default function ProfileDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { profile, isLoading, error } = useProfile(id);
+  // Toutes les photos restent référencées ; celles qui ne chargent pas sont masquées
+  const galleryAssets = useLoadableImages(profile?.media_assets ?? NO_ASSETS, getAssetUrl);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [bookingStatus, setBookingStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -273,51 +279,8 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      {/* Header Section */}
-      <div className="bg-gradient-to-br from-purple-700 via-purple-600 to-pink-600 px-4 py-16 text-white shadow-lg">
-        <div className="mx-auto max-w-4xl">
-          <Link href="/" className="inline-flex items-center text-xs font-semibold text-white/80 hover:text-white mb-6 transition">
-            ← Retour aux hôtesses
-          </Link>
-          <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
-            <Avatar
-              src={profile.avatar_url || undefined}
-              alt={profile.name}
-              name={profile.name}
-              size="2xl"
-              className="shadow-2xl border-4 border-white/20"
-            />
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-                  {profile.name}
-                </h1>
-                <Badge label={profile.category} />
-              </div>
-
-              <div className="flex flex-wrap items-center gap-6 mb-4 text-white/90">
-                <div className="flex items-center gap-2">
-                  <Rating score={avgRating} reviewCount={totalReviews} />
-                </div>
-                {totalProjects > 0 && (
-                  <div className="text-xs font-medium bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
-                    💼 {totalProjects} projets complétés
-                  </div>
-                )}
-                <div className="text-sm font-bold bg-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
-                  Tarif : {baseRate} {currency}
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <Button onClick={() => setIsBookingOpen(true)} className="bg-white text-purple-700 hover:bg-slate-100 font-bold shadow-md">
-                  ✨ Réserver une séance
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Hero personnalisé : photos, couleur d'accent et infos du profil */}
+      <ProfileHero profile={profile} onBook={() => setIsBookingOpen(true)} />
 
       {/* Main Content */}
       <div className="mx-auto max-w-4xl px-4 py-10 space-y-10">
@@ -337,11 +300,11 @@ export default function ProfileDetailPage({ params }: { params: Promise<{ id: st
         </section>
 
         {/* Gallery / Media Assets */}
-        {profile.media_assets && profile.media_assets.length > 0 && (
-          <section className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
+        {galleryAssets.length > 0 && (
+          <section id="galerie" className="scroll-mt-6 bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-slate-100">
             <h2 className="text-xl font-bold text-slate-900 mb-6">Portfolio & Galerie</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {profile.media_assets.map((asset, idx) => {
+              {galleryAssets.map((asset, idx) => {
                 const isVideo = asset.file_type === "video" || asset.file_url.endsWith(".mp4");
                 return (
                   <div

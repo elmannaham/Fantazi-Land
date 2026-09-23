@@ -18,6 +18,9 @@ import {
 import { ThreeDPhotoCarousel } from "@/components/ui/3d-carousel";
 import { BUCKET_IMAGES, shuffleArray, BucketMediaItem } from "@/lib/bucket-media";
 import { OptimizedImage } from "@/components/atoms/OptimizedImage";
+import { useLoadableImages } from "@/lib/hooks/useLoadableImages";
+
+const getImageUrl = (item: BucketMediaItem) => item.url;
 
 export default function GaleriePage() {
   const [activeFilter, setActiveFilter] = useState<string>("all");
@@ -26,19 +29,23 @@ export default function GaleriePage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [likes, setLikes] = useState<Record<string, boolean>>({});
 
+  // Toutes les images restent référencées ; celles qui ne chargent pas sont simplement masquées
+  const loadableImages = useLoadableImages(BUCKET_IMAGES, getImageUrl);
+  const visibleImages = useLoadableImages(activeImages, getImageUrl);
+
   // Liste dynamique des filtres d'hôtesses disponibles
   const filterOptions = useMemo(() => {
     const uniqueKeys = Array.from(new Set(BUCKET_IMAGES.map((i) => i.profileKey).filter(Boolean)));
     const options = [
-      { key: "all", label: "Toutes les photos", count: BUCKET_IMAGES.length },
+      { key: "all", label: "Toutes les photos", count: loadableImages.length },
       ...uniqueKeys.map((k) => ({
         key: k as string,
         label: (k as string).toUpperCase(),
-        count: BUCKET_IMAGES.filter((i) => i.profileKey === k).length,
+        count: loadableImages.filter((i) => i.profileKey === k).length,
       })),
     ];
     return options;
-  }, []);
+  }, [loadableImages]);
 
   // Filtrer les images
   useEffect(() => {
@@ -65,13 +72,13 @@ export default function GaleriePage() {
       if (lightboxIndex === null) return;
       if (e.key === "Escape") setLightboxIndex(null);
       if (e.key === "ArrowRight") {
-        setLightboxIndex((prev) => (prev !== null && prev < activeImages.length - 1 ? prev + 1 : 0));
+        setLightboxIndex((prev) => (prev !== null && prev < visibleImages.length - 1 ? prev + 1 : 0));
       }
       if (e.key === "ArrowLeft") {
-        setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : activeImages.length - 1));
+        setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : visibleImages.length - 1));
       }
     },
-    [lightboxIndex, activeImages.length]
+    [lightboxIndex, visibleImages.length]
   );
 
   useEffect(() => {
@@ -79,7 +86,7 @@ export default function GaleriePage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  const currentLightboxImage = lightboxIndex !== null ? activeImages[lightboxIndex] : null;
+  const currentLightboxImage = lightboxIndex !== null ? visibleImages[lightboxIndex] : null;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 pb-24">
@@ -106,7 +113,7 @@ export default function GaleriePage() {
 
               <div className="flex items-center gap-2">
                 <span className="text-xs text-slate-400 mr-2">
-                  {lightboxIndex + 1} / {activeImages.length}
+                  {lightboxIndex + 1} / {visibleImages.length}
                 </span>
                 <button
                   onClick={() => setLightboxIndex(null)}
@@ -121,7 +128,7 @@ export default function GaleriePage() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : activeImages.length - 1));
+                setLightboxIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : visibleImages.length - 1));
               }}
               className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/20 transition z-20"
             >
@@ -132,7 +139,7 @@ export default function GaleriePage() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setLightboxIndex((prev) => (prev !== null && prev < activeImages.length - 1 ? prev + 1 : 0));
+                setLightboxIndex((prev) => (prev !== null && prev < visibleImages.length - 1 ? prev + 1 : 0));
               }}
               className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/20 transition z-20"
             >
@@ -241,7 +248,7 @@ export default function GaleriePage() {
             </div>
             <div className="relative h-[550px] w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-900 shadow-2xl">
               <ThreeDPhotoCarousel
-                cards={activeImages.map((img) => img.url)}
+                cards={visibleImages.map((img) => img.url)}
                 onImageClick={(url, idx) => setLightboxIndex(idx)}
                 autoRotate
               />
@@ -249,7 +256,7 @@ export default function GaleriePage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {activeImages.map((image, index) => {
+            {visibleImages.map((image, index) => {
               const isLiked = !!likes[image.id];
               const isPriority = index < 6;
 

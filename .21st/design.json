@@ -57,6 +57,11 @@
       "topic": "hero-sections",
       "choice": "Dark-luxury hero language (dark gradient bg + purple/pink/amber gradient text + framer-motion stagger entrance + badge + dual CTA) is the shared visual identity for page heroes on Home, Portfolio, and About. Home's HeroSection.tsx uses a richer bespoke palette (#121523/#e65c9f/#fddc6d) as the flagship treatment; Portfolio and About share the standard Tailwind purple-400/pink-400/amber-300 gradient for consistency with each other.",
       "date": "2026-09-16"
+    },
+    {
+      "topic": "profile-hero",
+      "choice": "Profile pages use ProfileHero: full-bleed crossfading Ken Burns slideshow of the profile's own photos (same storage folder as the avatar, never filler photos from other profiles), one accent colour per profile sampled from its avatar (lib/color.ts, skin tones down-weighted), ghost name watermark, accent glow, keyboard thumbnails, autoplay paused on hover/focus and disabled for reduced motion.",
+      "date": "2026-09-23"
     }
   ],
   "evidence": [
