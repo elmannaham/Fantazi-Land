@@ -11,3 +11,8 @@ npm-debug.log
 .playwright-mcp
 tests
 docs
+.env
+.env.*
+!.env.example
+fantazi-land-mobile
+graphify-out
