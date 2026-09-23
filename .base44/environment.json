@@ -22,6 +22,21 @@
       "name": "BASE44_API_KEY",
       "description": "Base44 API key for the agence-de-booking-crud integration",
       "requiredAtBoot": false
+    },
+    {
+      "name": "ADMIN_CREATION_PASSWORD",
+      "description": "Code d'invitation exigé pour créer un profil d'hôtesse (aucune valeur par défaut : sans lui, la création est fermée)",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "STORAGE_WEBHOOK_SECRET",
+      "description": "Secret partagé du webhook Supabase Storage (en-tête x-webhook-secret)",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "BASE44_API_URL",
+      "description": "URL de l'API Base44 (ex. https://agence-de-booking-crud-ec63fc9d.base44.app/api)",
+      "requiredAtBoot": false
     }
   ]
 }

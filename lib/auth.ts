@@ -127,3 +127,19 @@ export function requireWebhookSecret(request: NextRequest, envVar: string): void
     throw unauthorizedError("Signature de webhook invalide");
   }
 }
+
+/**
+ * Vérifie le code d'invitation de création de profil (ADMIN_CREATION_PASSWORD).
+ * Refuse toute création si la variable n'est pas configurée côté serveur.
+ */
+export function requireInvitationCode(provided: string | null | undefined): void {
+  const expected = process.env.ADMIN_CREATION_PASSWORD;
+  if (!expected) {
+    throw forbiddenError("La création de profil n'est pas encore ouverte (code d'invitation non configuré)");
+  }
+  const expectedBuf = Buffer.from(expected);
+  const providedBuf = Buffer.from(provided ?? "");
+  if (expectedBuf.length !== providedBuf.length || !timingSafeEqual(expectedBuf, providedBuf)) {
+    throw unauthorizedError("Code d'invitation invalide");
+  }
+}

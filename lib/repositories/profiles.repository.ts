@@ -2,6 +2,29 @@ import { supabase, createServiceClient } from "@/lib/supabase";
 import type { Profile, ProfileWithStats, MediaAsset } from "@/lib/types";
 import catalogData from "@/data/creators-catalog.json";
 import { getProfileMediaWithRandomFill } from "@/lib/bucket-media";
+import { syncService } from "@/lib/services/sync.service";
+
+/**
+ * Ajoute au catalogue les profils présents seulement dans le bucket HOTESS
+ * (ex. créés via l'app), sans doublon (comparaison par dossier, insensible à la casse).
+ * Si le bucket est inaccessible, le catalogue est renvoyé tel quel.
+ */
+export async function mergeBucketProfiles(
+  catalogList: ProfileWithStats[],
+  loadBucketProfiles: () => Promise<ProfileWithStats[]> = () => syncService.getBucketProfiles()
+): Promise<ProfileWithStats[]> {
+  try {
+    const known = new Set(
+      catalogList.map((p) => String(p.storage_folder_id || p.name || "").toLowerCase())
+    );
+    const extra = (await loadBucketProfiles()).filter(
+      (p) => !known.has(String(p.storage_folder_id || "").toLowerCase())
+    );
+    return [...catalogList, ...extra];
+  } catch {
+    return catalogList;
+  }
+}
 
 export interface ProfileFilters {
   category?: string;
@@ -122,6 +145,8 @@ export class ProfilesRepository {
       },
     })) as ProfileWithStats[];
 
+    catalogList = await mergeBucketProfiles(catalogList);
+
     if (category && category !== "Tous") {
       catalogList = catalogList.filter((p) => p.category?.toLowerCase() === category.toLowerCase());
     }
@@ -203,6 +228,16 @@ export class ProfilesRepository {
           response_time_hours: 4,
         },
       } as ProfileWithStats;
+    }
+
+    // Profils présents uniquement dans le bucket (ex. créés via l'app)
+    try {
+      const fromBucket = (await syncService.getBucketProfiles()).find(
+        (p) => p.id === id.toLowerCase() || p.storage_folder_id?.toLowerCase() === id.toLowerCase()
+      );
+      if (fromBucket) return fromBucket;
+    } catch {
+      // bucket inaccessible
     }
 
     return null;

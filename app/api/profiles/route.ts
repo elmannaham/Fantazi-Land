@@ -3,7 +3,7 @@ import { profilesService } from "@/lib/services/profiles.service";
 import { profileCreationService } from "@/lib/services/profile-creation.service";
 import { profileQuerySchema, createProfileSchema } from "@/lib/schemas";
 import { errorHandler } from "@/lib/errors";
-import { authenticateRequest } from "@/lib/auth";
+import { authenticateRequest, requireInvitationCode } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -82,12 +82,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = createProfileSchema.parse(body);
 
-    // Protection par mot de passe d'administration
-    const requiredPassword = process.env.ADMIN_CREATION_PASSWORD || "Fantazi2024!";
-    if (validated.adminPassword !== requiredPassword) {
-      const { unauthorizedError } = await import("@/lib/errors");
-      throw unauthorizedError("Mot de passe de création invalide ou manquant");
-    }
+    // Code d'invitation obligatoire (ADMIN_CREATION_PASSWORD, aucune valeur par défaut)
+    requireInvitationCode(validated.adminPassword);
 
     // Supprimer le mot de passe avant de passer aux services
     const { adminPassword, ...profileData } = validated;

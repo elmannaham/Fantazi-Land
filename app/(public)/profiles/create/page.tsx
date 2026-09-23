@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { authFetch } from "@/lib/auth-fetch";
+import { HostessPhotoUploader } from "@/components/organisms/HostessPhotoUploader";
 
 const CATEGORIES = [
   "Photographie",
@@ -43,6 +45,8 @@ export default function CreateProfilePage() {
   const [accountType, setAccountType] = useState<"creator" | "fan" | null>(null);
   const [roleSynced, setRoleSynced] = useState(false);
 
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     category: "Photographie",
@@ -191,41 +195,41 @@ export default function CreateProfilePage() {
     setLoading(true);
     setError(null);
 
+    if (!avatarFile) {
+      setError("Ajoutez une photo de profil.");
+      setLoading(false);
+      return;
+    }
+
     try {
-      const payload = {
-        name: formData.name.trim(),
-        category: formData.category,
-        bio: formData.bio.trim() || undefined,
-        avatarUrl: formData.avatarUrl.trim() || undefined,
-        baseRate: formData.baseRate ? parseFloat(formData.baseRate) : undefined,
-        currency: formData.currency,
-        instagram: formData.instagram.trim() || undefined,
-        tiktok: formData.tiktok.trim() || undefined,
-        twitter: formData.twitter.trim() || undefined,
-        website: formData.website.trim() || undefined,
-        isPublic: formData.isPublic,
-        isAvailable: formData.isAvailable,
-        adminPassword: formData.adminPassword.trim() || undefined,
-      };
+      // Profil créé dans Base44 + dossier HOTESS (avatar + jusqu'à 5 photos)
+      const body = new FormData();
+      body.append("name", formData.name.trim());
+      body.append("category", formData.category);
+      body.append("bio", formData.bio.trim());
+      if (formData.baseRate) body.append("baseRate", formData.baseRate);
+      body.append("currency", formData.currency);
+      body.append("instagram", formData.instagram.trim());
+      body.append("tiktok", formData.tiktok.trim());
+      body.append("twitter", formData.twitter.trim());
+      body.append("website", formData.website.trim());
+      body.append("isAvailable", String(formData.isAvailable));
+      body.append("invitationCode", formData.adminPassword.trim());
+      body.append("avatar", avatarFile);
+      galleryFiles.forEach((file) => body.append("images", file));
 
-      const res = await fetch("/api/profiles", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
+      const res = await authFetch("/api/profiles/hostess", { method: "POST", body });
       const data = await res.json();
 
       if (!res.ok || !data.success) {
         throw new Error(data.error || "Erreur lors de la création du profil");
       }
 
+      const newProfileId: string = data.profile.id;
       setSuccess(true);
       setTimeout(() => {
-        router.push("/dashboard");
-      }, 2000);
+        router.push(`/profiles/${encodeURIComponent(newProfileId)}`);
+      }, 1500);
     } catch (err: any) {
       setError(err.message || "Une erreur est survenue.");
     } finally {
@@ -578,24 +582,14 @@ export default function CreateProfilePage() {
                   />
                 </div>
 
-                {/* Avatar URL */}
-                <div>
-                  <label
-                    htmlFor="avatarUrl"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    URL de la photo de profil (Avatar)
-                  </label>
-                  <input
-                    type="url"
-                    id="avatarUrl"
-                    name="avatarUrl"
-                    value={formData.avatarUrl}
-                    onChange={handleChange}
-                    placeholder="https://images.unsplash.com/..."
-                    className="mt-1 block w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                  />
-                </div>
+                {/* Photos : avatar obligatoire + galerie de 5 photos maximum */}
+                <HostessPhotoUploader
+                  avatar={avatarFile}
+                  photos={galleryFiles}
+                  onAvatarChange={setAvatarFile}
+                  onPhotosChange={setGalleryFiles}
+                  disabled={loading}
+                />
 
                 {/* Tarifs & Devise */}
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -747,16 +741,6 @@ export default function CreateProfilePage() {
                   </div>
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="isPublic"
-                        checked={formData.isPublic}
-                        onChange={handleChange}
-                        className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                      />
-                      Profil public dans le catalogue
-                    </label>
 
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
                       <input

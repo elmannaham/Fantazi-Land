@@ -372,8 +372,11 @@ export class SyncService {
             }
           }
 
-          const cleanName =
-            folderName.length > 2
+          // Profils créés via l'app : le nom exact (accents compris) est dans descrip.json
+          const appCreatedName = metadataObj.owner_user_id ? metadataObj.nom || metadataObj.name : null;
+          const cleanName = appCreatedName
+            ? String(appCreatedName)
+            : folderName.length > 2
               ? folderName.replace(/[_-]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
               : metadataObj.nom || metadataObj.name || folderName;
 
@@ -398,7 +401,8 @@ export class SyncService {
 
           const profileObj: ProfileWithStats = {
             id: folderName.toLowerCase(),
-            user_id: folderName.toLowerCase(),
+            // Propriétaire renseigné dans descrip.json par la création de profil (sinon dossier historique)
+            user_id: metadataObj.owner_user_id || folderName.toLowerCase(),
             name: cleanName,
             category: category as any,
             bio,
@@ -410,9 +414,9 @@ export class SyncService {
             twitter_url: metadataObj.twitter || null,
             website_url: metadataObj.website || null,
             is_public: true,
-            is_available: true,
+            is_available: metadataObj.is_available !== false,
             availability_calendar: null,
-            created_at: new Date().toISOString(),
+            created_at: metadataObj.created_at || new Date().toISOString(),
             updated_at: new Date().toISOString(),
             synced_at: new Date().toISOString(),
             storage_folder_id: folderName,
@@ -472,6 +476,23 @@ export class SyncService {
         errors: [err.message],
       };
     }
+  }
+
+  /** Force le prochain appel à relire le bucket (ex. après la création d'un profil). */
+  invalidateCache(): void {
+    this.cache = null;
+  }
+
+  /**
+   * Profils lus en direct dans le bucket (cache 30 s), sans repli sur le catalogue.
+   * Renvoie [] si le bucket est inaccessible.
+   */
+  async getBucketProfiles(): Promise<ProfileWithStats[]> {
+    if (this.cache && Date.now() - this.cache.timestamp < this.cacheTTL) {
+      return this.cache.profiles;
+    }
+    const result = await this.syncAllFromBucket();
+    return result.profiles;
   }
 
   /**

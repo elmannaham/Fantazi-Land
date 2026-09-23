@@ -16,7 +16,7 @@ vi.mock("@/lib/repositories/profiles.repository", () => ({
   profilesRepository: { findById },
 }));
 
-const { requireProfileAccess, requireWebhookSecret, requireRole } = await import("@/lib/auth");
+const { requireProfileAccess, requireWebhookSecret, requireRole, requireInvitationCode } = await import("@/lib/auth");
 
 function makeRequest(headers: Record<string, string> = {}): NextRequest {
   return new NextRequest("https://example.test/api/x", { headers });
@@ -121,5 +121,23 @@ describe("requireWebhookSecret", () => {
     expect(() =>
       requireWebhookSecret(makeRequest({ "x-webhook-secret": "expected-secret" }), "TEST_WEBHOOK_SECRET")
     ).not.toThrow();
+  });
+});
+
+describe("requireInvitationCode", () => {
+  afterEach(() => {
+    delete process.env.ADMIN_CREATION_PASSWORD;
+  });
+
+  test("refuses every creation when no invitation code is configured", () => {
+    expect(() => requireInvitationCode("anything")).toThrow(expect.objectContaining({ statusCode: 403 }));
+  });
+
+  test("rejects a wrong code and accepts the configured one", () => {
+    process.env.ADMIN_CREATION_PASSWORD = "code-agence";
+
+    expect(() => requireInvitationCode("mauvais")).toThrow(expect.objectContaining({ statusCode: 401 }));
+    expect(() => requireInvitationCode(undefined)).toThrow(expect.objectContaining({ statusCode: 401 }));
+    expect(() => requireInvitationCode("code-agence")).not.toThrow();
   });
 });
