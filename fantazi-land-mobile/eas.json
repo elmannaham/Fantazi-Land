@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 13.0.0"
+    "version": ">= 16.0.0"
   },
   "build": {
     "development": {
@@ -8,17 +8,28 @@
       "distribution": "internal",
       "android": {
         "gradleCommand": ":app:assembleDebug"
-      }
+      },
+      "environment": "development"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "environment": "preview",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://uytihmscyjpwpdhqvnbw.supabase.co",
+        "EXPO_PUBLIC_API_URL": "https://fantazi-land-oz3n.vercel.app"
       }
     },
     "production": {
       "android": {
         "buildType": "app-bundle"
+      },
+      "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://uytihmscyjpwpdhqvnbw.supabase.co",
+        "EXPO_PUBLIC_API_URL": "https://fantazi-land-oz3n.vercel.app"
       }
     }
   },

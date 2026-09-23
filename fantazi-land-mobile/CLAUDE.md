@@ -525,21 +525,20 @@ export default function HomeScreen() {
 
 ### Secrets Management
 
-**Public keys** (safe to commit):
-- `EXPO_PUBLIC_SUPABASE_URL` → commit to `.env.example`
-- `EXPO_PUBLIC_SUPABASE_ANON_KEY` → commit to `.env.example`
+**Public values** (bundled into the app binary):
+- `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_API_URL` → set in `eas.json` build profiles (`env`)
+- `EXPO_PUBLIC_SUPABASE_ANON_KEY` → Supabase **publishable** key (`sb_publishable_...`), stored as an EAS environment variable (not committed, so it can be rotated without a code change)
 
-**Private keys** (NEVER commit):
-- `SUPABASE_SERVICE_ROLE_KEY` → EAS Secrets only
-- Database passwords → EAS Secrets only
+**Private keys** (NEVER in the mobile app):
+- `SUPABASE_SERVICE_ROLE_KEY` / Supabase secret key (`sb_secret_...`), `BASE44_API_KEY`, database passwords → server side only (Vercel / Railway). Anything prefixed `EXPO_PUBLIC_` ships inside the APK/AAB and is readable by anyone.
 
-Use EAS Secrets for production values:
+Each build profile in `eas.json` declares an `environment` (`development`, `preview`, `production`). Set the key per environment:
 ```bash
-# Set a secret for a build profile
-eas secret:create --scope project --name SUPER_SECRET_VALUE
-
-# Reference in eas.json build environment
+eas env:create --environment production --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value sb_publishable_... --visibility plaintext
+eas env:create --environment preview --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value sb_publishable_... --visibility plaintext
+eas env:list --environment production
 ```
+For local development, put the same values in `.env` (gitignored, see `.env.example`).
 
 ### Auth Token Storage
 
