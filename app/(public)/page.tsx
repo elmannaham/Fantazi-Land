@@ -34,6 +34,10 @@ export default function HomePage() {
   const [selectedBookingCreator, setSelectedBookingCreator] = useState<ProfileWithStats | null>(null);
 
   const agencyStats = useMemo(() => computeAgencyStats(profiles), [profiles]);
+  const teaserPhotos = useMemo(
+    () => profiles.map((p) => p.avatar_url).filter((url): url is string => Boolean(url)),
+    [profiles]
+  );
 
   // Calcul dynamique des compteurs par catégorie
   const countMap = useMemo(() => {
@@ -151,7 +155,7 @@ export default function HomePage() {
       </div>
 
       {/* 4. Portfolio 3D Teaser Section */}
-      <PortfolioTeaserSection />
+      <PortfolioTeaserSection photos={teaserPhotos} />
 
       {/* 5. Section Métriques & Réassurance */}
       <StatsSection stats={agencyStats} />

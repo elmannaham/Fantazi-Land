@@ -126,21 +126,24 @@ export function BentoCreatorGrid({
           <div className="relative z-10 mt-10 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-6">
             <div className="flex items-baseline gap-2">
               <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest">À partir de</span>
-              <p className="text-3xl font-black text-white tracking-tighter">
-                {formatRate(starCreator.base_rate, starCreator.currency)}<span className="text-lg ml-1 font-bold text-purple-400">/h</span>
+              <p className="text-3xl font-black text-white tracking-tighter whitespace-nowrap">
+                {formatRate(starCreator.base_rate, starCreator.currency)}
+                <span className="text-base ml-1 font-bold text-slate-400">/ heure</span>
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <Link href={`/profiles/${starCreator.id}`}>
-                <button className="flex items-center gap-2 rounded-2xl bg-white/10 hover:bg-white/20 px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition-all border border-white/10 active:scale-95">
-                  <Eye className="h-4 w-4" />
-                  VOIR PROFIL
-                </button>
+            <div className="grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto sm:items-center">
+              <Link
+                href={`/profiles/${starCreator.id}`}
+                className="flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-white/10 hover:bg-white/20 px-5 py-3 text-xs font-black uppercase tracking-wider text-white transition-all border border-white/10 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                <Eye className="h-4 w-4" />
+                PROFIL
               </Link>
               <button
+                type="button"
                 onClick={() => onBookCreator?.(starCreator)}
-                className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_10px_30px_rgba(168,85,247,0.4)] hover:shadow-[0_15px_40px_rgba(168,85,247,0.5)] hover:scale-105 active:scale-95 transition-all"
+                className="flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 text-xs font-black uppercase tracking-wider text-white shadow-[0_10px_30px_rgba(168,85,247,0.4)] hover:shadow-[0_15px_40px_rgba(168,85,247,0.5)] active:scale-95 transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 RÉSERVER
                 <ArrowRight className="h-4 w-4" />

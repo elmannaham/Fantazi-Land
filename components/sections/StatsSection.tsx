@@ -85,13 +85,13 @@ export function StatsSection({ stats }: StatsSectionProps) {
   const items = buildStatItems(stats);
 
   return (
-    <section className="bg-slate-900 py-16 px-4 text-white relative overflow-hidden my-16 rounded-3xl mx-4 sm:mx-8">
+    <section className="bg-slate-900 py-12 sm:py-16 px-4 text-white relative overflow-hidden mt-16 mb-0 rounded-3xl mx-4 sm:mx-8">
       {/* Background ambient lighting */}
       <div className="absolute top-0 right-0 h-72 w-72 rounded-full bg-purple-600/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-pink-600/10 blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-6xl">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-300 border border-purple-500/20 mb-3">
             <Sparkles className="h-3.5 w-3.5" />
             Fantazi-Land en chiffres
@@ -104,7 +104,8 @@ export function StatsSection({ stats }: StatsSectionProps) {
           </p>
         </div>
 
-        <div className={`grid grid-cols-1 sm:grid-cols-2 ${GRID_COLUMNS[items.length] ?? "lg:grid-cols-4"} gap-6`}>
+        {/* Mobile : 2 colonnes compactes, la dernière carte impaire prend toute la largeur */}
+        <div className={`grid grid-cols-2 ${GRID_COLUMNS[items.length] ?? "lg:grid-cols-4"} gap-3 sm:gap-6 [&>*:last-child:nth-child(odd)]:col-span-2 lg:[&>*:last-child:nth-child(odd)]:col-span-1`}>
           {items.map((stat, i) => {
             const Icon = stat.icon;
             return (
@@ -114,12 +115,12 @@ export function StatsSection({ stats }: StatsSectionProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.35, delay: i * 0.1 }}
-                className="rounded-2xl bg-white/5 p-6 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors"
+                className="rounded-2xl bg-white/5 p-4 sm:p-6 border border-white/10 backdrop-blur-md hover:bg-white/10 transition-colors"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 mb-4">
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/30 mb-3 sm:mb-4">
                   <Icon className="h-5 w-5" />
                 </div>
-                <div className="text-3xl font-extrabold text-white tracking-tight">
+                <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight whitespace-nowrap">
                   {stat.value}
                 </div>
                 <h3 className="text-sm font-bold text-purple-200 mt-1">

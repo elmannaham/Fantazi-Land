@@ -2,10 +2,20 @@
 
 import React from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Layers, ArrowRight, Sparkles, Image as ImageIcon, Compass } from "lucide-react";
+import { Layers, ArrowRight } from "lucide-react";
+import { OptimizedImage } from "@/components/atoms/OptimizedImage";
 
-export function PortfolioTeaserSection() {
+// 1 grande tuile (2x2) + 5 petites = grille 3x3 complète
+const MAX_TILES = 6;
+
+interface PortfolioTeaserSectionProps {
+  /** Photos des profils (avatars) affichées en aperçu ; la section reste valable sans photo. */
+  photos?: string[];
+}
+
+export function PortfolioTeaserSection({ photos = [] }: PortfolioTeaserSectionProps) {
+  const tiles = Array.from(new Set(photos.filter(Boolean))).slice(0, MAX_TILES);
+
   return (
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-16">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 p-8 sm:p-12 text-white shadow-2xl border border-purple-500/30">
@@ -28,7 +38,7 @@ export function PortfolioTeaserSection() {
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/portfolio"
-                className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 text-sm font-bold text-purple-900 shadow-xl transition-all hover:bg-slate-100 hover:scale-105 active:scale-95"
+                className="inline-flex items-center gap-2 rounded-2xl bg-white px-6 py-3 text-sm font-bold text-purple-900 shadow-xl transition-all hover:bg-slate-100 active:scale-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 Explorer la Galerie
                 <ArrowRight className="h-4 w-4" />
@@ -36,36 +46,31 @@ export function PortfolioTeaserSection() {
             </div>
           </div>
 
-          {/* Visual Showcase Box */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-            className="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-md space-y-4"
-          >
-            <div className="flex items-center justify-between text-xs text-purple-200">
-              <span className="flex items-center gap-1.5 font-semibold">
-                <Compass className="h-4 w-4 text-pink-400" /> Navigation 360°
-              </span>
-              <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-500/30">
-                Temps Réel
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2.5 pt-2">
-              <div className="aspect-square rounded-xl bg-purple-950/60 border border-purple-500/30 flex flex-col items-center justify-center p-2 text-center">
-                <Sparkles className="h-5 w-5 text-purple-400 mb-1" />
-                <span className="text-[10px] font-bold">Rendu 60 FPS</span>
-              </div>
-              <div className="aspect-square rounded-xl bg-purple-950/60 border border-purple-500/30 flex flex-col items-center justify-center p-2 text-center">
-                <ImageIcon className="h-5 w-5 text-pink-400 mb-1" />
-                <span className="text-[10px] font-bold">Lightbox HD</span>
-              </div>
-              <div className="aspect-square rounded-xl bg-purple-950/60 border border-purple-500/30 flex flex-col items-center justify-center p-2 text-center">
-                <Layers className="h-5 w-5 text-amber-400 mb-1" />
-                <span className="text-[10px] font-bold">Multi-Angles</span>
-              </div>
-            </div>
-          </motion.div>
+          {/* Mosaïque des vraies photos des hôtesses */}
+          {tiles.length > 0 && (
+            <Link
+              href="/portfolio"
+              aria-label="Ouvrir la galerie photos"
+              className="group grid grid-cols-3 gap-2.5 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+            >
+              {tiles.map((src, i) => (
+                <div
+                  key={src}
+                  className={`relative overflow-hidden rounded-xl border border-white/15 bg-purple-950/60 ${
+                    i === 0 ? "col-span-2 row-span-2 aspect-square" : "aspect-square"
+                  }`}
+                >
+                  <OptimizedImage
+                    src={src}
+                    alt=""
+                    fill
+                    sizes={i === 0 ? "(max-width: 1024px) 60vw, 360px" : "(max-width: 1024px) 30vw, 180px"}
+                    className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
+                </div>
+              ))}
+            </Link>
+          )}
         </div>
       </div>
     </section>
