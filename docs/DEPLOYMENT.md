@@ -1,6 +1,6 @@
 # 🚀 Guide de Déploiement Multi-Plateforme — Fantazi-Land
 
-Guide complet pour le déploiement continu, la conteneurisation et l'optimisation des performances de la plateforme **Fantazi-Land** sur **Vercel**, **Base44**, **Cloudflare**, **Render** et **Wasmer**.
+Guide complet pour le déploiement continu, la conteneurisation et l'optimisation des performances de la plateforme **Fantazi-Land** sur **Vercel**, **Base44** et **Railway**.
 
 ---
 
@@ -60,63 +60,9 @@ Fantazi-Land est interconnecté à l'application **Base44 CRM & Booking** (App I
 
 ---
 
-## ☁️ Option 3 : Déploiement sur Cloudflare (Pages / Workers)
+## 🚂 Option 3 : Déploiement sur Railway
 
-Le fichier [`wrangler.toml`](../wrangler.toml) est préconfiguré pour Cloudflare Pages avec le support `nodejs_compat`.
-
-### Déploiement via Cloudflare Pages & Next-on-Pages :
-1. Installez l'outil Cloudflare `@cloudflare/next-on-pages` :
-   ```bash
-   npm install -D @cloudflare/next-on-pages
-   ```
-2. Générez le build statique et Edge :
-   ```bash
-   npx @cloudflare/next-on-pages
-   ```
-3. Déployez avec Wrangler :
-   ```bash
-   npx wrangler pages deploy .vercel/output/static --project-name=fantazi-land
-   ```
-4. Dans le dashboard Cloudflare Pages, renseignez vos variables d'environnement sous **Settings > Environment variables**.
-
----
-
-## 🟣 Option 4 : Déploiement sur Render.com
-
-Le fichier de spécification [`render.yaml`](../render.yaml) permet un déploiement 1-clic de type **Blueprint Web Service**.
-
-### Déploiement automatique :
-1. Créez un nouveau **Blueprint** sur [dashboard.render.com](https://dashboard.render.com/blueprints).
-2. Sélectionnez votre dépôt GitHub **`Fantazi-Land`**.
-3. Render détecte automatiquement `render.yaml` :
-   - **Type** : Web Service (Node.js)
-   - **Build Command** : `npm install && npm run build`
-   - **Start Command** : `npm start`
-   - **Health Check** : `/api/admin/sync`
-4. Renseignez les variables d'environnement secrètes puis validez le déploiement.
-
----
-
-## 🌐 Option 5 : Déploiement sur Wasmer (Edge & WebAssembly)
-
-Le fichier [`wasmer.toml`](../wasmer.toml) permet de déployer l'application sur le cloud distribué Wasmer Edge.
-
-### Déploiement Wasmer :
-1. Installez la CLI Wasmer :
-   ```bash
-   # Windows (PowerShell)
-   iwr -useb https://wasmer.io/install.ps1 | iex
-   # Linux / macOS
-   curl https://get.wasmer.io -sSfL | sh
-   ```
-2. Connectez-vous à votre compte Wasmer :
-   ```bash
-   wasmer login
-   ```
-3. Publiez et déployez l'application :
-   ```bash
-   wasmer deploy
-   ```
+Railway construit l'image à partir du [`Dockerfile`](../Dockerfile) et redéploie automatiquement à chaque push sur `master`. Renseignez les variables d'environnement dans le dashboard Railway.
 
 ---
 

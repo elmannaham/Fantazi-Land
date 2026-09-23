@@ -1,7 +1,7 @@
 [
   {
-    "id": "07d098b8-2435-4285-ab30-991aac7d6036",
-    "name": "ALISHA",
+    "id": "a8a2464b-ba56-457f-8837-a320c4425555",
+    "name": "Alisha",
     "email": "alisha@fantazi-land.com",
     "category": "intime rencontre",
     "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
@@ -9,13 +9,13 @@
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Avatar.JPG",
     "galleryCount": 3,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031757_Instagram.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031804_Instagram.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/images/Screenshot_20260715_031811_Instagram.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Images/Screenshot_20260715_031757_Instagram.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Images/Screenshot_20260715_031804_Instagram.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Alisha/Images/Screenshot_20260715_031811_Instagram.jpg"
     ]
   },
   {
-    "id": "1ed1bd8c-df85-41a4-bfca-0f64c9639929",
+    "id": "ef7fdb29-09ec-4dc9-bbc2-76fc04426dbb",
     "name": "Angie",
     "email": "angie@fantazi-land.com",
     "category": "Dinner & Show",
@@ -34,7 +34,7 @@
     ]
   },
   {
-    "id": "c73b4aca-e4b9-46ca-93ef-3ad8aec25d07",
+    "id": "26288296-528c-4f7e-b990-b7e5c7ff719a",
     "name": "Euphoria",
     "email": "euphoria@fantazi-land.com",
     "category": "intime rencontre",
@@ -53,7 +53,7 @@
     ]
   },
   {
-    "id": "f1930f3d-5513-4d7e-8bc8-79d89fb431d0",
+    "id": "a2f372ef-1def-4d22-8ebb-91827b9779ca",
     "name": "Kali",
     "email": "kali@fantazi-land.com",
     "category": "Dinner & Show",
@@ -62,25 +62,25 @@
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/Avatar.jpg",
     "galleryCount": 8,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232234_130.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232241_849.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232259_598.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232305_822.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232313_282.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232321_251.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232328_266.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/kali/images/IMG_20260827_232336_375.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232234_130.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232241_849.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232259_598.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232305_822.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232313_282.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232321_251.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232328_266.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Kali/images/IMG_20260827_232336_375.jpg"
     ]
   },
   {
-    "id": "65da2950-4b5a-465e-9d38-ed9c7d8fe616",
+    "id": "b27b7f64-2892-424f-96be-0744206c376c",
     "name": "Melissa",
     "email": "melissa@fantazi-land.com",
     "category": "intime rencontre",
     "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
     "baseRate": "500 CAD",
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/Avatar.jpeg",
-    "galleryCount": 8,
+    "galleryCount": 7,
     "gallery": [
       "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/images/84d8b29edc36e640a6ebd033bbec405c.jpeg",
       "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/images/a64e6a6a9e22ab3af17ce25f98b03035.jpeg",
@@ -88,12 +88,11 @@
       "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/images/bcbfc5ea17bca44f918e87c43b40ed7c.jpeg",
       "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/images/c990bbb7d865a0ac8630a9a84bef336c.jpeg",
       "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/images/ddec7c9395c57734b5b12d8d7a56ee81.jpeg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/images/f461ede5cba288fffdece5013de88bb9.jpeg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/._c2bf9c8723887324be7e11ace4ded80d.jpeg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/Melissa/images/f461ede5cba288fffdece5013de88bb9.jpeg"
     ]
   },
   {
-    "id": "5391ed16-9f04-483a-86e3-4e220976fbb8",
+    "id": "294d3a69-d604-4489-aca5-e049c239b29f",
     "name": "SHANEL",
     "email": "shanel@fantazi-land.com",
     "category": "intime rencontre",
@@ -102,16 +101,16 @@
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/Avatar.jpg",
     "galleryCount": 5,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542997999_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998000_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998001_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998002_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/shanel/images/-4963280571542998003_121.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542997999_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998000_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998001_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998002_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SHANEL/images/-4963280571542998003_121.jpg"
     ]
   },
   {
-    "id": "99f05a9f-973b-4a07-81a0-013e9134c890",
-    "name": "Sunday",
+    "id": "0c6b8c2b-60f7-402c-8719-013f6f59969f",
+    "name": "SUNDAY",
     "email": "sunday@fantazi-land.com",
     "category": "intime rencontre",
     "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
@@ -119,14 +118,14 @@
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/Avatar.jpg",
     "galleryCount": 3,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597039_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597040_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sunday/images/-5967632276843597041_121.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/images/-5967632276843597039_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/images/-5967632276843597040_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUNDAY/images/-5967632276843597041_121.jpg"
     ]
   },
   {
-    "id": "3a47e7ca-eb6a-47c4-8527-1c695e8f2f20",
-    "name": "Sushi",
+    "id": "36bf553c-3c1d-47c3-ba76-b55b0c3c9b42",
+    "name": "SUSHI",
     "email": "sushi@fantazi-land.com",
     "category": "intime rencontre",
     "bio": "Photographe professionnelle spécialisée en mode et beauté. 8 ans d'expérience créative. Je transforme vos projets en contenus visuels captivants pour les réseaux sociaux et campagnes commerciales.",
@@ -134,20 +133,9 @@
     "avatar": "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/Avatar.jpg",
     "galleryCount": 3,
     "gallery": [
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765022_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765023_121.jpg",
-      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765024_121.jpg"
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/images/-5807877699798765022_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/images/-5807877699798765023_121.jpg",
+      "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/SUSHI/images/-5807877699798765024_121.jpg"
     ]
-  },
-  {
-    "id": "d22f38a3-c960-4c21-a22b-4ce7f2338d8c",
-    "name": "luc jerry ramilus",
-    "email": "lucjerryramilus@fantazi-land.com",
-    "category": "Vidéographie",
-    "bio": "hjgk7jfhftfhn hg  hfhgggjgjgjgjghjghjghj",
-    "baseRate": "100 USD",
-    "avatar": null,
-    "galleryCount": 0,
-    "gallery": []
   }
 ]

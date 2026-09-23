@@ -13,9 +13,7 @@ This repository contains **two active projects**:
 
 Each project has its own `package.json`, dependencies, and build pipeline. See `fantazi-land-mobile/CLAUDE.md` for mobile-specific guidance. **Web and mobile share the same Supabase backend** but maintain separate codebases.
 
-**Stray/experimental directories — not part of either active project, do not edit unless explicitly asked:**
-- `fantazi-land/` — an unrelated `vinext` (Cloudflare Workers/Vite RSC) scaffold with its own `package.json`, tracked in git but disconnected from the Next.js app.
-- `fantazy-land/`, `my-app/`, `shared/`, `agence-de-booking-crud/` — leftover prototypes / a Base44 CLI skill checkout. `my-app/` and most of `fantazy-land/` are gitignored.
+Legacy prototypes (`fantazi-land/` Vinext scaffold, `fantazy-land/`, `my-app/`, `agence-de-booking-crud/`) were removed in the 2026-09-23 cleanup. Only the root app and `fantazi-land-mobile/` remain.
 
 If a task references "the app", it means the root Next.js project unless the user explicitly points at `fantazi-land-mobile/`.
 
@@ -36,7 +34,7 @@ If a task references "the app", it means the root Next.js project unless the use
 | **Modal de Réservation** | ✅ Complète | `BookingModal.tsx` : Date picker, slider de durée, tarification live, soumission API |
 | **Moteur de Synchronisation Storage** | ✅ Complète | `sync.service.ts` : Scan asynchrone parallèle, parsing `descrip.json`/`txt`, cache TTL 30s |
 | **API Routes & Admin Monitoring** | ✅ Complète | `/api/profiles`, `/api/bookings`, `/api/reviews`, `/api/admin/sync`, `/admin` |
-| **Multi-Plateforme Deployment** | ✅ Prêt | Configs prêtes : Vercel (`vercel.json`), Base44 (`Dockerfile`), Cloudflare (`wrangler.toml`), Render (`render.yaml`), Wasmer (`wasmer.toml`) |
+| **Multi-Plateforme Deployment** | ✅ Prêt | Configs : Vercel (`vercel.json`), Base44 & Railway (`Dockerfile`) |
 
 ---
 
@@ -344,7 +342,7 @@ Repositories provide:
 ## 📁 Structure des Dossiers
 
 ```
-. (repo root — package.json name "fantazi-land"; not to be confused with the stray fantazi-land/ subfolder)
+. (repo root — package.json name "fantazi-land")
 ├── app/                            # Next.js App Router
 │   ├── (public)/                   # Pages publiques marketing
 │   │   ├── layout.tsx              # Root public layout & Navbar
@@ -394,12 +392,9 @@ Repositories provide:
 │   ├── ARCHITECTURE.md
 │   ├── API.md
 │   ├── DATABASE.md
-│   └── DEPLOYMENT.md               # Guide complet Vercel, Base44, Cloudflare, Render, Wasmer
+│   └── DEPLOYMENT.md               # Guide Vercel, Base44, Railway
 │
 ├── Dockerfile                      # Image multi-stage production standalone
-├── render.yaml                     # Blueprint Render.com Web Service
-├── wrangler.toml                   # Configuration Cloudflare Pages
-├── wasmer.toml                     # Configuration Wasmer Edge
 ├── vercel.json                     # Configuration Vercel Edge & Serverless
 └── package.json
 ```
@@ -578,17 +573,9 @@ Types: feat, fix, refactor, docs, test, chore, perf
 - Fichier : [`Dockerfile`](./Dockerfile) & [`.dockerignore`](./.dockerignore)
 - Commande : `docker build -t fantazi-land:latest .`
 
-### 3. Cloudflare Pages
-- Fichier : [`wrangler.toml`](./wrangler.toml)
-- Commande : `npx @cloudflare/next-on-pages && npx wrangler pages deploy .vercel/output/static`
-
-### 4. Render.com
-- Fichier : [`render.yaml`](./render.yaml)
-- Déploiement automatique via Blueprint Git.
-
-### 5. Wasmer
-- Fichier : [`wasmer.toml`](./wasmer.toml)
-- Commande : `wasmer deploy`
+### 3. Railway
+- Fichier : [`Dockerfile`](./Dockerfile)
+- Déploiement automatique à chaque push sur `master` (environnement `harmonious-clarity / production`).
 
 ---
 

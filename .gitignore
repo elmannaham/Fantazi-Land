@@ -52,13 +52,11 @@ yarn-debug.log*
 yarn-error.log*
 .output.txt
 
-# Prototypes & sub-apps
-my-app/
-fantazy-land/.next/
-fantazy-land/.vinext/
-fantazy-land/.wrangler/
-fantazy-land/dist/
-fantazy-land/node_modules/
-
 .vercel
 .env*
+
+# Local tooling output
+graphify-out/
+.agentbridge/
+.playwright-mcp/
+vercel-env.json

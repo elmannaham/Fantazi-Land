@@ -38,10 +38,6 @@
   "exclude": [
     "node_modules",
     "supabase/functions",
-    "my-app",
-    "fantazy-land",
-    "agence-de-booking-crud",
-    "fantazi-land",
     "fantazi-land-mobile"
   ]
 }
