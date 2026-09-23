@@ -60,7 +60,7 @@ export function BentoCreatorGrid({
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(219,39,119,0.15),transparent_50%)]" />
           <div className="absolute -right-20 -bottom-20 h-80 w-80 rounded-full bg-purple-600/10 blur-[100px] group-hover:bg-purple-600/20 transition-all duration-700" />
           
-          <div className="relative z-10">
+          <div className="relative z-10 flex flex-1 flex-col">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-purple-200 backdrop-blur-xl border border-white/20">
                 <Zap className="h-3.5 w-3.5 text-amber-400 fill-amber-400" />
@@ -72,15 +72,15 @@ export function BentoCreatorGrid({
               </div>
             </div>
 
-            <div className="mt-10 flex flex-col sm:flex-row items-center gap-8">
-              <div className="relative h-32 w-32 sm:h-40 sm:w-40 overflow-hidden rounded-3xl ring-8 ring-white/5 shadow-[0_0_50px_rgba(139,92,246,0.3)] shrink-0 bg-slate-800 group-hover:ring-purple-500/20 transition-all duration-500">
+            <div className="my-auto pt-10 flex flex-col sm:flex-row items-center gap-8">
+              <div className="relative h-32 w-32 sm:h-40 sm:w-40 lg:h-56 lg:w-56 overflow-hidden rounded-3xl ring-8 ring-white/5 shadow-[0_0_50px_rgba(139,92,246,0.3)] shrink-0 bg-slate-800 group-hover:ring-purple-500/20 transition-all duration-500">
                 {starCreator.avatar_url ? (
                   <OptimizedImage
                     src={starCreator.avatar_url}
                     alt={starCreator.name}
                     fill
                     priority
-                    sizes="(max-width: 640px) 128px, 160px"
+                    sizes="(max-width: 640px) 128px, (max-width: 1024px) 160px, 224px"
                     className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                     fallbackInitials={starCreator.name.charAt(0)}
                   />
