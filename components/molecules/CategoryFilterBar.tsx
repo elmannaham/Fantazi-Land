@@ -42,7 +42,7 @@ export function CategoryFilterBar({
             )}
             <span className="relative z-10 flex items-center gap-1.5">
               {category === "Tous" && <Sparkles className="h-3.5 w-3.5 opacity-80" />}
-              {category}
+              <span className="capitalize">{category}</span>
               {typeof count === "number" && (
                 <span
                   className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] ${

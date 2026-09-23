@@ -43,6 +43,15 @@ export default function HomePage() {
     return map;
   }, [profiles]);
 
+  // N'affiche que les catégories qui ont au moins un profil (et celle sélectionnée)
+  const visibleCategories = useMemo(
+    () =>
+      CATEGORIES.filter(
+        (c) => c === "Tous" || c === selectedCategory || (countMap[c] ?? 0) > 0
+      ),
+    [countMap, selectedCategory]
+  );
+
   // Filtrage combiné (Catégorie + Recherche textuelle)
   const filteredProfiles = useMemo(() => {
     return profiles.filter((p) => {
@@ -112,7 +121,7 @@ export default function HomePage() {
           {/* Barre de filtres par catégorie */}
           <div className="mb-8">
             <CategoryFilterBar
-              categories={CATEGORIES}
+              categories={visibleCategories}
               selectedCategory={selectedCategory}
               onSelect={setSelectedCategory}
               countMap={countMap}

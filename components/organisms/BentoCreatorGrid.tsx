@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Sparkles, Star, ArrowRight, ShieldCheck, Eye, Zap, Layers } from "lucide-react";
 import { OptimizedImage } from "@/components/atoms/OptimizedImage";
+import { formatRate } from "@/lib/format";
 import type { ProfileWithStats } from "@/lib/types";
 
 interface BentoCreatorGridProps {
@@ -26,7 +27,9 @@ export function BentoCreatorGrid({
   });
 
   const starCreator = sortedCreators[0];
-  const secondaryCreators = sortedCreators.slice(1, 4);
+  // Deux cartes secondaires empilées : la colonne droite reste pleine, sans carte orpheline
+  const secondaryCreators = sortedCreators.slice(1, 3);
+  const starProjects = starCreator.performance_stats?.total_projects ?? 0;
 
   return (
     <div className="my-12 space-y-8">
@@ -45,12 +48,12 @@ export function BentoCreatorGrid({
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Grande Carte Bento (Hero Creator) - Version Optimisée */}
         <motion.div
           whileHover={{ y: -8 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="md:col-span-2 lg:col-span-2 relative overflow-hidden rounded-[2.5rem] bg-slate-950 p-8 sm:p-10 text-white border border-white/10 shadow-2xl flex flex-col justify-between group h-full min-h-[420px]"
+          className="md:col-span-2 relative overflow-hidden rounded-[2.5rem] bg-slate-950 p-8 sm:p-10 text-white border border-white/10 shadow-2xl flex flex-col justify-between group h-full min-h-[420px]"
         >
           {/* Background Effects */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.2),transparent_60%)]" />
@@ -103,10 +106,12 @@ export function BentoCreatorGrid({
                 </p>
 
                 <div className="mt-6 flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs font-bold text-slate-400">
-                  <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                    <Layers className="h-3.5 w-3.5" />
-                    {starCreator.performance_stats?.total_projects || 0} PROJETS
-                  </div>
+                  {starProjects > 0 && (
+                    <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                      <Layers className="h-3.5 w-3.5" />
+                      {starProjects} PROJETS
+                    </div>
+                  )}
                   <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
                     <Eye className="h-3.5 w-3.5" />
                     PROFIL VÉRIFIÉ
@@ -120,7 +125,7 @@ export function BentoCreatorGrid({
             <div className="flex items-baseline gap-2">
               <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest">À partir de</span>
               <p className="text-3xl font-black text-white tracking-tighter">
-                {Number(starCreator.base_rate || 150)}<span className="text-lg ml-1 font-bold text-purple-400">{starCreator.currency || "EUR"}/h</span>
+                {formatRate(starCreator.base_rate, starCreator.currency)}<span className="text-lg ml-1 font-bold text-purple-400">/h</span>
               </p>
             </div>
 
@@ -143,7 +148,7 @@ export function BentoCreatorGrid({
         </motion.div>
 
         {/* Cartes Secondaires Bento - Version Optimisée */}
-        <div className="grid grid-cols-1 gap-6 md:col-span-1 lg:col-span-2 md:grid-cols-1 lg:grid-cols-2">
+        <div className="hidden md:grid grid-cols-1 gap-6">
           {secondaryCreators.map((creator) => (
             <motion.div
               key={creator.id}
@@ -191,9 +196,9 @@ export function BentoCreatorGrid({
 
               <div className="relative z-10 mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <span className="text-[9px] text-slate-400 uppercase font-black block tracking-tighter">TARIF</span>
+                  <span className="text-[9px] text-slate-400 uppercase font-black block tracking-tighter">TARIF / HEURE</span>
                   <span className="text-lg font-black text-purple-900 tracking-tight">
-                    {Number(creator.base_rate || 100)} {creator.currency || "EUR"}
+                    {formatRate(creator.base_rate, creator.currency)}
                   </span>
                 </div>
 

@@ -15,7 +15,7 @@ export function HeroSection({
   onExploreClick,
 }: HeroSectionProps) {
   return (
-    <section className="relative flex min-h-[90vh] items-center justify-center overflow-hidden px-6 py-20 text-center sm:py-28"
+    <section className="relative flex min-h-[80vh] sm:min-h-[90vh] items-center justify-center overflow-hidden px-5 py-16 text-center sm:px-6 sm:py-28"
       style={{
         background: "radial-gradient(ellipse 80% 70% at 50% 40%, #121523 0%, #0a0b14 70%, #07080f 100%)",
         color: "#ffffff",
@@ -52,8 +52,7 @@ export function HeroSection({
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.1 }}
-          className="font-extrabold tracking-[-0.02em] leading-[1.15] mb-7 max-w-[900px] text-4xl sm:text-6xl md:text-[64px]"
-          style={{ fontFamily: "'Poppins', sans-serif" }}
+          className="font-display font-extrabold tracking-[-0.02em] leading-[1.15] mb-7 max-w-[900px] text-[2.1rem] sm:text-6xl md:text-[64px]"
         >
           <span
             style={{
