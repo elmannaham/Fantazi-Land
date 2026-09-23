@@ -1,0 +1,27 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_URL",
+      "description": "Supabase project URL — from https://app.supabase.com/project/{project}/settings/api",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "description": "Supabase anon/public key — from the same Supabase API settings page",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "description": "Supabase service role key (server-side only) — from the same Supabase API settings page",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "BASE44_API_KEY",
+      "description": "Base44 API key for the agence-de-booking-crud integration",
+      "requiredAtBoot": false
+    }
+  ]
+}
