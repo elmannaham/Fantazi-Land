@@ -56,6 +56,7 @@ export default function CreateProfilePage() {
     website: "",
     isPublic: true,
     isAvailable: true,
+    adminPassword: "",
   });
 
   useEffect(() => {
@@ -204,6 +205,7 @@ export default function CreateProfilePage() {
         website: formData.website.trim() || undefined,
         isPublic: formData.isPublic,
         isAvailable: formData.isAvailable,
+        adminPassword: formData.adminPassword.trim() || undefined,
       };
 
       const res = await fetch("/api/profiles", {
@@ -721,28 +723,52 @@ export default function CreateProfilePage() {
                 </div>
 
                 {/* Options de visibilité */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                <div className="space-y-4">
+                  <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
+                    <label
+                      htmlFor="adminPassword"
+                      className="block text-sm font-semibold text-purple-900 mb-1"
+                    >
+                      Code d'invitation Agence *
+                    </label>
                     <input
-                      type="checkbox"
-                      name="isPublic"
-                      checked={formData.isPublic}
+                      type="password"
+                      id="adminPassword"
+                      name="adminPassword"
+                      required
+                      value={formData.adminPassword}
                       onChange={handleChange}
-                      className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      placeholder="Entrez le code fourni par l'agence"
+                      className="mt-1 block w-full rounded-lg border border-purple-300 px-3.5 py-2 shadow-sm focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600 bg-white"
                     />
-                    Profil public dans le catalogue
-                  </label>
+                    <p className="mt-1.5 text-[10px] text-purple-600">
+                      La création de profil est réservée aux membres ayant reçu un code d'invitation.
+                    </p>
+                  </div>
 
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      name="isAvailable"
-                      checked={formData.isAvailable}
-                      onChange={handleChange}
-                      className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                    />
-                    Disponible pour des projets
-                  </label>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="isPublic"
+                        checked={formData.isPublic}
+                        onChange={handleChange}
+                        className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      />
+                      Profil public dans le catalogue
+                    </label>
+
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="isAvailable"
+                        checked={formData.isAvailable}
+                        onChange={handleChange}
+                        className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                      />
+                      Disponible pour des projets
+                    </label>
+                  </div>
                 </div>
 
                 {/* Bouton de soumission */}

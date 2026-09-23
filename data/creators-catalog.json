@@ -138,5 +138,16 @@
       "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765023_121.jpg",
       "https://uytihmscyjpwpdhqvnbw.supabase.co/storage/v1/object/public/HOTESS/sushi/images/-5807877699798765024_121.jpg"
     ]
+  },
+  {
+    "id": "d22f38a3-c960-4c21-a22b-4ce7f2338d8c",
+    "name": "luc jerry ramilus",
+    "email": "lucjerryramilus@fantazi-land.com",
+    "category": "Vidéographie",
+    "bio": "hjgk7jfhftfhn hg  hfhgggjgjgjgjghjghjghj",
+    "baseRate": "100 USD",
+    "avatar": null,
+    "galleryCount": 0,
+    "gallery": []
   }
 ]

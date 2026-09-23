@@ -76,6 +76,7 @@ export const createProfileSchema = z.object({
   availabilityCalendar: z.record(z.string(), z.number()).optional().nullable(),
   mediaUrls: z.array(z.string()).optional().nullable(),
   gallery: z.array(z.string()).optional().nullable(),
+  adminPassword: z.string().optional(),
 });
 
 export const updateProfileSchema = createProfileSchema.partial();

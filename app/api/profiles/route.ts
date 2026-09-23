@@ -82,6 +82,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = createProfileSchema.parse(body);
 
+    // Protection par mot de passe d'administration
+    const requiredPassword = process.env.ADMIN_CREATION_PASSWORD || "Fantazi2024!";
+    if (validated.adminPassword !== requiredPassword) {
+      const { unauthorizedError } = await import("@/lib/errors");
+      throw unauthorizedError("Mot de passe de création invalide ou manquant");
+    }
+
+    // Supprimer le mot de passe avant de passer aux services
+    const { adminPassword, ...profileData } = validated;
+
     let user = null;
     try {
       user = await authenticateRequest(request);
@@ -93,7 +103,7 @@ export async function POST(request: NextRequest) {
     if (user && user.email) {
       // Create profile + Base44 User atomically
       const result = await profileCreationService.createProfile(
-        validated,
+        profileData as any,
         user.id,
         user.email
       );
@@ -110,7 +120,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Public / direct creation
-    const profile = await profilesService.createProfile(validated);
+    const profile = await profilesService.createProfile(profileData);
+
 
     // Mettre à jour le catalogue local
     try {
