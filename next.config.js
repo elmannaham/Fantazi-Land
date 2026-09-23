@@ -7,6 +7,9 @@ const nextConfig = {
   // VERCEL env var automatically during its builds, so skip it there.
   ...(process.env.VERCEL ? {} : { output: "standalone" }),
   serverExternalPackages: ["@prisma/client", "prisma"],
+  allowedDevOrigins: process.env.BASE44_PUBLIC_HOST_SUFFIX
+    ? ["3000-" + process.env.BASE44_PUBLIC_HOST_SUFFIX]
+    : [],
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400, // 24 heures de cache
