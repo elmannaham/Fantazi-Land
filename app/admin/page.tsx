@@ -6,6 +6,7 @@ import { KPICard } from "@/components/molecules/KPICard";
 import { Card, CardBody } from "@/components/atoms/Card";
 import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
+import { authFetch } from "@/lib/auth-fetch";
 
 export default function AdminDashboardPage() {
   const [profileCount, setProfileCount] = useState<number | null>(null);
@@ -18,7 +19,7 @@ export default function AdminDashboardPage() {
         setIsLoading(true);
         const [profRes, syncRes] = await Promise.all([
           fetch("/api/profiles"),
-          fetch("/api/failed-syncs?status=pending"),
+          authFetch("/api/failed-syncs?status=pending"),
         ]);
 
         if (profRes.ok) {

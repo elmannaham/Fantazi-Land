@@ -7,6 +7,7 @@ import { Card, CardBody, CardHeader } from "@/components/atoms/Card";
 import { Button } from "@/components/atoms/Button";
 import { Avatar } from "@/components/atoms/Avatar";
 import { useProfile } from "@/lib/hooks/useProfiles";
+import { authFetch } from "@/lib/auth-fetch";
 
 export default function ProfileEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ id: st
       setSaveStatus("saving");
       setSaveMessage(null);
 
-      const res = await fetch(`/api/profiles/${id}`, {
+      const res = await authFetch(`/api/profiles/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -102,7 +103,7 @@ export default function ProfileEditorPage({ params }: { params: Promise<{ id: st
     }
 
     try {
-      const res = await fetch(`/api/profiles/${id}`, { method: "DELETE" });
+      const res = await authFetch(`/api/profiles/${id}`, { method: "DELETE" });
       if (res.ok) {
         alert("Profil supprimé.");
         router.push("/admin/profiles");

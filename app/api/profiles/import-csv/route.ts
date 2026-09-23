@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { profilesService } from "@/lib/services/profiles.service";
 import { errorHandler, validationError } from "@/lib/errors";
+import { requireRole } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   try {
+    await requireRole(request, ["admin"]);
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 

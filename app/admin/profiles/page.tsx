@@ -7,6 +7,7 @@ import { Badge, StatusBadge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
 import { Avatar } from "@/components/atoms/Avatar";
 import type { ProfileWithStats } from "@/lib/types";
+import { authFetch } from "@/lib/auth-fetch";
 
 export default function AdminProfilesPage() {
   const [profiles, setProfiles] = useState<ProfileWithStats[]>([]);
@@ -53,7 +54,7 @@ export default function AdminProfilesPage() {
     }
 
     try {
-      const res = await fetch(`/api/profiles/${id}`, {
+      const res = await authFetch(`/api/profiles/${id}`, {
         method: "DELETE",
       });
       const json = await res.json();

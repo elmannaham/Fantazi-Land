@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncService } from "@/lib/services/sync.service";
 import { errorHandler, validationError } from "@/lib/errors";
+import { requireWebhookSecret } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
+    requireWebhookSecret(request, "STORAGE_WEBHOOK_SECRET");
     const payload = await request.json();
     const folderName = payload?.record?.name || payload?.name;
 

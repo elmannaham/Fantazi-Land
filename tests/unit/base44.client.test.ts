@@ -10,7 +10,7 @@ describe("Base44Client SDK", () => {
   it("should format query parameters properly", async () => {
     const client = new Base44Client(
       "https://agence-de-booking-crud-ec63fc9d.base44.app/api",
-      "5f77c7690c884054ba1d3f2c75961284"
+      process.env.BASE44_API_KEY || "test-api-key"
     );
 
     // Fetch existing users from live endpoint

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { bookingsService } from "@/lib/services/bookings.service";
 import { BookingStatusEnum } from "@/lib/schemas";
 import { errorHandler, validationError } from "@/lib/errors";
+import { requireProfileAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +12,11 @@ interface RouteParams {
   }>;
 }
 
-export async function GET(_request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
     const booking = await bookingsService.getBookingById(id);
+    await requireProfileAccess(request, booking.profile_id);
     return NextResponse.json({
       success: true,
       data: booking,
@@ -27,6 +29,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const booking = await bookingsService.getBookingById(id);
+    await requireProfileAccess(request, booking.profile_id);
     const body = await request.json();
     const parsedStatus = BookingStatusEnum.safeParse(body.status);
 

@@ -1,7 +1,17 @@
+import { timingSafeEqual } from "crypto";
 import { NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
-import { unauthorizedError, forbiddenError } from "@/lib/errors";
-import type { UserRole } from "@/lib/types";
+import { profilesRepository } from "@/lib/repositories/profiles.repository";
+import { unauthorizedError, forbiddenError, notFoundError } from "@/lib/errors";
+import type { Profile, UserRole } from "@/lib/types";
+
+const VALID_ROLES: readonly UserRole[] = ["client", "creator", "admin"];
+
+function toUserRole(value: unknown): UserRole | null {
+  return typeof value === "string" && (VALID_ROLES as readonly string[]).includes(value)
+    ? (value as UserRole)
+    : null;
+}
 
 export interface AuthenticatedUser {
   id: string;
@@ -49,7 +59,8 @@ export async function authenticateRequest(request: NextRequest): Promise<Authent
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const role = (roleData?.role as UserRole) || "client";
+  // user_roles en priorité, puis app_metadata.role (modifiable uniquement côté serveur / dashboard)
+  const role = toUserRole(roleData?.role) ?? toUserRole(user.app_metadata?.role) ?? "client";
 
   return {
     id: user.id,
@@ -74,4 +85,45 @@ export async function requireRole(
   }
 
   return user;
+}
+
+/**
+ * Autorise l'accès à un profil : administrateur, ou propriétaire du profil (profiles.user_id).
+ * Renvoie l'utilisateur et le profil pour éviter une seconde lecture.
+ */
+export async function requireProfileAccess(
+  request: NextRequest,
+  profileId: string
+): Promise<{ user: AuthenticatedUser; profile: Profile }> {
+  const user = await authenticateRequest(request);
+  const profile = await profilesRepository.findById(profileId);
+
+  if (!profile) {
+    throw notFoundError("Profil introuvable");
+  }
+
+  if (user.role !== "admin" && profile.user_id !== user.id) {
+    throw forbiddenError("Accès refusé: ce profil ne vous appartient pas");
+  }
+
+  return { user, profile };
+}
+
+/**
+ * Vérifie le secret partagé d'un webhook (header x-webhook-secret).
+ * Refuse toute requête si le secret n'est pas configuré côté serveur.
+ */
+export function requireWebhookSecret(request: NextRequest, envVar: string): void {
+  const expected = process.env[envVar];
+  const provided = request.headers.get("x-webhook-secret");
+
+  if (!expected || !provided) {
+    throw unauthorizedError("Signature de webhook manquante");
+  }
+
+  const expectedBuf = Buffer.from(expected);
+  const providedBuf = Buffer.from(provided);
+  if (expectedBuf.length !== providedBuf.length || !timingSafeEqual(expectedBuf, providedBuf)) {
+    throw unauthorizedError("Signature de webhook invalide");
+  }
 }

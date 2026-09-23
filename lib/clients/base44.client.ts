@@ -12,7 +12,7 @@ export class Base44Client {
 
   constructor(
     baseUrl: string = process.env.BASE44_API_URL || "https://agence-de-booking-crud-ec63fc9d.base44.app/api",
-    apiKey: string = process.env.BASE44_API_KEY || "5f77c7690c884054ba1d3f2c75961284"
+    apiKey: string = process.env.BASE44_API_KEY || ""
   ) {
     this.baseUrl = baseUrl.replace(/\/+$/, "");
     this.apiKey = apiKey;
@@ -22,6 +22,9 @@ export class Base44Client {
    * Effectue un appel HTTP générique vers l'API Base44
    */
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    if (!this.apiKey) {
+      throw new Error("BASE44_API_KEY n'est pas configurée");
+    }
     const url = `${this.baseUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
     const headers: Record<string, string> = {

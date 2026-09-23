@@ -7,6 +7,7 @@ import { Card, CardBody } from "@/components/atoms/Card";
 import { Badge } from "@/components/atoms/Badge";
 import { Button } from "@/components/atoms/Button";
 import { useProfiles } from "@/lib/hooks/useProfiles";
+import { authFetch } from "@/lib/auth-fetch";
 
 interface BookingItem {
   id: string;
@@ -30,7 +31,7 @@ export default function CreatorDashboardPage() {
     async function loadBookings() {
       try {
         setLoadingBookings(true);
-        const res = await fetch(`/api/bookings?profileId=${activeProfile.id}`);
+        const res = await authFetch(`/api/bookings?profileId=${activeProfile.id}`);
         if (res.ok) {
           const json = await res.json();
           setBookings(json.data || []);

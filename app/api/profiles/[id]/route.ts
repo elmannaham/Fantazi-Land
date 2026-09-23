@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { profilesService } from "@/lib/services/profiles.service";
 import { errorHandler } from "@/lib/errors";
+import { requireProfileAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    await requireProfileAccess(request, id);
     const body = await request.json();
     const updated = await profilesService.updateProfile(id, body);
 
@@ -47,9 +49,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
+    await requireProfileAccess(request, id);
     await profilesService.deleteProfile(id);
 
     return NextResponse.json({

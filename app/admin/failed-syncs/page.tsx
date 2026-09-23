@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { authFetch } from "@/lib/auth-fetch";
 
 interface FailedSync {
   id: string;
@@ -23,9 +24,8 @@ export default function FailedSyncsPage() {
 
   const fetchFailedSyncs = useCallback(async () => {
     try {
-      const res = await fetch(
-        `/api/failed-syncs?status=${filter}`,
-        { headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` } }
+      const res = await authFetch(
+        `/api/failed-syncs?status=${filter}`
       );
       if (!res.ok) throw new Error("Failed to fetch");
       const data = await res.json();
@@ -46,9 +46,8 @@ export default function FailedSyncsPage() {
 
   async function handleRetry(id: string) {
     try {
-      const res = await fetch(`/api/failed-syncs/${id}/retry`, {
+      const res = await authFetch(`/api/failed-syncs/${id}`, {
         method: "POST",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.ok) {
         await fetchFailedSyncs();
@@ -61,9 +60,8 @@ export default function FailedSyncsPage() {
   async function handleDelete(id: string) {
     if (!confirm("Are you sure?")) return;
     try {
-      const res = await fetch(`/api/failed-syncs/${id}`, {
+      const res = await authFetch(`/api/failed-syncs/${id}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` },
       });
       if (res.ok) {
         await fetchFailedSyncs();

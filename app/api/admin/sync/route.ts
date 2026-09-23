@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncService } from "@/lib/services/sync.service";
+import { requireRole } from "@/lib/auth";
+import { errorHandler } from "@/lib/errors";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    await requireRole(request, ["admin"]);
     const profiles = await syncService.getCachedSyncedProfiles();
     return NextResponse.json({
       success: true,
@@ -19,15 +22,13 @@ export async function GET() {
       })),
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: (error as Error).message },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    await requireRole(request, ["admin"]);
     const body = await request.json().catch(() => ({}));
     const bucketName = body.bucketName || "HOTESS";
 
@@ -38,9 +39,6 @@ export async function POST(request: NextRequest) {
       data: syncResult,
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: (error as Error).message },
-      { status: 500 }
-    );
+    return errorHandler(error);
   }
 }

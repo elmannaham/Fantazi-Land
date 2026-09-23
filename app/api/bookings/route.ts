@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { bookingsService } from "@/lib/services/bookings.service";
 import { errorHandler, validationError } from "@/lib/errors";
+import { requireProfileAccess } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,8 @@ export async function GET(request: NextRequest) {
       throw validationError("Le paramètre 'profileId' est requis");
     }
 
+    // Les réservations contiennent les coordonnées des clients : propriétaire du profil ou admin uniquement
+    await requireProfileAccess(request, profileId);
     const bookings = await bookingsService.getBookingsByProfile(profileId);
 
     return NextResponse.json({

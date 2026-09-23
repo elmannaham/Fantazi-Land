@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { errorHandler } from "@/lib/errors";
+import { requireRole } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireRole(request, ["admin"]);
     const { id } = await params;
     await prisma.failedSync.delete({
       where: { id },
@@ -26,6 +28,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await requireRole(request, ["admin"]);
     const { id } = await params;
     const item = await prisma.failedSync.findUnique({
       where: { id },
