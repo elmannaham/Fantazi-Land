@@ -50,7 +50,7 @@
 | **Stockage & Fichiers** | Supabase Storage (Bucket `HOTESS`) |
 | **Intégration Externe** | [Base44 API](https://app.base44.com/apps/6a8ea8ad929a72d7ec63fc9d) (CRM & Workflows) |
 | **Qualité & Tests** | [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) (E2E), TypeScript strict |
-| **Déploiements** | Vercel, Base44, Railway |
+| **Déploiements** | Vercel, Base44 |
 
 ---
 
@@ -114,9 +114,6 @@ Fantazi-Land intègre les configurations prêtes à l'emploi pour tous les grand
   docker run -p 3000:3000 fantazi-land:latest
   ```
 
-### 3. 🚂 Railway
-* **Configuration** : [`Dockerfile`](./Dockerfile)
-* **Déploiement** : automatique à chaque push sur `master`.
 
 ---
 

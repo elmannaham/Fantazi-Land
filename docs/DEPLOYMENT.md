@@ -1,6 +1,6 @@
 # 🚀 Guide de Déploiement Multi-Plateforme — Fantazi-Land
 
-Guide complet pour le déploiement continu, la conteneurisation et l'optimisation des performances de la plateforme **Fantazi-Land** sur **Vercel**, **Base44** et **Railway**.
+Guide complet pour le déploiement continu, la conteneurisation et l'optimisation des performances de la plateforme **Fantazi-Land** sur **Vercel** et **Base44**.
 
 ---
 
@@ -57,12 +57,6 @@ Fantazi-Land est interconnecté à l'application **Base44 CRM & Booking** (App I
    - Configurez le port d'écoute : `3000`
    - Spécifiez la variable d'URL publique `NEXT_PUBLIC_APP_URL`
 3. Les webhooks et requêtes API transitent directement via `BASE44_API_URL` et `BASE44_API_KEY`.
-
----
-
-## 🚂 Option 3 : Déploiement sur Railway
-
-Railway construit l'image à partir du [`Dockerfile`](../Dockerfile) et redéploie automatiquement à chaque push sur `master`. Renseignez les variables d'environnement dans le dashboard Railway.
 
 ---
 

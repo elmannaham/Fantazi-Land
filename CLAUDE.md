@@ -34,7 +34,7 @@ If a task references "the app", it means the root Next.js project unless the use
 | **Modal de Réservation** | ✅ Complète | `BookingModal.tsx` : Date picker, slider de durée, tarification live, soumission API |
 | **Moteur de Synchronisation Storage** | ✅ Complète | `sync.service.ts` : Scan asynchrone parallèle, parsing `descrip.json`/`txt`, cache TTL 30s |
 | **API Routes & Admin Monitoring** | ✅ Complète | `/api/profiles`, `/api/bookings`, `/api/reviews`, `/api/admin/sync`, `/admin` |
-| **Multi-Plateforme Deployment** | ✅ Prêt | Configs : Vercel (`vercel.json`), Base44 & Railway (`Dockerfile`) |
+| **Multi-Plateforme Deployment** | ✅ Prêt | Configs : Vercel (`vercel.json`), Base44 (`Dockerfile`) |
 
 ---
 
@@ -392,7 +392,7 @@ Repositories provide:
 │   ├── ARCHITECTURE.md
 │   ├── API.md
 │   ├── DATABASE.md
-│   └── DEPLOYMENT.md               # Guide Vercel, Base44, Railway
+│   └── DEPLOYMENT.md               # Guide Vercel, Base44
 │
 ├── Dockerfile                      # Image multi-stage production standalone
 ├── vercel.json                     # Configuration Vercel Edge & Serverless
@@ -573,9 +573,6 @@ Types: feat, fix, refactor, docs, test, chore, perf
 - Fichier : [`Dockerfile`](./Dockerfile) & [`.dockerignore`](./.dockerignore)
 - Commande : `docker build -t fantazi-land:latest .`
 
-### 3. Railway
-- Fichier : [`Dockerfile`](./Dockerfile)
-- Déploiement automatique à chaque push sur `master` (environnement `harmonious-clarity / production`).
 
 ---
 
