@@ -16,7 +16,7 @@ services:
       retries: 10
 
   app:
-    image: node:20-slim
+    image: node:22-slim
     container_name: fantazi-land-app
     working_dir: /app
     volumes:
@@ -38,7 +38,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     command: >
-      sh -c "npm ci &&
+      sh -c "npm install --no-audit --no-fund &&
              npx prisma db push --skip-generate &&
              npx --yes tsx prisma/seed.ts &&
              exec npx next dev -H 0.0.0.0 -p 3000"
