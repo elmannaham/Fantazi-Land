@@ -26,6 +26,15 @@ VideoFlow Studio centralise le script, les prompts visuels, les paramètres de *
 | Base de données | PostgreSQL + Prisma (enum + 3 modèles) |
 | Validation | Zod |
 
+## 📥 Cloner le dépôt
+
+```bash
+git clone https://github.com/elmannaham/videoflow-studio.git
+cd videoflow-studio
+```
+
+Le dépôt est autonome : aucune dépendance à Fantazi-Land, à Supabase ou à un compte Base44.
+
 ## 🚀 Démarrage rapide
 
 ### Option A — Docker Compose (recommandé)
@@ -41,12 +50,46 @@ Pour changer le port hôte : `APP_PORT=3010 docker compose up -d`.
 
 ### Option B — En local
 
+**1. Installer les dépendances**
+
 ```bash
-npm install
-cp .env.example .env      # renseigne DATABASE_URL (PostgreSQL accessible)
-npx prisma db push
-npm run db:seed           # optionnel : projet + presets de démonstration
-npm run dev               # http://localhost:3000
+npm install          # lance aussi `prisma generate` (postinstall)
+```
+
+**2. Configurer la base de données Prisma**
+
+```bash
+cp .env.example .env
+```
+
+`.env` ne contient qu'une variable obligatoire :
+
+```bash
+DATABASE_URL="postgresql://<utilisateur>:<mot_de_passe>@<hôte>:5432/<base>?schema=public"
+```
+
+Sans PostgreSQL local, le plus rapide :
+
+```bash
+docker run -d --name videoflow-db -p 5432:5432 \
+  -e POSTGRES_USER=videoflow -e POSTGRES_PASSWORD=videoflow -e POSTGRES_DB=videoflow \
+  postgres:16-alpine
+```
+
+Créer ensuite les tables (3 modèles : `Project`, `SceneShot`, `ExportPreset`) et, si vous le souhaitez, le jeu de démonstration :
+
+```bash
+npm run db:push      # prisma db push : crée / synchronise les tables
+npm run db:seed      # optionnel : 1 projet + 3 presets de démonstration
+npx prisma studio    # optionnel : explorer les données dans le navigateur
+```
+
+> Le schéma utilise `prisma db push` (pas de dossier de migrations) : après une modification de `prisma/schema.prisma`, relancez `npm run db:push`.
+
+**3. Lancer le studio**
+
+```bash
+npm run dev          # http://localhost:3000
 ```
 
 Production : `npm run build && npm start`.
