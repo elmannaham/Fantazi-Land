@@ -182,3 +182,122 @@ model SyncLog {
   @@index([created_at], map: "idx_sync_logs_created_at")
   @@map("sync_logs")
 }
+
+// ---------------------------------------------------------------------------
+// VideoFlow Studio — video production workspace
+// ---------------------------------------------------------------------------
+
+enum VideoFormat {
+  VERTICAL_9_16   @map("vertical_9_16")
+  HORIZONTAL_16_9 @map("horizontal_16_9")
+}
+
+enum ProjectStatus {
+  DRAFT         @map("draft")
+  IN_PRODUCTION @map("in_production")
+  REVIEW        @map("review")
+  READY         @map("ready")
+}
+
+enum ShotType {
+  GENERATION    @map("generation")
+  SWAP          @map("swap")
+  EXISTING_CLIP @map("existing_clip")
+  EDIT          @map("edit")
+}
+
+enum SwapType {
+  FACE              @map("face")
+  CHARACTER         @map("character")
+  OBJECT_BACKGROUND @map("object_background")
+}
+
+enum RenderStatus {
+  DRAFT    @map("draft")
+  QUEUED   @map("queued")
+  RENDERED @map("rendered")
+  REVIEW   @map("review")
+}
+
+model Project {
+  id                 String        @id @default(uuid()) @db.Uuid
+  title              String
+  brief              String?
+  format             VideoFormat   @default(VERTICAL_9_16)
+  fps                Int           @default(30)
+  status             ProjectStatus @default(DRAFT)
+  export_preset_id   String?       @db.Uuid
+  // Extension point: external generation/swap/edit engine callback (draft mode works without it)
+  engine_webhook_url String?
+  created_at         DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime      @default(now()) @updatedAt @db.Timestamptz(6)
+
+  shots              SceneShot[]
+  export_preset      ExportPreset? @relation(fields: [export_preset_id], references: [id], onDelete: SetNull)
+
+  @@index([status], map: "idx_projects_status")
+  @@map("projects")
+}
+
+model SceneShot {
+  id                     String       @id @default(uuid()) @db.Uuid
+  project_id             String       @db.Uuid
+  position               Int
+  title                  String
+  shot_type              ShotType     @default(GENERATION)
+  duration_seconds       Int          @default(5)
+  is_active              Boolean      @default(true)
+  thumbnail_url          String?
+
+  // Script & intention
+  voiceover              String?
+  action                 String?
+  hook                   String?
+
+  // Video generation
+  visual_prompt          String?
+  consistency_notes      String?
+
+  // Swap
+  swap_type              SwapType?
+  swap_source_ref        String?
+  swap_target_ref        String?
+  swap_preserve_zones    String?
+  swap_consent_confirmed Boolean      @default(false)
+
+  // Editing
+  transition_in          String?
+  transition_out         String?
+  pacing                 String?
+  subtitle_text          String?
+  audio_track            String?
+  render_status          RenderStatus @default(DRAFT)
+  render_notes           String?
+
+  created_at             DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime     @default(now()) @updatedAt @db.Timestamptz(6)
+
+  project                Project      @relation(fields: [project_id], references: [id], onDelete: Cascade)
+
+  @@index([project_id, position], map: "idx_scene_shots_project_position")
+  @@map("scene_shots")
+}
+
+model ExportPreset {
+  id                 String      @id @default(uuid()) @db.Uuid
+  name               String
+  platform           String
+  format             VideoFormat
+  resolution         String
+  fps                Int         @default(30)
+  container          String      @default("mp4")
+  video_bitrate_mbps Int         @default(12)
+  audio_bitrate_kbps Int         @default(192)
+  burned_subtitles   Boolean     @default(false)
+  is_default         Boolean     @default(false)
+  created_at         DateTime    @default(now()) @db.Timestamptz(6)
+
+  projects           Project[]
+
+  @@map("export_presets")
+}

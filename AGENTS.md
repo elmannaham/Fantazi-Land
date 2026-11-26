@@ -34,3 +34,27 @@ docker compose -f docker-compose.base44.yml up -d
 - `package-lock.json` is out of sync with `package.json` — use `npm install` (not `npm ci`)
 - Some `@supabase/*` packages warn about Node >=22 requirement; using `node:22-slim` resolves this
 - Prisma warns about OpenSSL detection on slim images; works fine in practice
+- `.env.base44-defaults` is committed on purpose (placeholders only, no real secrets) and un-ignored in `.gitignore`; without it Prisma fails with "Environment variable not found: DIRECT_URL"
+- `prisma db push` (not migrations) is how the schema reaches the DB; new models are created on the next `docker compose up`
+
+## VideoFlow Studio (`/studio`)
+The product workspace on this branch. `/` redirects to `/studio` (see `next.config.js`); the original
+booking pages stay reachable at their own routes (`/portfolio`, `/about`, `/dashboard`, `/admin`, …).
+
+- **Models** (`prisma/schema.prisma`): `Project` → `SceneShot` (ordered by `position`), `ExportPreset`.
+  Prisma enums: `VideoFormat`, `ProjectStatus`, `ShotType`, `SwapType`, `RenderStatus`.
+- **Domain logic** (`lib/studio/`): `plan.ts` owns duration/timecode/quality-checklist and the
+  production-plan JSON (`videoflow.production_plan/v1`); `service.ts` owns validation + Prisma access;
+  `constants.ts` owns the French labels and status colours.
+- **API**: `GET/POST /api/studio/projects`, `GET/PATCH/DELETE /api/studio/projects/[id]`,
+  `POST /api/studio/projects/[id]/shots`, `POST …/shots/reorder`, `PATCH/DELETE /api/studio/shots/[id]`,
+  `GET /api/studio/presets`, `POST /api/studio/projects/[id]/export`.
+- **External engines (extension point)**: `Project.engine_webhook_url` is posted the production plan by
+  `…/export` with `{ dispatch: true }`. Statuses come back through
+  `POST /api/studio/webhooks/render-status` (`{ shot_id, status: queued|rendered|review|draft, notes }`);
+  set `STUDIO_WEBHOOK_SECRET` to require the `x-webhook-secret` header. Everything works without any
+  engine configured (draft/planning mode).
+- **Seed**: `prisma/seed.ts` bootstraps one demo project + 3 export presets only when `Project` is empty.
+- **Verify**: `curl -s localhost:3000/api/studio/projects` returns the demo project; `/studio` renders the
+  three-column workspace. Swap shots cannot be saved without the consent attestation (client-side gate) and
+  are flagged by the "Conformité swap" checklist item.

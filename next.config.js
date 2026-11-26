@@ -39,6 +39,10 @@ const nextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  // VideoFlow Studio is the product landing experience on this branch.
+  async redirects() {
+    return [{ source: "/", destination: "/studio", permanent: false }];
+  },
   // Optimisations de headers pour le caching d'images & assets statiques
   async headers() {
     return [

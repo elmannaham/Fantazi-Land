@@ -1,6 +1,6 @@
 {
   "previewPort": 3000,
-  "healthPath": "/",
+  "healthPath": "/studio",
   "startCommand": "docker compose -f docker-compose.base44.yml up -d",
   "secrets": [
     {
@@ -21,6 +21,11 @@
     {
       "name": "BASE44_API_KEY",
       "description": "Base44 API key for the agence-de-booking-crud integration",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "STUDIO_WEBHOOK_SECRET",
+      "description": "Optional shared secret for POST /api/studio/webhooks/render-status — any value you choose",
       "requiredAtBoot": false
     }
   ]

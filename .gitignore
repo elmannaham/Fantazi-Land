@@ -54,6 +54,8 @@ yarn-error.log*
 
 .vercel
 .env*
+# Committed placeholder defaults for the Base44 sandbox (no real secrets inside)
+!.env.base44-defaults
 
 # Local tooling output
 graphify-out/
