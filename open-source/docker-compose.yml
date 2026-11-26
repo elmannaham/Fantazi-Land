@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: videoflow
+      POSTGRES_PASSWORD: videoflow
+      POSTGRES_DB: videoflow
+    volumes:
+      - videoflow_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U videoflow -d videoflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: node:22-slim
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://videoflow:videoflow@db:5432/videoflow?schema=public
+      - STUDIO_WEBHOOK_SECRET=${STUDIO_WEBHOOK_SECRET:-}
+      - ALLOWED_DEV_ORIGINS=${ALLOWED_DEV_ORIGINS:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    command: >
+      sh -c "npm install --no-audit --no-fund &&
+             npx prisma db push &&
+             npx tsx prisma/seed.ts &&
+             exec npx next dev -H 0.0.0.0 -p 3000"
+
+volumes:
+  videoflow_data:
+    driver: local

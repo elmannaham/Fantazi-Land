@@ -58,3 +58,14 @@ booking pages stay reachable at their own routes (`/portfolio`, `/about`, `/dash
 - **Verify**: `curl -s localhost:3000/api/studio/projects` returns the demo project; `/studio` renders the
   three-column workspace. Swap shots cannot be saved without the consent attestation (client-side gate) and
   are flagged by the "Conformité swap" checklist item.
+
+## Open-source edition (`open-source/`)
+A standalone Next.js app extracted from the studio: own `package.json`, Prisma schema, seed, `docker-compose.yml`,
+README and MIT LICENSE — no Supabase, Base44 or booking dependency.
+- Run it independently with `cd open-source && APP_PORT=3010 docker compose up -d` (the port override avoids
+  clashing with the main app on 3000; the compose project name is `open-source`).
+- `ALLOWED_DEV_ORIGINS` (comma-separated hosts) must be set when the dev server is reached through any host
+  other than localhost — Next 16 blocks cross-origin dev assets, which leaves the page stuck on "Chargement du studio…".
+- Publish it as its own repository with `git subtree push --prefix open-source <remote> main`.
+- The studio sources are duplicated between the main app and `open-source/`; a change to `components/studio`,
+  `lib/studio` or `app/api/studio` has to be mirrored there.

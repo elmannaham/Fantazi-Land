@@ -119,20 +119,19 @@ Fantazi-Land intègre les configurations prêtes à l'emploi pour tous les grand
 
 ## 🧩 Édition open source — VideoFlow Studio
 
-L'espace de travail vidéo (`/studio`) est publié comme **édition open source**, indépendamment de la plateforme de booking Fantazi-Land.
+L'espace de travail vidéo existe aussi comme **application autonome**, détachée de la plateforme de booking Fantazi-Land, dans le dossier [`open-source/`](./open-source) — prête à être poussée dans son propre dépôt GitHub.
 
-* **Périmètre publié** : `app/studio`, `app/api/studio`, `components/studio`, `lib/studio` et les modèles Prisma `Project` / `SceneShot` / `ExportPreset`.
-* **Licence** : MIT — voir [`LICENSE`](./LICENSE).
-* **Lien dans l'application** : le pied de page du studio affiche un lien vers le dépôt open source, alimenté par `NEXT_PUBLIC_OPEN_SOURCE_URL` (le lien est masqué tant que la variable est vide).
-* **Auto-hébergement** :
+* **Contenu** : application Next.js complète (UI, API, schéma Prisma, seed de démonstration, `docker-compose.yml`, `README`, `LICENSE` MIT) sans aucune dépendance à Supabase, à Base44 ou au code de booking.
+* **Licence** : MIT — voir [`open-source/LICENSE`](./open-source/LICENSE).
+* **Lancer l'édition autonome** :
   ```bash
-  docker compose -f docker-compose.base44.yml up -d
-  # puis http://localhost:3000/studio
+  cd open-source && docker compose up -d
+  # puis http://localhost:3000
   ```
-  Le studio fonctionne sans aucune clé d'API : les plans se planifient et le plan de production s'exporte en JSON (`videoflow.production_plan/v1`). Un moteur de génération / swap / montage se branche via `Project.engine_webhook_url` (sortie) et `POST /api/studio/webhooks/render-status` (retour de statut).
+* **Lien dans l'application principale** : le pied de page du studio affiche un lien vers le dépôt open source, alimenté par `NEXT_PUBLIC_OPEN_SOURCE_URL` (masqué tant que la variable est vide).
 
 ---
 
 ## 📄 Licence
 © **Fantazi-Land** — Tous droits réservés pour la plateforme de booking.
-**VideoFlow Studio** (édition open source) est publié sous licence MIT — voir [`LICENSE`](./LICENSE).
+**VideoFlow Studio** (édition open source, dossier `open-source/`) est publié sous licence MIT — voir [`open-source/LICENSE`](./open-source/LICENSE).
