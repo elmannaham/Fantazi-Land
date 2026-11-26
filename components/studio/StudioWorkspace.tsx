@@ -293,10 +293,23 @@ export default function StudioWorkspace() {
           </div>
         </div>
 
-        <p className="mt-4 pb-2 text-center text-[11px] text-zinc-600">
+        <p className="mt-4 text-center text-[11px] text-zinc-600">
           Toute opération de swap sur une personne réelle exige des droits et un consentement
           explicite documentés dans le plan.
         </p>
+
+        {process.env.NEXT_PUBLIC_OPEN_SOURCE_URL && (
+          <p className="pb-3 pt-2 text-center text-[11px]">
+            <a
+              href={process.env.NEXT_PUBLIC_OPEN_SOURCE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-zinc-500 underline decoration-dotted underline-offset-2 transition hover:text-zinc-300"
+            >
+              VideoFlow Studio — version open source
+            </a>
+          </p>
+        )}
       </div>
 
       {exportState && (
